@@ -31,6 +31,8 @@ test('renders all the book information', async () => {
 
 ## Wait for Loading to finish on loading app:
 
+- Note: by default, `waitFor` waits for 1 second.
+
 - use waitForElementToBeRemoved() from @testing-library/react which takes a
   callback which will be called when a DOM update occurs or at a regular
   interval:
