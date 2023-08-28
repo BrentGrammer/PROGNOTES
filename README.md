@@ -2,6 +2,7 @@
 
 ## Table of Contents
 
+- [GIT](./GIT/)
 - [PYTHON](./Python/)
   - [Anaconda](./Python/Anaconda/Conda.md)
 - [REACT](./React/)
