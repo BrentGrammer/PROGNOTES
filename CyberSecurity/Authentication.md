@@ -1,6 +1,8 @@
-# TOKENS
+# Authentication
 
-## JWT
+## TOKENS
+
+### JWT
 
 - https://stackoverflow.com/questions/38018469/how-exactly-does-json-web-token-jwt-reduce-the-man-in-the-loop-attack
 - **The key concept of this stratagem is very much that of POSSESSION. "You have it or you don't," and anyone who DOES "have it" is going to be recognized. That's simply how the design was done.**
@@ -15,7 +17,7 @@
 - As long as a server has the same ACCESS_TOKEN_SECRET that was used to generate the JWT token, that server can decrypt the JWT token and get the userId.
 - Sometimes additional and unnecessary information is stored in the JWT. The JWT token should primarily contain user information
 
-## Cookies
+### Cookies
 
 - Automatically sent with each request from browser to solve the problem of stateless HTTP (remembering who the user is on subsequent requests etc.)
   - Cookies are stored and associated with a domain/server
@@ -31,7 +33,7 @@
   // Normal sends all cookies for all requests, but is not recommended
   ```
 
-  ## JWT vs. Cookies
+  ### JWT vs. Cookies
 
 - Cookies are appropriate for web browser to server communication. Mobile apps for ex. might have more difficulty dealing with cookies. JWTs are more versatile and flexible.
 - With JWT you are not limited by the size of your data, with cookies you only have 4093 bytes per domain - for all cookies, not the one.
