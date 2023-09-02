@@ -2,7 +2,7 @@
 
 Good site with quick cheatsheet info: http://rogerdudler.github.io/git-guide/
 
-good book pro git book by Scott Chacon
+good book [Pro Gitbook by Scott Chacon](https://git-scm.com/book/en/v2)
 
 great youtube channel with git tutorial by David Mahler: https://www.youtube.com/watch?v=uR6G2v_WsRA
 
