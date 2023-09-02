@@ -9,7 +9,16 @@ great youtube channel with git tutorial by David Mahler: https://www.youtube.com
 -Used for version control and to save and store snapshots of versions of code.  
 -Code can be uploaded (pushed) to repositories like GitHub where other developers can access and work on it.
 
-INSTALLING:
+## [Squash commits on top of master after merging](https://stackoverflow.com/questions/42513931/squash-feature-branch-commit-after-merging-from-master)
+
+```
+git reset --soft master
+git commit -m 'All changes from my branch squashed'
+```
+
+This basically resets the branch pointer to the master branch, without changing any of the content in your working directory. So the result is that you have all those changes in your index which you can commit then at once.
+
+### INSTALLING:
 
 http://git-scm.com/download/
 download the installer, comes with gitbash (use this) which is a command line tool (can be used over the standard command line in windows, similar to linux).
@@ -34,11 +43,9 @@ Undoing a change:
 
 $ git reset [hash for commit - see your msg to identify] - to revert changes from a point in history
 
----
+## COMMANDS:
 
-COMMANDS:
-
-Main Commands:
+### Main Commands:
 
 $ git init -
 
@@ -58,9 +65,7 @@ $ git clone - pulls an entire project (all files, not just the latest) or module
 
 $ touch [filename] (ex: touch index.html) <--- this creates a file.
 
----
-
-OTHER COMMANDS:
+### OTHER COMMANDS:
 
 GIT IGNORE <---USED IF YOU DON'T WANT SOMETHING INCLUDED (even if you use add ., it will skip and ignore these files -- usually log.txt log files, for example.).
 
@@ -81,17 +86,11 @@ If you want to specify that it should only match the images directory then add t
 
 /images/
 
----
-
-Misc Commands:
+### Misc Commands:
 
 $ clear <---clears the content of the window to clean it up.
 
----
-
-======================================================================
-
-TO USE:
+USAGE:
 
 Note: Start your project or work from the local repository and don't edit on gitHub - do all editing locally to keep histories from not synching.
 
@@ -147,9 +146,7 @@ $ git commit -am 'message'
 
 // this is using the -a and -m flag together to skip git add
 
----
-
-GITHUB -- CREATE A REMOTE REPOSITORY:
+### GITHUB -- CREATE A REMOTE REPOSITORY:
 
 1. CREATE A REMOTE REPOSITORY:
 
@@ -174,9 +171,7 @@ $ git push
 
 Note: use $ git remote command to test if there is a remote repository connected (it will return 'origin' in the command prompt).
 
----
-
-TO CLONE OR DOWNLOAD THE PROJECT FROM GITHUB:
+### TO CLONE OR DOWNLOAD THE PROJECT FROM GITHUB:
 
 -Go to the top right on the app page in github and click Clone or Download button. You get a link.
 
@@ -187,16 +182,12 @@ ex: $ git clone https://github.com/BrentGrammer/sample.git
 
 -a new folder is created and all of the contents of the project are downloaded to it.
 
----
-
-IF CHANGES ARE MADE BY OTHER PEOPLE IN THE PROJECT:
+#### IF CHANGES ARE MADE BY OTHER PEOPLE IN THE PROJECT:
 
 -use $ git pull command to update the project files with changes made in the remote repository.
 Ex: $ git pull
 
----
-
-BRANCHES:
+### BRANCHES:
 
 Used when you are assigned a specific task in a project working with other people (i.e. your job is to design a login function for the application).  
 Your work is stored on a separate branch from the Master branch.
@@ -220,9 +211,7 @@ Delete A Branch:
 
 $ git branch -d branchName
 
----
-
-BRANCHING AND MERGING:
+### BRANCHING AND MERGING:
 
 https://www.youtube.com/watch?v=FyAAIHHClqI
 
@@ -267,7 +256,7 @@ $git checkout -b [branchName]
 
 ---
 
-MERGING:
+### MERGING:
 
 --
 
@@ -302,7 +291,7 @@ $git branch -d SDN //deletes the branch named SDN
 
 ---
 
-3 WAY MERGE:
+### 3 WAY MERGE:
 
 -Used when there is not a direct path to the master branch from the merging branch (the last commit of the master branch was not the commit that the branch was originally created from and copied.)
 
@@ -374,18 +363,14 @@ $git commit -m 'commenthere'
 You can now delete the merged branch
 $git branch -d [branchName]
 
----
-
-Dealing with Detached Head State:
+#### Dealing with Detached Head State:
 
 Detached Head -when the head is pointing to a specific commit and not a branch.
 
 To resolve:
 $git checkout master //takes the head and points it to the master branch so the head is not detached.
 
----
-
-Errors from not having a CLEAN STATE:
+### Errors from not having a CLEAN STATE:
 
 Clean State: clean working tree and staging area (there are no modified files in the staging area and no staging files that are not committed)
 
@@ -417,7 +402,7 @@ $git stash save "commenthere" //this adds a comment to a stashpoint for easier r
 
 ---
 
-TO GET A PREVIOUS VERSION OF A FILE FROM THE LAST COMMIT:
+### TO GET A PREVIOUS VERSION OF A FILE FROM THE LAST COMMIT:
 
 $ git checkout HEAD [filename] --this pulls the last commit version of the file to your local repository.
 
@@ -555,9 +540,7 @@ Misc commands:
 See newest change to file:
 $cat [fileName]
 
-==========================
-
-SSH (Secure Shell)
+## SSH (Secure Shell)
 
 -Establish secure way of communicating between your computer and github
 
@@ -694,7 +677,7 @@ git remote add upstream [original repository link you forked from: ex = https://
 
 ---
 
-CREATE BRANCH WORKFLOW:
+### CREATE BRANCH WORKFLOW:
 
 Create and checkout a feature branch.
 Make changes to the files.
@@ -708,7 +691,7 @@ Commit your changes to the branch.
 
 ---
 
-AFTER PULL REQUEST ACCEPTED:
+### AFTER PULL REQUEST ACCEPTED:
 
 First, you should update your local clone by using git pull upstream master. This pulls the changes from the original repository�s (indicated by upstream) master branch (indicated by master in that command) to your local cloned repository.
 
@@ -734,7 +717,8 @@ git push origin master
 
 ---
 
-STASHING CHANGES:
+### STASHING CHANGES:
+
 -used when switching branches before committing or staging any file changes so yo can come back to them later.
 
 DOCS: https://git-scm.com/book/en/v1/Git-Tools-Stashing
@@ -762,17 +746,13 @@ DELETING BRANCH BOTH REMOTE AND LOCAL:
 $ git push --delete upstream <branch_name>
 $ git branch -d <branch_name>
 
----
-
-SYNCING WITH FORKED MASTER:
+#### SYNCING WITH FORKED MASTER:
 
 $ git fetch upstream
 $ git merge upstream/master
 $ git push origin master
 
----
-
-Syncing a local branch with a remote branch:
+#### Syncing a local branch with a remote branch:
 
 $ git fetch
 
@@ -780,13 +760,9 @@ $ git fetch
 
 $ git reset --hard origin/<your-working-branch>
 
-# this will sync your local copy with remote content, discarding any committed
+this will sync your local copy with remote content, discarding any committed or uncommitted changes.
 
-# or uncommitted changes.
-
----
-
-RESTORE OLD VERSION FROM PREVIOUS COMMIT:
+#### RESTORE OLD VERSION FROM PREVIOUS COMMIT:
 
 $ git reset --hard 0ad5a7a6 <----this is the commit id
 
@@ -796,14 +772,12 @@ $ git reset --hard 0ad5a7a6 <----this is the commit id
 
 i.e. $ git checkout -b old-project-state 0ad5a7a6
 
-========
-
 ACCEPT ALL INCOMING CHANGES FROM PULL:
 
 $ git checkout --theirs .
 $ git add .
 
-REJECT ALL INCOMING CHANGES AND USE CURRENT CHANGE FOR MERGE:
+#### REJECT ALL INCOMING CHANGES AND USE CURRENT CHANGE FOR MERGE:
 
 git checkout --ours .
 git add .
@@ -838,7 +812,7 @@ $ git checkout -b old-state <commitIdNumber>
 
 ---
 
-FIXING GITIGNORE NOT RECOGNIZING CHANGES:
+### FIXING GITIGNORE NOT RECOGNIZING CHANGES:
 
 https://stackoverflow.com/questions/11451535/gitignore-is-not-working
 
@@ -861,28 +835,22 @@ git config --global --unset https.proxy
 
 ---
 
-BASIC MERGE WORKFLOW:
+#### BASIC MERGE WORKFLOW:
 
 $ git checkout -b newBranch
 $ git commit -a -m 'newBranch work complete'
 $ git checkout master
 $ git merge newBranch
 
----
-
-Import a file from another branch:
+#### Import a file from another branch:
 
 $ git checkout <other-branch> -- src/react/pages/NotFoundPage.js
 
----
-
-RESET ORIGIN URL:
+#### RESET ORIGIN URL:
 
 git remote set-url origin new.git.url/here
 
----
-
-MULITPLE SSH KEYS:
+#### MULITPLE SSH KEYS:
 
 See: https://coderwall.com/p/7smjkq/multiple-ssh-keys-for-different-accounts-on-github-or-gitlab
 
