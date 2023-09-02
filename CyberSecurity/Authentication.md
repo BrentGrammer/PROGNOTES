@@ -33,10 +33,17 @@
   // Normal sends all cookies for all requests, but is not recommended
   ```
 
-  ### JWT vs. Cookies
+### JWT vs. Cookies
 
 - Cookies are appropriate for web browser to server communication. Mobile apps for ex. might have more difficulty dealing with cookies. JWTs are more versatile and flexible.
 - With JWT you are not limited by the size of your data, with cookies you only have 4093 bytes per domain - for all cookies, not the one.
 - JWTs better for microservices since multiple servers don't need to share a session DB (cookie session management). the user data is encoded in the JWT
 - JWT tokens cannot be “invalidated” (without maintaining them in a shared db), in JWT approach the logout length precision is set by the expiration length of the access_token.
 - There is no clear advantage to combining cookies and jwts
+
+## Salting and Hashing Passwords
+
+- Apply unique salt (random unpredictable string) to each password
+  - A system-wide salt is pointless to mitigate attacks; it would just make passwords longer.
+  - should generate a unique salt upon creation of each stored credential (not just per user or system-wide). That includes passwords created during registration or as the result of a password reset.
+- The salt doesn't need to be encrypted, for example. Salts are in place to prevent someone from cracking passwords at large and can be stored in cleartext in the database. However, do not make the salts readily accessible to the public
