@@ -31,7 +31,7 @@
 Looking at the work React does in the console.:
 
 - you can log out Fiber Nodes (look up how to do this or watch Tony's vids) - you need to find in the react dom development source code where to log.
-- A FiberNode will have a deletions property showing what React decides to delete with a flag (flags property) that corresponds to a action code (can see the source code for flags in React DOM source.
+- A FiberNode will have a deletions property showing what React decides to delete with a flag (flags property) that corresponds to a action code (can see the source code for flags in React DOM source.)
 
 ### UNIT OF WORK:
 
