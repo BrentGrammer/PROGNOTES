@@ -2,6 +2,8 @@
 
 ## Table of Contents
 
+- [Computer Science/Fundamentals](./ComputerScience/)
+  - [Computer Systems A Programmers Perspective book](./ComputerScience/CSAPP.md)
 - [GIT](./GIT/)
 - [Cyber Security](./CyberSecurity/)
   - [Authentication](./CyberSecurity/Authentication.md)
