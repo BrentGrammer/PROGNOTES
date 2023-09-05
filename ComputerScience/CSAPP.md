@@ -566,3 +566,63 @@ possible numeric values are spaced evenly near 0.0.
   multiply two very large numbers, or when we divide by zero. When the fraction
   ﬁeld is nonzero, the resulting value is called a “NaN,” short for “Not a Number.”
 - can be useful for representing an uninitialized value in some applications.
+
+### Rounding
+
+- Floating-point arithmetic can only approximate real arithmetic, since the repre-
+  sentation has limited range and precision
+- for a value x, we generally want
+  a systematic method of ﬁnding the “closest” matching value x, so that can be rep-
+  resented in the desired ﬂoating-point format. This is the task of the rounding
+  operation
+  - Rounding up or down? we could determine representable values x− and x+ such that the value x is guaranteed to lie between them: x− ≤ x ≤ x+
+- The IEEE ﬂoating-point format deﬁnes
+  four different rounding modes. The default method ﬁnds a closest match, while
+  the other three can be used for computing upper and lower bounds.
+
+#### Rounding Methods:
+
+1.  Round-to-even (also
+    called round-to-nearest) is the default mode. It attempts to ﬁnd a closest match.
+    Thus, it rounds $1.40 to $1 and $1.60 to $2, since these are the closest whole dollar
+    values - rounding from the middle up or down: rounds the number either upward or downward such that the
+    least signiﬁcant digit of the result is even. Thus, it rounds both $1.50 and $2.50
+    to $2 (since 3 is odd). - Why round to even, why not round up? rounding a set of data values would then introduce a statistical bias into the computation of an average of the values. The average would be slightly higher than the average of the numbers themselves. if we always rounded numbers halfway between downward, the average of a set of rounded numbers would be slightly lower than the average of the numbers themselves. Rounding toward even numbers avoids this statistical bias in most real-life situations. It will round upward about 50% of the time and round downward about 50% of the time.
+    - Note: Round-to-even rounding can be applied even when we are not rounding to
+      a whole number. We simply consider whether the least signiﬁcant digit is even
+      or odd. we would round both 1.2350000 and 1.2450000 to 1.24, since 4 is even.
+1.  Round-toward-zero mode rounds positive numbers downward and negative numbers upward, giving a value ˆ x such that | ˆ x | ≤ | x | .
+1.  Round-down mode rounds both positive and negative numbers downward, giving a value x− such that x− ≤ x.
+1.  Round-up mode rounds both positive and negative numbers upward, giving a value x+ such that x ≤ x+
+
+#### Floating Point Arithmetic:
+
+- Rounding is applied to the result of operation/expression on real numbers (not the individual numbers in the calculation). i.e. Round(x + y) and not Round(x) + Round(y)
+  - with single-precision ﬂoating point the expression (3.14+1e10)-1e10 evaluates to 0.0—the value 3.14 is lost due to rounding. On the other hand, the expression 3.14+(1e10 - 1e10) evaluates to 3.14
+- **Use Floating Point Arithmetic with caution since does not obey some common mathematical properties such as associativity**
+
+#### Floating Points in C
+
+All versions of C provide two different ﬂoating-point data types: float and
+double. On machines that support IEEE ﬂoating point, these data types corre-
+spond to single- and double-precision ﬂoating point and use round-to-even mode rounding.
+
+##### Underflow:
+
+Floating-point values can underﬂow, when they are so close to 0.0 that they are changed to zero.
+
+### Casting Floating Point numbers:
+
+When casting values between int, float, and double formats, the program
+changes the numeric values and the bit representations as follows (assuming a
+32-bit int):
+. From int to float, the number cannot overﬂow, but it may be rounded.
+. From int or float to double, the exact numeric value can be preserved be-
+cause double has both greater range (i.e., the range of representable values),
+as well as greater precision (i.e., the number of signiﬁcant bits).
+. From double to float, the value can overﬂow to +∞ or −∞ , since the range
+is smaller. Otherwise, it may be rounded, because the precision is smaller.
+. From float or double to int the value will be rounded toward zero. For
+example, 1.999 will be converted to 1, while − 1.999 will be converted to
+− 1. Furthermore, the value may overﬂow. The C standards do not specify
+a ﬁxed result for this case. Intel-compatible microprocessors designate the
