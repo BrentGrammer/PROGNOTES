@@ -57,7 +57,8 @@ The 1960s was an era of huge, complex operating systems, such as IBMCs OS/360 an
 
 the Linux project has developed a complete, Posix-complianersion of the Unix operating system, including the kernel and all of the supporting infrastructureinux is available on a wide array of computers, from hand-held devices to mainframe computers
 
-### CONCURENCY: We use the term concurrency to refer to the general concept of a system witultiple, simultaneous activities.
+### CONCURENCY: 
+We use the term concurrency to refer to the general concept of a system witultiple, simultaneous activities.
 
 Traditionally, concurrent execution wanly simulated, by having a single computer rapidly switch among its executinrocesses, much as a juggler keeps multiple balls flying through the air. This forf concurrency allows multiple users to interact with a system at the same timeuch as when many people want to get pages from a single Web server.
 
@@ -69,7 +70,9 @@ a hyperthreaded processor decides which of its threads to execute on a cycley-cy
 
 modern processors can execute multiplnstructions at one time, a property known as instruction-level parallelism.
 
-### PARALELLISM: parallelism to refers to the use of concurrency to make a system run faster
+#### PARALELLISM: parallelism to refers to the use of concurrency to make a system run faster
+Concurrency vs. Parallelism: Concurrency is running multiple processes over a given span of time, paralellism is running two or more processes at the same time.
+(Concurrency can include running in parallel, simultaneously, or in multiple threads that interleave and processing is jumping back and forth between then, i.e. not simultaneous execution)
 
 ---
 
