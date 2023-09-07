@@ -19,3 +19,5 @@
   - [Anthony Alicea's Understanding React](./React/Anthony-Alicea-Understanding-React/)
     - [Events](./React/Anthony-Alicea-Understanding-React/Events.md), [Hooks](./React/Anthony-Alicea-Understanding-React/Hooks.md), [useEffect](./React/Anthony-Alicea-Understanding-React/UseEffect.md)
     - [Fiber Tree, Fiber Nodes, Virtual DOM](./React/Anthony-Alicea-Understanding-React/Fibers.md)
+- [Testing (General)](./Testing/)
+  - [Unit Testing: Principles, Practices and Patterns (Khorikov)](./Testing/UnitTesting-Khorikov.md)
