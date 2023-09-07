@@ -1,11 +1,11 @@
 # Computer Systems A Programmers Perspective by Randal Bryant and David O'Hallaron
 
-Binary Files that consist exclusivelyof ASCII characters are known as text files.
+Binary Files that consist exclusively of ASCII characters are known as text files.
 other files are known as binary files.
 
 ### Compilation:
 
-The programs that perform the four phases (preprocessor, compiler, assembler, and linker) are known collectively as thompilation system.
+The programs that perform the four phases (preprocessor, compiler, assembler, and linker) are known collectively as the compilation system.
 
 Linking phase.Notice that our hello program calls the printf function, whics part of the standard C library provided by every C compiler. The printunction resides in a separate precompiled object file called printf.o, whicust somehow be merged with our hello.o program. The linker (ld) handlehis merging. The result is the hello file, which is an executable object file (oimply executable) that is ready to be loaded into memory and executed bhe system.
 
