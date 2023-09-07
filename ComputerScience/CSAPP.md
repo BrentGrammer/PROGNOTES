@@ -1,7 +1,5 @@
 # Computer Systems A Programmers Perspective by Randal Bryant and David O'Hallaron
 
-regex for mid senetnce new lines(.\n.)n vs code: Given a regular expression of (foobar) you can reference the first group using $1 and so on if you have more groups in the replace input field.
-
 ### Binary Filesiles that consist exclusivelyof ASCII characters are known as text files.ll other files are known as binary files.
 
 ### Compilation:
