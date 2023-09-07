@@ -1,6 +1,7 @@
 # Computer Systems A Programmers Perspective by Randal Bryant and David O'Hallaron
 
-### Binary Filesiles that consist exclusivelyof ASCII characters are known as text files.ll other files are known as binary files.
+Binary Files that consist exclusivelyof ASCII characters are known as text files.
+other files are known as binary files.
 
 ### Compilation:
 
