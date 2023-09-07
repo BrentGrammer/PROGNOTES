@@ -1,26 +1,45 @@
+# Designing Data Intensive Applications (by M. Klepmann)
+
+## Goals:
+
 Reliability
 Scalability
 Maintainability
 
-Reliability:
--fault tolerant (continues to work when things go wrong)
--impossible to reduce faults to zero, it is best to design fault tolerance mechanisms that prevent faults from causing pafailures.
+### Reliability
+
+- fault tolerant (continues to work when things go wrong)
+- impossible to reduce faults to zero, it is best to design fault tolerance mechanisms that prevent faults from causing pafailures.
 
 Performance response time- the median is better than the mean. For median sort response times from fastest to slowest and the middle time means half users got response quicker than that and half got response slower than that. (Outliers throw off the mean so you don't get a good idea of how many users experience a delay)
+
+### Scaling
 
 Scaling up (vertical) - more powerful machine
 Scale out (horizontal) - more machines you spread the load out over multiple machines.
 
-Document model (nosql) works well if data is one to many relationships (i.e. tree structure) but not for Many to many relationships (requiring joins perhaps)
+### DB types
 
-Relational model:. Good if data is many to many relationships, good for simple cases.
+- Document model (nosql) works well if data is one to many relationships (i.e. tree structure) but not for Many to many relationships (requiring joins perhaps)
 
-Graph model: good for complex many to many relationship data. Use vertices(nodes/entities) and edges(relationships/arcs)
-Examples: web graph, social graph (people who know each other), road or rail network.
-You can think of a graph store as consisting of two relational tables, one for vertices and one for edges. The head and tail vertex are stored for each edge; if you want the set of incoming or outgoing edges for a vertex, you can query the edges table by head_vertex or tail_vertex, respectively.
-Head: vertex at which edge starts
-Tail : vertex at which edge ends
+  - Denormalization is a problem with document databases, duplication of fields.
+    Many to many relationships are a problem.
+    Highly interconnected data makes for awkward schemas in nosql
 
+Case for document model:
+If application data has document like structure (tree of one to many relationships where tree is loaded once)
+Schema flexibility
+Data locality-if you need large parts of the document at the same time, nosql model is good.
+
+- Relational model:. Good if data is many to many relationships, good for simple cases.
+
+- Graph model: good for complex many to many relationship data. Use vertices(nodes/entities) and edges(relationships/arcs)
+  Examples: web graph, social graph (people who know each other), road or rail network.
+  You can think of a graph store as consisting of two relational tables, one for vertices and one for edges. The head and tail vertex are stored for each edge; if you want the set of incoming or outgoing edges for a vertex, you can query the edges table by head_vertex or tail_vertex, respectively.
+  Head: vertex at which edge starts
+  Tail : vertex at which edge ends
+
+```sql
 CREATE TABLE vertices (
 vertex_id integer PRIMARY KEY,
 properties json
@@ -33,24 +52,17 @@ head_vertex integer
 label text,
 properties json
 );
+```
+
 Graphs are easily extensible as data evolves.
 
 Data has a tendency of becoming more interconnected as features are added to apps.
 Ex: Perhaps fields in a record should be references to other entities (I.e. a recommender on LinkedIn is a user entity to keep profile pic etc linked and up to date).
 
-Denormalization is a problem with document databases, duplication of fields.
-Many to many relationships are a problem.
-
-Highly interconnected data makes for awkward schemas in nosql
-
-Case for document model:
-If application data has document like structure (tree of one to many relationships where tree is loaded once)
-Schema flexibility
-Data locality-if you need large parts of the document at the same time, nosql model is good.
-
 Pure functions:. Only use the data passed to them (i.e. they don't make a call to the database to get anything else or use side effects)
 
-Summary on models:
+#### Summary on models:
+
 Historically, data started out being represented as one big tree (the hierarchical model), but that wasn't good for representing many-to-many relationships, so the relational model was invented to solve that problem. More recently, developers found that some applications don't fit well in the relational model either. New nonrelational "NoSQL" datastores have diverged in two main directions:
 
 1. Document databases target use cases where data comes in self-contained docu ments and relationships between one document and another are rare.
@@ -58,25 +70,23 @@ Historically, data started out being represented as one big tree (the hierarchic
 2. Graph databases go in the opposite direction, targeting use cases where anything is potentially related to everything.
    One thing that document and graph databases have in common is that they typical don't enforce a schema for the data they store, which can make it easier to ada applications to changing requirements.
 
-----+--+;-++++----
-
-STORAGE:
+## STORAGE:
 
 - log: an append-only sequence of records. Ex: in a simple db,. a set record that updates the same Id, the new changes are appended to the end of the lig so the get retrieves the latest/last entry of the record.
 
-Index: used to avoid searching entire db for a record (O(n)). - efficiently find a key in the db; basic idea is to keep extra metadata on the sides which acts as a signpost to help you located data you want.
-\*Tradeoff: speeds up reads, but slows down writes since extra data has to be written. Must index wisely based on typical queries for your app.
+- Index: used to avoid searching entire db for a record (O(n)). - efficiently find a key in the db; basic idea is to keep extra metadata on the sides which acts as a signpost to help you located data you want.
+  \*Tradeoff: speeds up reads, but slows down writes since extra data has to be written. Must index wisely based on typical queries for your app.
 
-Compaction: method for solving infinite log of keys (if appending data entries to end of file for example). We segment the log file off when log reaches a certain size and then remove duplicate keys keeping only the latest to create a new condensed log file.
+- Compaction: method for solving infinite log of keys (if appending data entries to end of file for example). We segment the log file off when log reaches a certain size and then remove duplicate keys keeping only the latest to create a new condensed log file.
 
 Storing hash map of index in memory has limitations: num of keys must fit and range queries are not efficient (ex. Lookup of key in kitty0000 through kitty9999, you have to scan the whole range of keys). Alternative index is SsTables and LSM-trees.
 
-SSTables: Sorted String Table - the sequence of key value pairs in a SSTable segment is sorted by key. Makes compacting and merging of segments very efficient even on disk (so more keys can be stored)
-Also, can use an in memory index even with limited memory if the indexes point to offset of a block of bytes. Since data is sorted, you can find the block before your desired data exists and search from there. Saves space and I/O bandwidth use.
+- SSTables: Sorted String Table - the sequence of key value pairs in a SSTable segment is sorted by key. Makes compacting and merging of segments very efficient even on disk (so more keys can be stored)
+  Also, can use an in memory index even with limited memory if the indexes point to offset of a block of bytes. Since data is sorted, you can find the block before your desired data exists and search from there. Saves space and I/O bandwidth use.
 
-LSM Tree: Log structured merge tree. Indexing structure a type of log structured index. Based on principle of merging and compacting sorted files. Lucene uses similar pattern for term dictionary in elastic search. Basic idea of LSM Tree is to keep a cascade of SSTables that are merged in the background.
+- LSM Tree: Log structured merge tree. Indexing structure a type of log structured index. Based on principle of merging and compacting sorted files. Lucene uses similar pattern for term dictionary in elastic search. Basic idea of LSM Tree is to keep a cascade of SSTables that are merged in the background.
 
-Memtable: a in memory tree structure of sorted data by key. When gets to certain size, data is copied to disk in segment files.
+- Memtable: a in memory tree structure of sorted data by key. When gets to certain size, data is copied to disk in segment files.
 
 Branching factor: how many references fort ranges are in a page. Could be several hundred.
 
@@ -89,22 +99,27 @@ Write amplification: multiple writes per disk per one write to the database over
 
 Multi dimensional index: used to search on multiple columns simultaneously. I.e. a latitude and longitude for a location. LSM trees and B-Trees cannot do this. The key is a concatenation indicating field/column order of the value.
 
-In memory databases: performance hits come from working with writing to disks. In memory dbs can give performance gains because they don't need to encode the days in a form that has to be written to disk.
+- In memory databases: performance hits come from working with writing to disks. In memory dbs can give performance gains because they don't need to encode the days in a form that has to be written to disk.
 
-OLTP: "online transaction processing". transactions for small number of records and access pattern based on interactive user actions (based on the users input), I.E. transaction processing. Payments, sale if items, etc.  
-OLAP: "online analytics processing". analytics, reading columns of larger number of records and aggregating them for business analytics.
+#### OLTP: "online transaction processing". transactions for small number of records and access pattern based on interactive user actions (based on the users input), I.E. transaction processing. Payments, sale if items, etc.
 
-Data warehouse: separate database used for analytics OLAP type queries separate from OLTP database. Purpose was to keep OLTP database low latency for business critical operations and separate large reads for analytics to prevent performance hits.
+#### OLAP: "online analytics processing". analytics, reading columns of larger number of records and aggregating them for business analytics.
 
-ETL: Extract-Transform-Load. Process of getting readonly copy of OLTP data into warehouse so analysts can query it to their hearts contents without doing it on the OLTP database. On OLTP operation, data is extracted, transformed to analytics friendly format and loaded into the data warehouse.  
- Enterprise companies have data warehouse s, but smaller companies do not since their data sets are a lot smaller, they can do analytics on the same database.
-Typically sql relational data models are best for analytics.  
-Database vendors usually focus on supporting either transaction processing or analytics workload s but not both because the different types of processing need to be optimized differently.
-(OLTP process rows, where analytics db would use column compression and column oriented storage since the tables are so wide and we don't want to have to load entire rows and filter for queries.)
+### Data Warehouses
 
-Star schema: used for analytics data model. Central facts table containing records of say user events (very large). Facts have foreign keys or references to dimensional tables with extra info on the fact(who what when why how etc.). The facts table is the center of the star and the dimensional tables are the rays of the star.
+- Data warehouse: separate database used for analytics OLAP type queries separate from OLTP database. Purpose was to keep OLTP database low latency for business critical operations and separate large reads for analytics to prevent performance hits.
 
-Snowflake schema: variation on the star schema. The dimensional tables have subdimensional tables. More normalized than star schemas, but analysts prefer star schemas since they are simpler to work with.
+- ETL: Extract-Transform-Load. Process of getting readonly copy of OLTP data into warehouse so analysts can query it to their hearts contents without doing it on the OLTP database. On OLTP operation, data is extracted, transformed to analytics friendly format and loaded into the data warehouse.  
+   Enterprise companies have data warehouse s, but smaller companies do not since their data sets are a lot smaller, they can do analytics on the same database.
+  Typically sql relational data models are best for analytics.  
+  Database vendors usually focus on supporting either transaction processing or analytics workload s but not both because the different types of processing need to be optimized differently.
+  (OLTP process rows, where analytics db would use column compression and column oriented storage since the tables are so wide and we don't want to have to load entire rows and filter for queries.)
+
+#### Storage Schemas
+
+- Star schema: used for analytics data model. Central facts table containing records of say user events (very large). Facts have foreign keys or references to dimensional tables with extra info on the fact(who what when why how etc.). The facts table is the center of the star and the dimensional tables are the rays of the star.
+
+- Snowflake schema: variation on the star schema. The dimensional tables have subdimensional tables. More normalized than star schemas, but analysts prefer star schemas since they are simpler to work with.
 
 Fact Tables in data warehouses are typically very wide with many columns.
 
@@ -140,14 +155,16 @@ Actor model, p. 138
 Distributed data:
 Reasons - scalability(spread read and write load over several machines), fault tolerance and availability (continues working if a machine goes down), latency (nodes spread out close to users)
 
-REPLICATION ch 5:
+## REPLICATION ch 5:
 
-3 main algorithms:
-Single-leader
-Multi-leader
-Leaderless
+### 3 main algorithms:
 
-Leader based replication (aka active/passive or master slave replication) - one of the replicas is the primary, clients send write requests to that, it writes to it's local storage then sends a REPLICATION log/change stream to follower replicas which make the same writes in the same order.  
+- Single-leader
+- Multi-leader
+- Leaderless
+
+#### Leader based replication (aka active/passive or master slave replication) - one of the replicas is the primary, clients send write requests to that, it writes to it's local storage then sends a REPLICATION log/change stream to follower replicas which make the same writes in the same order.
+
 Client can only write to leader, but can read from any of the followers.
 Built-in feature of postgres, Kafka, mongodb, MySQL etc.
 Synchronous (all followers update before leader responses) is usually bad and has disadvantage of blocking a write if all nodes are synchronous
@@ -187,7 +204,7 @@ Conflicts: with asynchronous writes/multi leader
   -Converging to consistent state. Each write has ID, last write wins - this is dangerous and can result in loss of data. Alternative is to log conflict data and write custom code to resolve it later(or prompt user to choose resolution)
   \*\*\*Conflict resolution in multi leader systems is very difficult and poorly implemented if at all in popular replication software
 
-P 177, Leaderless Replication
+#### P 177, Leaderless Replication
 
 - used by Amazon dynamo (not AWS dynamodb which uses single leader architecture).
   Any replica accepts writes from clients. Either client sends writes to all replicas, or a coordinator sends them but does not enforce ordering unlike a leader would.
@@ -206,14 +223,15 @@ It's not important whether to operations overlap in time, only that they do not 
 Versioning concurrent and concurrent write example in p. 188-9. Use version numbers with write requests taken from previous reads to determine what state the wrote is based on. Merges with latest version for record key.
 Tombstones (markers for deletions) are used to resolve merging concurrent writes with deletes.
 
-PARTITIONING: chapter 6
+## PARTITIONING: chapter 6
+
 (Summary on p 217)
 
--partitioning is necessary when you have so much data that storing and detailing with it on one machine is no longer feasible.
+Partitioning is necessary when you have so much data that storing and detailing with it on one machine is no longer feasible.
 
--main purpose is scalability, large data sets distributed/spread out across many disks and query load distributed across many processors.
--partitions are like mini databases (also called shards)
--usually combined with replication so that partitions are copied to numerous nodes.
+- main purpose is scalability, large data sets distributed/spread out across many disks and query load distributed across many processors.
+- partitions are like mini databases (also called shards)
+- usually combined with replication so that partitions are copied to numerous nodes.
 
 - goal is to spread data evenly across partitions and nodes.
 
@@ -230,19 +248,23 @@ the client knows about partitions/nodes and there is no intermediary.
 Key Problem: knowing about changes in assignments of partitions.
 Zookeeper, p. 215: example of a coordination service with Kafka that maintains authoritative knowledge of registered nodes and partitions. The routing layer can subscribe to it and be notified when partitions change or nodes or removed.
 
-TRANSACTIONS, p. 222
+## TRANSACTIONS, p. 222
+
 -purpose is to allow ignoring of certain concurrency and error scenarios (partial failures) and database takes care of them.
 
 - safety guarantees including ACID, p. 223
 
-Atomicity
+#### Atomicity
+
 Not the same in multi threaded context (an operation completes on only one thread,system can only be in state it was before or after the operation,not something in between).
 In database context it means a series of writes can be aborted on error, and all changes are automatically undone. The main point is to allow for a safe retry and simplify error handling.
 
-Consistency
+#### Consistency
+
 The database is in a good state as defined by invariants (statements about the data that must always be true) in the application (not the database!). The application is responsible for ensuring data is consistent.
 
-Isolation
+#### Isolation
+
 Concurrently executed TRANSACTIONS are isolated from each other and can not step on each other's toes.
 "Serializability" - each transaction can pretend that it's the only one being run. The database ensures that when the transactions have committed, the result is the same as if they had run serially (one after the other) even if they ran concurrently.
 The other sees either all or none of the transactions writes, but not a subset.
@@ -255,33 +277,44 @@ Weak isolation ,p. 234
   Preventing dirty writes: delay the second write until the other has committed or aborted. Note: does not prevent race condition problems! Low level locks on object which is only allowed for one transaction. The other transaction cannot operate until the lock is released by the original transaction.
   Preventing dirty reads,p 234-237: using locks is not recommended as above due to performance response time hits. Instead the database remembers the old and new value of an object, serves the old value while write transaction is ongoing and only serves the new value when the write transaction has committed.
 
-Read skew, p. 237. Problem is not prevented by read committed isolation. A timing anomoly on a nonrepeatable read transaction on multiple interdependent records just before and after a write transaction on them. Causes read of temporary inconsistent state of data.
+#### Read skew, p. 237.
+
+Problem is not prevented by read committed isolation. A timing anomoly on a nonrepeatable read transaction on multiple interdependent records just before and after a write transaction on them. Causes read of temporary inconsistent state of data.
 Solution: Snapshot isolation, p. 238. Each transaction reads from a snapshot of all data committed at start of transaction and just uses that until the end of the transaction. Only sees old data from that particular point in time.\*readers don't block writers and writers don't block readers with locks, since the operations are on frozen consistent snapshots.
 
 \*\*Multi version concurrency control (MVCC) - several versions of data are kept from various points on time to prevent dirty reads.
 Whenever a transaction writes to db a transaction Id of the writer is attached in a created and deleted by tag. This determines which versions of the record are visible or invisible to read transactions.
 Overhead for this is usually small.
 
-Dirty writes and dirty reads, good summary on .p. 266. Reading or writing to records that are operated on mid transaction (before the other transaction is committed)
+#### Dirty writes and dirty reads,
 
-Lost updates problem, p. 243: concurrent read-modify-write cycles that "clobber" earlier writes and updates get lost.
+good summary on .p. 266. Reading or writing to records that are operated on mid transaction (before the other transaction is committed)
+
+#### Lost updates problem
+
+p. 243: concurrent read-modify-write cycles that "clobber" earlier writes and updates get lost.
 Solutions:
 
 - atomic update operations if database provides that. Usually best solution, exclusive lock object when read so no other transaction can read it until the update has been applied. "Cursor stability"/force all ops on single thread.
 - compare and set,p. 245: allow update to happen only if value has not changed since the last time it was read. If it has you retry the read-modify-write cycle. \*\*\*Does not work if old snapshot is used for comparison, may not be safe!
 
-Write Skew,p. 247. Not a dirty write or dirty read, but a race condition where 2 records are updated that may use stale state because of snapshot isolation (using protected state of database at time of both calls). Similar to lost updates problem and can occur when multiple transactions read the same objects and then update some of those objects. When special case of different transactions updating the same objects occur you get a dirty write or list update anomoly.
+#### Write Skew,p. 247.
+
+Not a dirty write or dirty read, but a race condition where 2 records are updated that may use stale state because of snapshot isolation (using protected state of database at time of both calls). Similar to lost updates problem and can occur when multiple transactions read the same objects and then update some of those objects. When special case of different transactions updating the same objects occur you get a dirty write or list update anomoly.
 \*\*\*Usually happens when your multiple queries depend on other records or state of the database for establishing a condition on whether to run the transaction or not.
 
 Good Summary of read skew on p. 250
 
 One possible solution to a form of write Skew is to lock the rows that the transaction depends on so other transactions cannot read from them concurrently, or better to use true serializable isolation if possible. This only works when the condition for writing is based on rows that already exist. (See phantom problem below).
 
-Phantoms, p. 251: the effect where a write in one transaction (creating a previously nonexistent row) changes the result of a search query in another transaction. Snapshot isolation avoid this problem for read only queries, but does not protect against problems in some read write queries. The problem is that there is a check for the absence of rows to establish a condition for running a write or not, so no lock can be established on rows to prevent read skew when concurrent
+##### Phantoms, p. 251:
+
+the effect where a write in one transaction (creating a previously nonexistent row) changes the result of a search query in another transaction. Snapshot isolation avoid this problem for read only queries, but does not protect against problems in some read write queries. The problem is that there is a check for the absence of rows to establish a condition for running a write or not, so no lock can be established on rows to prevent read skew when concurrent
 
 A possible last resort to solving phantom problem is materializing conflicts, p. 251. You create rows to represent data to lock on to prevent concurrency problems from phantoms. It is hard to do and the better solution is serializable isolation.
 
-SERIALIZABLE ISOLATION:
+### SERIALIZABLE ISOLATION:
+
 Strongest level of isolation that guarantees parallel transactions end result is as if they ran serially one at a time.
 
 Actual Serial Execution: eliminate concurrency and run transactions on a single thread. This might be okay since ram is cheap and all data can be stored in memory. Can be used for oltp transactions which are typically smaller reads and writes.
@@ -312,11 +345,11 @@ Ex, p. 265, database remembers which transactions read object, when transaction 
 
 Main advantage of SSI is that a transaction does not need to block waiting for locks. The locks are tripwires as opposed to stopping everything else (optimistic).
 
-Durability
+#### Durability
+
 Ensures that once a transaction is complete the data is not lost on the event of database crash etc. I.e. it had been written to hard disk memory or a certain number of nodes in a distributed system.
 
-----+-
-Concurrency issues in distributed systems
+### Concurrency issues in distributed systems
 
 Partial failures: one part of the system fails while others work. In a computer partial failures are escalated to faults that crash the system by design. A incorrect or partial response or result is considered worse because it is nondeterministic.
 
@@ -346,7 +379,8 @@ P. 285
 
 The trade-off: fixed bandwidth results in fixed delays and no queuing issues, but more expensive unoptimized use of wire. Dynamically assigned bandwidth maximizes utilization of there write but results in variable delays and queuing
 
-Clocks, p. 288
+### Clocks, p. 288
+
 Time of day: synced with servers but can jump back in time if sync is updated. Not reliable for measuring duration, but good for time occurred of an event.
 Monotonic: guaranteed to be incremental and useful for measuring duration vs. using time of day clock. Set based on arbitrary base, do not compare monotonic clock values from two different machines, since they're based on different things.
 
@@ -377,7 +411,9 @@ Frequently a system requires there's to be only one of some thing. P. 301.
 If a nice or client incorrectly believes it is the leader or lock lease holder incorrectly when another is, can cause errors. A way to combat this is fencing, p. 303.
 Fencing tokens are constantly incrementing monotonic tokens sent to clients when they receive a lease (on being the leader or getting a lock for ex.) And those are sent with the requests. The fencing token must not be the current token declared by the token service and not less. The resource checks the token on the last write for the record. Prevents prices pause errors due to incorrect lease expiration checks.
 
-Byzantine faults, p. 304. When nodes send arbitrary, incorrect or corrupt responses causing errors.  
+#### Byzantine faults, p. 304.
+
+When nodes send arbitrary, incorrect or corrupt responses causing errors.  
 Byzantine meaning complex and devious, bureaucratic. Generals problem: generals need to agree by sending messengers but some are traitors and send false messages.
 
 Byzantine fault tolerant system continues to operate correctly even if nodes malfunction not over protocols or malicious attackers interfere with the network.
@@ -398,11 +434,9 @@ Am algorithm can be proved correct by showing that they're properties always hol
 
 In reality, system models are abstract and help to train about systems, but sometime s code needs to handle a situation that is impossible in the model but occurs in real life. Usually it means telling the user they need to resolve it. This is the difference between computer science and software engineering.
 
----
+## Consensus: getting all nodes to agree on something.
 
 Ch. 9 p. 321
-
-Consensus: getting all nodes to agree on something.
 
 Eventual consistency: all reads will eventually return the same result as all replicas eventually are updated with all the latest data.
 Difficult to deal with since the time until consistency is unknown.
@@ -456,7 +490,7 @@ Concrete ex of making a linearizable call using total order Broadcast (as an app
 
 Key difference between total broadcast ordering and timestamp ordering is that you get a sequence with no gaps. If message 6 is received after message 4, the node knows to wait for message 5 before delivering message 6. This is not gaurantee with Lamport timestamp, p. 351-2.
 
-Consensus:
+#### Consensus:
 
 P. 353, it is possible to solve consensus problem FLP, if you decide how to determine a node is failed (ex via a timeout) and to exclude it from the quorum.
 
@@ -492,7 +526,8 @@ Problem: if the coordinator crashes and transactions are left in doubt, this cau
 Orphaned in doubt transactions can occur if the transaction log written to disk is lost, so when the coordinator recovers it does not have information to resolve them. This can cause infinite blocking since the locks on those rows remain.
 The only ways out of this are manual resolution by a database administrator or heuristic decision by a node participant which breaks the atomicity of the operation. These are applied only in catastrophic situations.
 
-Core idea of consensus/properties, p. 365: all nodes decide on the same outcome, once a node has made a decision, that decision cannot be changed. (Uniform agreement and integrity properties)
+##### Core idea of consensus/properties, p. 365: all nodes decide on the same outcome, once a node has made a decision, that decision cannot be changed. (Uniform agreement and integrity properties)
+
 Validity: node must decide a value, termination: if a node crashes it is assumed it will not come back and it is discounted.
 2 phase commit does not satisfy termination property since it requires a coordinator node can crash and recover. Some consensus algos only satisfy agreement, validity and integrity but not termination properties.
 
@@ -517,7 +552,7 @@ Also performs service discovery(what up addr to go to for a service).
 
 Is part of a history of membership services which determine which nodes or members are currently active and live in a cluster. Consensus/quorum vote is key to this determination.
 
------ part 2 -------
+## PART 2
 
 Systems that store and process data can be grouped into two broad categories:
 
@@ -549,7 +584,8 @@ Ex, unix used stdin and stdout as channels which a program can use for plugging 
 
 Allows for experimentation by making inputs immutable so that running an input through a pipeline to see what happens does not damage our alter the original input.
 
-MapReduce, p. 397
+### MapReduce, p. 397
+
 Similar to unix tools, but distributed across machines. Reads and writes files on a distributed system.
 
 The inputs are immutable and the outputs are written once in sequential order not modifying any existing part of the destination file.
@@ -658,7 +694,8 @@ In batch processing jobs, the data is bounded(it has a fixed size for ex.). Beca
 
 "A complex system that works invariable evolves from a simple system that works. The increase is also true."
 
-Streams, p. 439-40:
+### Streams, p. 439-40:
+
 Batch processing artificially divides data into durations for processing (i.e. once a day for a days worth of data, or once an hour) and deals with bounded data so it knows when it's complete and how to sort correctly.
 
 Stream processing simply processes every event as it happens.
@@ -680,7 +717,7 @@ A better approach is to have consumers be notified when new events appear in con
 Direct messaging systems are used when low latency is important. These systems make producers and consumers communicate directly with no intermediate nodes/brokers. Applications must accept possibility of message losses. Ex is UDP multicast for stock market quotes in realtime.
 Also webhooks: consumer exposes a service allowing producers to make direct contact with them; a service registers a callback url with another service, and it makes a request to that URL when an event occurs.
 
-Message Brokers, p. 443
+### Message Brokers, p. 443
 
 - a kind of database that is optimized for handling message streams. It runs a server which consumers and producers connect to as clients.
 
@@ -802,7 +839,9 @@ Elastic search percolator feature does this.
 
 Beware of not measuring process time vs. measuring windows based on timestamps. Can lead to misleading results, see ex. P. 470 if stream processor goes down and then reads backlog creating a spike in the window..
 
-Time window issues, how to handle straggling events reported for a time window, device clocks vs server clocks and possible solutions. P. 470-472
+### Time window issues
+
+- how to handle straggling events reported for a time window, device clocks vs server clocks and possible solutions. P. 470-472
 
 Types of windows, p. 472
 Tumbling
@@ -851,7 +890,8 @@ Idempotent: operation can be performed multiple times and it has the same effect
 
 Operations that are not naturally idempotent can usually be made so by using some extra bit of metadata. For ex, including the monotonic offset from kafka messages with write requests to databases, can check it and ensure the same data isn't written twice.
 
-Summary, p. 480.
+#### Summary, p. 480.
+
 AMQP/JMS style message Brokers explanation vs. log based brokers.
 
 P. 492.
@@ -859,7 +899,7 @@ Log based derived Data is the most promising approach for integrating different 
 
 The key idea for dealing with distributed data is determine a total order of writes, i.e. by funneling the inputs through a single system that determines order (i.e. change data capture or event Sourcing).
 
-Total order Broadcast: determining a total order of events, equivalent to consensus. P. 493.
+##### Total order Broadcast: determining a total order of events, equivalent to consensus. P. 493.
 
 Open problem is being able to scale total ordering on a geographically distributed system since ordering requires one node or leader to pass through for ordering. Having distributed leaders handle total ordering has not been figured out yet.
 
@@ -987,7 +1027,9 @@ Coordination can either be avoided entirely or only employed in critical parts o
 
 A trade-off between availability and consistency needs to be made sometimes.
 
-Auditing,p. 530. Data corruption is inevitable sooner or later. We need processes to check the integrity of the data.
+#### Auditing,p. 530.
+
+Data corruption is inevitable sooner or later. We need processes to check the integrity of the data.
 Checks reading data to make sure it is there are necessary, and regular restoring of backups is not a bad idea.
 
 ACID does not gaurantee data integrity due to edge cases and blind trust in technology. Regular Auditing is needed to ensure true integrity. Hardware faults or software bugs can and do occur.
@@ -1006,7 +1048,7 @@ Privacy policies tend to take this decision and control away from the user and t
 The viewpoint of the data instead of the system has the advantage that the data sees the big picture whereas the machine and organizations that work on the data only see a portion of what happens.
 You attach yourself to the data and follow it through the system/operation.
 
-Dfds consist of data sources/sinks, processes (bubbles), data flows and files. P. 51.
+#### Dfds consist of data sources/sinks, processes (bubbles), data flows and files. P. 51.
 
 Processes are named based on the data that moves into and out of them "transform y's to z's".  
 Instead of naming data flows based on processes "stuff generated by p1 for the use of p2".
@@ -1015,7 +1057,8 @@ Data flow: a pipeline through which packets of information of known composition 
 
 Having trouble naming a data flow pipeline is feedback on how effectively you're breaking down components of the system in to parts. You should have interfaces that are nameable, otherwise it is likely that the data flow you are trying to name is not a data flow at all.
 
-Naming conventions: p. 54
+#### Naming conventions: p. 54
+
 No two data flows are named the same.
 Names can reflect what we know about the data.
 
