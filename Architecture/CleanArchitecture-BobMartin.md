@@ -2,6 +2,7 @@
 
 - example with code: https://fullstackmark.com/post/11/better-software-design-with-clean-architecture
 - full implementation example: http://www.plainionist.net/Implementing-Clean-Architecture-Overview/
+- https://www.youtube.com/watch?v=1IE8RC-IOSE
 
 The goal of clean architecture is to minimize resources needed for building and maintaining software.
 
