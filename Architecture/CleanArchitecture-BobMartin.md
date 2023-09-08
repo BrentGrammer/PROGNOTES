@@ -23,13 +23,9 @@ This is only possible if your is testable and made up of components you can in t
 
 ### OOP
 
-(track 9 chapter 5)
-
 - **OO design is the ability through the use of polymorphism to gain absolute control over every source code dependency in the system**
-
   - Allows for _plugin architecture_ where modules with high level policies are independent of modules with low level details
   - Low level details are relegated to plugin modules that can be deployed and maintained independently from high level policy modules
-
 - imposes discipline on indirect transfer of control
 - the combination of data and function, or modeling the real world are inacurrate
 - Nygard 1966 moved the function call stack frame to the heap and invented OO design
