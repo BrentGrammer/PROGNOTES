@@ -59,6 +59,7 @@ This is only possible if your is testable and made up of components you can in t
 ### Interfaces
 
 - Whole point is to control dependency flow.
+- Higher level component defines an interface, and the lower level component implements that interface
 - No matter what module is calling another module, the software architect can use interfaces to point the dependency in either direction via an interface
 - This is what OO is all about from an architect's point of view: re-arranging the source code dependencies so that the db and the UI depend on the business rules rather than the other way around
   - the UI and the db can be plugins to the business rules
@@ -117,10 +118,12 @@ One key aspect of the request/response messages that flow in and out of use case
 
 - concrete format from data in the use cases to use in other layers, I.e. the database. Controllers etc.
   use of \_authService, \_studentRepository and \_courseRepository in the Interactor/Use Case. These services are typically referred to as Gateways within clean architecture and get injected into the Use Case layer as per the dependency rule. These are the things that deal with the database, rest services or other external agencies and their implementation belongs in the Interface Adapters layer. Interactors only know what behavior these gateways offer by way of their interface definition. They have no idea how they do their work because those details are encapsulated in an outer layer which the Use Cases know nothing about.
+- we definitively do not want any DI framework specific code anywhere in the inner circles, not in the entities, not in the interactors and even not in the adapters!
 
 #### Frameworks and tools layer
 
 - like the database and drivers.
+- Do not marry frameworks if possible and try to keep them at arms length. Keep framework specific code out of inner circles of the architecture
 
 #### Presenter layer - Ui
 
@@ -166,7 +169,7 @@ Crossing boundaries means using dependency inversion.
 I.e. use cases calling the presenter - must not be direct, the use case calls an interface in the inner circle and have the presenter in the outer circle implement it.
 The higher level policy cannot mention the name of the lower level in it.
 
-Interfaces are implemented by lower level users and owned by higher level component being used
+Interfaces are implemented by lower level users and owned by higher level component being used.
 
 ### Services
 
