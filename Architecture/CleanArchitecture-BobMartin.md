@@ -17,25 +17,61 @@ This is only possible if your is testable and made up of components you can in t
 
 Paradigms (3) of programming
 Structured - if then else replaces goto, discipline on control flow
-Object oriented - inheritance, polymorphism, encapsulation
+Object oriented - discipline of indirect transfer of control
 Functional - discipline of assignment (immutability)
 
-OO:
-Polymorphism: pointers to functions (ex a vtable holding virtual functions)
+### OOP
 
-Example on Linux: every io operation must implement functions: open close seek read ??
+(track 9 chapter 5)
 
-Inheritance: simply the redeclaration of member variables.
+- **OO design is the ability through the use of polymorphism to gain absolute control over every source code dependency in the system**
 
-Programs should be device independent
-Device is plug
+  - Allows for _plugin architecture_ where modules with high level policies are independent of modules with low level details
+  - Low level details are relegated to plugin modules that can be deployed and maintained independently from high level policy modules
 
-End of track 9 **\*** listen to this again
+- imposes discipline on indirect transfer of control
+- the combination of data and function, or modeling the real world are inacurrate
+- Nygard 1966 moved the function call stack frame to the heap and invented OO design
+- Encapsulation: a line can be drawn around data/functions, outside of that line the data is hidden and only some functions are known (public)
+- Inheritance: The redeclaration of variables and functions within a given scope
 
-Interfaces
-Whole point is to control dependency flow
+### Polymorphism:
 
-Functional programming:
+- Ex: UNIX requires every I\O driver provide 5 standard functions: open, close, read, write and seek
+  - the signature of those must be identical for every driver
+  - the file data structure contains 5 pointers for those functions, the driver loads a file data structure with addresses for each of the functions
+    - if STDIN is defined as a file and if it points to the console (input dev.) data structure, then getChar() might be implemented by calling the function pointed to by the read pointer of the file data structure pointed to by STDIN. This trick is the basis of all polymorphism
+  - Polymorphism is an application of pointers to functions
+  - There is no need to recompile source code that conforms to the interface. This enables so that the source code calling the interface does not depend on the source code on the other side of the interface.
+
+#### Plugin Architecture
+
+- Originally created to support input output device independence
+
+#### Dependency Inversion
+
+- Polymorphism allows for a high level to call a function in a mid level function through an interface
+  - w/o polymorphism, main level functions call high level funcctions which call mid level functions which call lower level functions and in that calling tree, source code dependencies follow the flow of control
+    - The higher level caller needs to include/import/mention the name of the module that contains the callee (the lower level module being called). Dependencies are dictated by the flow of control
+  - With polymorphism the high level can call the lower level through an interface (this is a source code contrivance) - at runtime the interface does not exist, the high level function calls the mid level function indirectly without any source code dependency between the two.
+    - The interface functions as a kind of "pointer" to the actual function, so the functionality is polymorphic (the function being pointed to can change and take other forms)
+      - The address pointed to in the interface can change as needed and as it is implemented by modules
+  - Note: the source code dependency (the inheritance relationship) between the mid level function and the interface, points from the mid level function to the interface, in other words in the opposite direction of the flow of control (against the direction of the higher level to the lower level)
+
+### Interfaces
+
+- Whole point is to control dependency flow.
+- No matter what module is calling another module, the software architect can use interfaces to point the dependency in either direction via an interface
+- This is what OO is all about from an architect's point of view: re-arranging the source code dependencies so that the db and the UI depend on the business rules rather than the other way around
+  - the UI and the db can be plugins to the business rules
+  - The source code of the business rules never mentions the UI or the db and can be separated into 3 separate deployable components
+  - The business rules will not depend on the UI or db
+
+### Independent deployability and developability
+
+- If the modules can be deployed individually without requiring the compiling of the other modules (no source code dependency), then you can develop them independently
+
+### Functional programming:
 
 Primary advantage is it avoids concurrency problems like deadlocks and races conditions since no variable should change.
 Requires infinite processing and storage,it is only practical within limits.
@@ -48,7 +84,7 @@ Ex: readchar, writechar, translate -> translate is the high level policy because
 Good examples in ch 25.
 
 Entities/models are high level policies. They should not depend on anything and be plain old objects.
-\*\*\*\*Your system should be testable without needing a database, UI or framework. You should be able to unit test the business rules and use cases.
+**Your system should be testable without needing a database, UI or framework. You should be able to unit test the business rules and use cases.**
 Use cases are a path that a user would take in the system.
 Business rules should be the most independent and reusable code.
 Business rules are lower level than entities but still high level relatively.
@@ -56,15 +92,22 @@ Business rules are what the business needs to make money, esp critical business 
 The architecture of a system should scream what the system is not what framework it uses. Folders and files should obviously indicate it is a healthcare system or an accounting system etc.
 Review track 28 or 27.
 
-Good architecture is divided into layers:
-Entities
-Business rules
-Database
-Ui
-\*From high level at top to low level at bottom
+### Good architecture is divided into layers:
+
+\*From high level at the top to low level at the bottom
+
+1. Entities
+1. Business rules
+1. Database
+1. UI
+
+#### Entities
 
 Track 28
-Entities can be data classes or have functions. There are the high level inner circle and no change in the application should affect
+
+Entities can be data classes or have functions. There are at the high level inner circle in the architecture layer and no change in the application should affect them.
+
+#### Use Cases
 
 Use cases orchestrate the flow of data to and from the entities. We don't expect changes to this layer to affect the entities.
 Changes to the function of the application will affect this layer.
@@ -72,16 +115,49 @@ Use case classes are typically suffixed with the word Interactor.
 
 One key aspect of the request/response messages that flow in and out of use case interactors and across boundaries is that they are simple data structures meaning they contain no special types: ie. entities, or types provided by 3rd party libs etc. - they are pure C# objects.
 
-Interfaces adapter layer, concrete format from data in the use cases to use in other layers, I.e. the database. Controllers etc.
-use of \_authService, \_studentRepository and \_courseRepository in the Interactor/Use Case. These services are typically referred to as Gateways within clean architecture and get injected into the Use Case layer as per the dependency rule. These are the things that deal with the database, rest services or other external agencies and their implementation belongs in the Interface Adapters layer. Interactors only know what behavior these gateways offer by way of their interface definition. They have no idea how they do their work because those details are encapsulated in an outer layer which the Use Cases know nothing about.
+#### Interfaces/Adapter Layer
 
-Next layer is frameworks and tools, like the database and drivers.
+- concrete format from data in the use cases to use in other layers, I.e. the database. Controllers etc.
+  use of \_authService, \_studentRepository and \_courseRepository in the Interactor/Use Case. These services are typically referred to as Gateways within clean architecture and get injected into the Use Case layer as per the dependency rule. These are the things that deal with the database, rest services or other external agencies and their implementation belongs in the Interface Adapters layer. Interactors only know what behavior these gateways offer by way of their interface definition. They have no idea how they do their work because those details are encapsulated in an outer layer which the Use Cases know nothing about.
 
-Presenter layer - Ui
+#### Frameworks and tools layer
 
-Source. Code dependencies always move inwards to the higher level policy
+- like the database and drivers.
 
-Example of Boundary:
+#### Presenter layer - Ui
+
+Source Code dependencies always move inwards to the higher level policy.
+
+### Humble objects and boundaries
+
+track 30 (partial boundaries)
+
+track 31
+
+- Use boundaries to isolate parts of the system based on their axis of change
+
+  - i.e. a Game UI that can display different languages: language is not the only axis of change for a UI, we might want to vary the mechanism by which the text is communicated as well, for example a shell, text window or chat app.
+    - The are different architectural boundaries defined by these axes of change (i.e. the display mechanism or the language displayed)
+    - Might want to construct an API that crosses a boundary and isolates the specific language components from the specific communication mechanism components
+      - the Language API could be implemented by English and Spanish components
+      - the Text Delivery (communication) API is implemented by the SMSN Console component - This is dependent on the language API
+      - the Data Storage API is implemented by Flash or Cloud data components
+    - All three of these APIs would be dependent on Game Rules (business entities/logic at the highest level of the architecture)
+    - Game rules communicates with Language through an API that Game Rules defines and Language implements
+    - Language communicates with Text Delivery using an API which Language defines, but Text Delivery implements
+  - **The API is defined and owned by the user rather than by the implementor** (the higher level defines the contract/what can be called by lower levels and the lower level specifies contract details/implementation it uses to call that contract)
+    - Ex: In Game Rules we would find polymorphic boundary interfaces used by the code inside Game Rules and implemented by the code inside the Language Component
+      - would also find polymorphic boundary interfaces used by Language and implemented by code inside Game Rules
+    - The API defined by the boundary interfaces is owned by the Upstream component
+      - Ex: we would expect polymorphic interfaces defined in the Language API to be implemented by the English and Spanish components
+  - Game Rules would control streams of data (i.e. from the user input to data persistence, and from data persistence back to the user for the output)
+
+- Note: boundaries are expensive and must be decided and placed with care, but they are extremely expensive to add in later and difficult to predict where they are needed precisely
+- An architect must decide where boundaries are fully needed, where partial boundaries should be used or whether boundaries should be ignored completely (YAGNI).
+  - As the system develops watch carefully for first signs where friction starts to reveal itself where a boundary may be needed. Weigh the cost of implementing a boundary or ignoring and review that decision frequently. goal is to implement at the inflection point where cost of implementing becomes less than the cost of ignoring.
+
+#### Example of Boundary:
+
 There's embedded software in your mouse that communicates with your operating system. Yet the details are hidden from your applications. Your spreadsheet accepts standardized input without knowing or caring what kind of mouse you are using. Then when someone invents a new input device like the touchpad it works with your spreadsheet automatically.
 That's just one of the boundaries in your computer (between the spreadsheet application and the input device that delivers info to it).
 
@@ -94,9 +170,11 @@ The higher level policy cannot mention the name of the lower level in it.
 
 Interfaces are implemented by lower level users and owned by higher level component being used
 
-Humble objects and boundaries, track 31 or 30, review
+### ?
 
 Main is the lowest level component, should be thought of as a plug in to the system ? Track 33
+
+#### Microservices
 
 Micro services decoupling fallacy - services can actually be coupled through shared data. If the schema changes then the multiple services consuming it need to be rebuilt.
 
@@ -104,20 +182,22 @@ Buffer: a slice of memory (ram) that holds data which you can manipulate or use 
 
 Firmware: you need a hardware access layer to separate business logic from low level hardware details.
 
-Basic operations of a component:
-Accept input
-Process input
-Produce output
+#### Basic operations of a component:
 
-Types of architecture approaches:
-Horizontally layered (web,business logic, data layers)
+1. Accept input
+1. Process input
+1. Produce output
 
-- not recommended though you may start with this, see later chapter on why bad as application grows. More needs to be made public
+#### Types of architecture approaches:
 
-Layer by feature, also not ideal and has problems
+- Horizontally layered (web,business logic, data layers)
 
-Package by component - similar to layer by feature and recommended by bob Martin. The difference is that dependencies are carefully separated accord to dependency rule and decoupling is carefully adhered to.
+  - not recommended though you may start with this, see later chapter on why bad as application grows. More needs to be made public
 
-\*\*\*\*Program against polymorphic interfaces.
+- Layer by feature, also not ideal and has problems
+
+- Package by component - similar to layer by feature and recommended by bob Martin. The difference is that dependencies are carefully separated accord to dependency rule and decoupling is carefully adhered to.
+
+**Program against polymorphic interfaces.**
 Hide low level details.
 With frameworks, defer decision on which to use as long as possible before commiting. You are married to the framework and life of app is tied to it.
