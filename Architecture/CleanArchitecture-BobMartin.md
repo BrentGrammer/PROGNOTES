@@ -170,7 +170,7 @@ Interfaces are implemented by lower level users and owned by higher level compon
 ### Services
 
 - Services do not define an architecture. An architecture is defined by boundaries that separate components and follow the dependency rule.
-
+- Boundaries cross through the services dividing them into components. Services must be designed with component architecture following the dependency rule. The components within the service define the architectural boundaries (not the separate services themselves)
 - Main is the lowest level component, should be thought of as a plug in to the system ? Track 33
 
 ### Microservices
