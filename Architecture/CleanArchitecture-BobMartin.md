@@ -170,13 +170,19 @@ The higher level policy cannot mention the name of the lower level in it.
 
 Interfaces are implemented by lower level users and owned by higher level component being used
 
-### ?
+### Services
 
-Main is the lowest level component, should be thought of as a plug in to the system ? Track 33
+- Services do not define an architecture. An architecture is defined by boundaries that separate components and follow the dependency rule.
+
+- Main is the lowest level component, should be thought of as a plug in to the system ? Track 33
 
 #### Microservices
 
-Micro services decoupling fallacy - services can actually be coupled through shared data. If the schema changes then the multiple services consuming it need to be rebuilt.
+##### Micro services decoupling fallacy
+
+- services can actually be coupled through shared data or shared resources on a processor or network. If the schema changes then the multiple services consuming it need to be rebuilt.
+- services are only decoupled at the level of individual variables
+- If a field is added to a data record that is passed between services, then every service that operates on the new field must be changed and must strongly agree about the interpretation of the data in that field. This makes them highly coupled.
 
 Buffer: a slice of memory (ram) that holds data which you can manipulate or use temporarily.
 
