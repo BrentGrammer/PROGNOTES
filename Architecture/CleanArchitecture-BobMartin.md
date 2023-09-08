@@ -15,10 +15,11 @@ If a program does not work but it's easy to change, you can change it to make it
 Software is more like science than math. You cannot prove a program is correct. You can only prove it is incorrect (it is falsifiable) by using the scientific method via tests.
 This is only possible if your is testable and made up of components you can in tests (argument for TDD)
 
-Paradigms (3) of programming
-Structured - if then else replaces goto, discipline on control flow
-Object oriented - discipline of indirect transfer of control
-Functional - discipline of assignment (immutability)
+### Paradigms (3) of programming
+
+- Structured - if then else replaces goto, discipline on control flow
+- Object oriented - discipline of indirect transfer of control
+- Functional - discipline of assignment (immutability)
 
 ### OOP
 
@@ -178,7 +179,7 @@ Interfaces are implemented by lower level users and owned by higher level compon
 
 #### Microservices
 
-##### Micro services decoupling fallacy
+#### Micro services decoupling fallacy
 
 - services can actually be coupled through shared data or shared resources on a processor or network. If the schema changes then the multiple services consuming it need to be rebuilt.
 - services are only decoupled at the level of individual variables
@@ -188,13 +189,13 @@ Buffer: a slice of memory (ram) that holds data which you can manipulate or use 
 
 Firmware: you need a hardware access layer to separate business logic from low level hardware details.
 
-#### Basic operations of a component:
+### Basic operations of a component:
 
 1. Accept input
 1. Process input
 1. Produce output
 
-#### Types of architecture approaches:
+### Types of architecture approaches:
 
 - Horizontally layered (web,business logic, data layers)
 
