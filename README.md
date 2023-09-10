@@ -3,7 +3,7 @@
 ## Table of Contents
 
 - [Computer Science/Fundamentals](./ComputerScience/)
-  - [Computer Systems A Programmers Perspective book](./ComputerScience/CSAPP.md)
+  - [Computer Systems A Programmers Perspective book](./ComputerScience/CSAPP/)
   - [Code - Charles Petzgold](./ComputerScience/Code-Petzgold.md)
   - [Designing Data Intensive Applications - Klepmann](./ComputerScience/DesigningDataIntensiveApplications.md)
 - [GIT](./GIT/)

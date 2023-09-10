@@ -81,6 +81,10 @@
     TCP/IP networks that can be reached by routing.
   - IP is an intentionally unreliable protocol, so it
     doesn’t guarantee delivery of information.
+  - IP addresses: Two parts - the network and the host ID. The host ID can’t be 0 (the host ID is all zeros) because that
+    address is always reserved to represent the network itself. And the host ID can’t be
+    255 (the host ID is all ones) because that host ID is reserved for use as a broadcast
+    request that’s intended for all hosts on the network.
 - TCP ensures that each packet is delivered, if at
   all possible, by establishing a connection with the receiving device and then send-
   ing the packets. If a packet doesn’t arrive, TCP resends the packet. The connection
