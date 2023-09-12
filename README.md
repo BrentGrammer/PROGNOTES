@@ -24,3 +24,4 @@
     - [Fiber Tree, Fiber Nodes, Virtual DOM](./React/Anthony-Alicea-Understanding-React/Fibers.md)
 - [Testing (General)](./Testing/)
   - [Unit Testing: Principles, Practices and Patterns (Khorikov)](./Testing/UnitTesting-Khorikov.md)
+  - [Testing React Applications](./React/Testing/)

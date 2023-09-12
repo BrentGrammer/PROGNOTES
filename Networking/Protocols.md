@@ -85,6 +85,16 @@
     address is always reserved to represent the network itself. And the host ID can’t be
     255 (the host ID is all ones) because that host ID is reserved for use as a broadcast
     request that’s intended for all hosts on the network.
+  - The IP
+    protocol defines five different address classes: A, B, C, D, and E. Each of the first
+    three classes, A–C, uses a different size for the network ID and host ID portion of
+    the address. Class D is for a special type of address called a multicast address. Class
+    E is an experimental address class that isn’t used
+    - » Class A: The first bit is zero.
+      » Class B: The first bit is one, and the second bit is zero.
+      » Class C: The first two bits are both one, and the third bit is zero.
+      » Class D: The first three bits are all one, and the fourth bit is zero.
+      » Class E: The first four bits are all one.
 - TCP ensures that each packet is delivered, if at
   all possible, by establishing a connection with the receiving device and then send-
   ing the packets. If a packet doesn’t arrive, TCP resends the packet. The connection
@@ -103,3 +113,41 @@
   packet again or gives up.
 - TCP/IP is not just the pro-
   tocol of the Internet now, but it’s also the protocol on which most LANs are based.
+
+### Subnets
+
+- In a Class C address, the first three octets are used for the network ID, and the
+  fourth octet is used for the host ID. With only eight bits for the host ID, each Class
+  C network can accommodate only 254 hosts. However, with 24 network ID bits,
+  Class C addresses allow for more than 2 million networks.
+  The problem with Class C networks is that they’re too small. Although few orga-
+  nizations need the tens of thousands of host addresses provided by a Class B
+  address, many organizations need more than a few hundred. The large discrep-
+  ancy between Class B networks and Class C networks is what led to the develop-
+  ment of subnetting, which I describe in the next section.
+- Subnetting is a technique that lets network administrators use the 32 bits available
+  in an IP address more efficiently by creating networks that aren’t limited to the
+  scales provided by Class A, B, and C IP addresses. With subnetting, you can create
+  networks with more realistic host limits.
+
+#### 2 Reasons for Subnetting:
+
+1. more flexible way to designate which portion of an IP
+   address represents the network ID and which portion represents the host ID
+
+
+    - With
+    standard IP address classes, only three possible network ID sizes exist: 8 bits for
+    Class A, 16 bits for Class B, and 24 bits for Class C. Subnetting lets you select an
+    arbitrary number of bits to use for the network ID. any
+    network with more than 254 devices (class C) would need a Class B allocation and probably
+    waste tens of thousands of IP addresses.
+
+2. The second reason for subnetting is that even if a single organization has thou-
+   sands of network devices, operating all those devices with the same network ID
+   would slow the network to a crawl. The way TCP/IP works dictates that all the
+   computers with the same network ID must be on the same physical network. The
+   physical network comprises a single broadcast domain, which means that a single
+   network medium must carry all the traffic for the network. For performance rea -
+   sons, networks are usually segmented into broadcast domains that are smaller
+   than even Class C addresses provide.
