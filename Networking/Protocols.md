@@ -126,7 +126,7 @@
   ancy between Class B networks and Class C networks is what led to the develop-
   ment of subnetting, which I describe in the next section.
 - Subnetting is a technique that lets network administrators use the 32 bits available
-  in an IP address more efficiently by creating networks that aren’t limited to the
+  in an IP address (for the network ID portion) more efficiently by creating networks that aren’t limited to the
   scales provided by Class A, B, and C IP addresses. With subnetting, you can create
   networks with more realistic host limits.
 
@@ -135,13 +135,12 @@
 1. more flexible way to designate which portion of an IP
    address represents the network ID and which portion represents the host ID
 
-
-    - With
-    standard IP address classes, only three possible network ID sizes exist: 8 bits for
-    Class A, 16 bits for Class B, and 24 bits for Class C. Subnetting lets you select an
-    arbitrary number of bits to use for the network ID. any
-    network with more than 254 devices (class C) would need a Class B allocation and probably
-    waste tens of thousands of IP addresses.
+   - With
+     standard IP address classes, only three possible network ID sizes exist: 8 bits for
+     Class A, 16 bits for Class B, and 24 bits for Class C. Subnetting lets you select an
+     arbitrary number of bits to use for the network ID. any
+     network with more than 254 devices (class C) would need a Class B allocation and probably
+     waste tens of thousands of IP addresses.
 
 2. The second reason for subnetting is that even if a single organization has thou-
    sands of network devices, operating all those devices with the same network ID
@@ -151,3 +150,30 @@
    network medium must carry all the traffic for the network. For performance rea -
    sons, networks are usually segmented into broadcast domains that are smaller
    than even Class C addresses provide.
+
+#### Subnet Masks
+
+- used to the router must be told which portion of the host ID should
+  be used for the subnet network ID
+- Those IP address bits that
+  represent the network ID are represented by a 1 in the mask, and those bits that
+  represent the host ID appear as a 0 in the mask. As a result, a subnet mask always
+  has a consecutive string of ones on the left, followed by a string of zeros. (ex: `11111111 11111111 11110000 00000000`)
+- To determine the network ID of an IP address, the router must have both the IP
+  address and the subnet mask.
+- here’s how the network address is extracted from an IP address
+  using the 20-bit subnet mask from the previous example. (the network ID for this subnet is 144.28.16.0.)
+
+```
+144 . 28 . 16 . 17
+IP address: 10010000 00011100 00010000 00010001
+Subnet mask: 11111111 11111111 11110000 00000000
+Network ID: 10010000 00011100 00010000 00000000
+ 144  .  28 . 16 . 0
+```
+
+- **Note**: Don’t confuse a subnet mask with an IP address. A subnet mask doesn’t represent
+  any device or network on the Internet. It’s just a way of indicating which portion
+  of an IP address should be used to determine the network ID. (**You can spot a sub-
+  net mask right away because the first octet is always 255, and 255 is not a valid
+  first octet for any class of IP address.**)
