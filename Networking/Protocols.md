@@ -130,6 +130,9 @@
   scales provided by Class A, B, and C IP addresses. With subnetting, you can create
   networks with more realistic host limits.
 
+  A subnet can be thought of as a range or block of IP addresses that have a com-
+  mon network ID.
+
 #### 2 Reasons for Subnetting:
 
 1. more flexible way to designate which portion of an IP
@@ -177,3 +180,26 @@ Network ID: 10010000 00011100 00010000 00000000
   of an IP address should be used to determine the network ID. (**You can spot a sub-
   net mask right away because the first octet is always 255, and 255 is not a valid
   first octet for any class of IP address.**)
+
+#### Network Prefixing/CIDR (classless interdomain routing)
+
+- Shorthand for indicating how many bits the network ID address part of the IP addr takes up.
+  - Ex: the IP address 144.28.16.17 with the subnet mask 255.255.240.0 can be represented as
+    `144.28.16.17/20` because the subnet mask 255.255.240.0 has 20 network ID bits.
+- The default subnet masks are three subnet masks that correspond to the standard Class
+  A, B, and C address assignments. .../8,.../16,.../24
+
+#### Subnet requirements
+
+- The minimum number of network ID bits is eight. As a result, the first octet
+  of a subnet mask is always 255.
+- The maximum number of network ID bits is 30. You have to leave at least
+  two bits for the host ID portion of the address to allow for at least two hosts. If
+  you use all 32 bits for the network ID, that leaves no bits for the host
+  ID. Obviously, that won’t work. Leaving just one bit for the host ID won’t work,
+  either, because a host ID of all ones is reserved for a broadcast address, and
+  all zeros refers to the network itself. Thus, if you use 31 bits for the network ID
+  and leave only 1 for the host ID, host ID 1 would be used for the broadcast
+  address, and host ID 0 would be the network itself, leaving no room for actual
+  hosts. That’s why the maximum network ID size is 30 bits.
+- A subnet address can’t be all zeros or all ones
