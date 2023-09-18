@@ -124,6 +124,8 @@ One key aspect of the request/response messages that flow in and out of use case
 
 - like the database and drivers.
 - Do not marry frameworks if possible and try to keep them at arms length. Keep framework specific code out of inner circles of the architecture
+- **The database does not contain business objects, but it contains concrete data structures**. The boundary between the application and database should be crossed by inserting a layer which will depend on the db and translate the data structures into business objects for the application.
+  - The layer should depend on the database and it should depend on the application. The Application being abstract should not depend on the layer.
 
 #### Presenter layer - Ui
 
