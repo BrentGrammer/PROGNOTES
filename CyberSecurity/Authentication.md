@@ -1,4 +1,4 @@
-# Authentication
+# Auth
 
 ## TOKENS
 
@@ -17,22 +17,6 @@
 - As long as a server has the same ACCESS_TOKEN_SECRET that was used to generate the JWT token, that server can decrypt the JWT token and get the userId.
 - Sometimes additional and unnecessary information is stored in the JWT. The JWT token should primarily contain user information
 
-### Cookies
-
-- Automatically sent with each request from browser to solve the problem of stateless HTTP (remembering who the user is on subsequent requests etc.)
-  - Cookies are stored and associated with a domain/server
-  - web browser automatically sends cookies with every request to the cookie's domain.
-  - the browser will automatically add HttpOnly cookies to the request before sending
-- CSRF Attacks: malicious page uses auto sending browser behavior to make requests to your server with user's token
-
-  - Modern browsers default a `same-site` attribute that defaults to LAX which means anything other than Top Level navigations (URL in the browser changes) do not auto send the cookie with a request. This mitigates CSRF Attacks.
-
-  ```
-  Set-Cookie: CookieName=CookieValue; SameSite=Lax;    // Only GET requests that happen due to top level navigation (URL change) are sent with cookies
-  Set-Cookie: CookieName=CookieValue; SameSite=Strict; // no cookies at all are sent with any requests
-  // Normal sends all cookies for all requests, but is not recommended
-  ```
-
 ### JWT vs. Cookies
 
 - Cookies are appropriate for web browser to server communication. Mobile apps for ex. might have more difficulty dealing with cookies. JWTs are more versatile and flexible.
@@ -44,7 +28,9 @@
 
 ## Salting and Hashing Passwords
 
+- Good library to use for hashing and salting pws is [bcryptjs](https://www.npmjs.com/package/bcryptjs). This lib generates a random salt for you.
 - Apply unique salt (random unpredictable string) to each password
   - A system-wide salt is pointless to mitigate attacks; it would just make passwords longer.
   - should generate a unique salt upon creation of each stored credential (not just per user or system-wide). That includes passwords created during registration or as the result of a password reset.
 - The salt doesn't need to be encrypted, for example. Salts are in place to prevent someone from cracking passwords at large and can be stored in cleartext in the database. However, do not make the salts readily accessible to the public
+- A common practice is to simply append the salt to the hash of the pw.
