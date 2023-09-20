@@ -66,3 +66,32 @@ function setTheme(theme) {
 - Do not store too much data in the cookie itself - this can slow down processing when it's sent to the server and cause problems if cookie is large.
 - Most of the time only a ID is stored in the session cookie which can be used to look up the rest of the data in a db server side.
 - Temp data sometimes is stored using a pattern called [Cookie Flash](https://remix.run/docs/en/main/utils/sessions#sessionflashkey-value).
+
+### Logging Out a User/Ending a Session
+
+- you should almost never perform mutations within a GET request, so rather than having a link to a /logout page which is too common, you should have a button that performs a POST request to /logout. This reduces the risk of CSRF attacks.
+- **Expiration**: When a cookie expires, the browser will automatically delete it. So it won't show up in future requests.
+  - Can set expiration time to far in the future for a "remember me" functionality". Note: Remember me may not log user in when they come back if they come back after the expiration has passed. All "remember me" is supposed to do is prevent the cookie from being automatically deleted when the browser is closed. Each app will have its own rules about how long a user can remain logged in after that point.
+  - You can use `expires` (takes a date) or `max-age` (number of seconds the cookie is valid for) settings on a cookie to set it's expiration - it doesn't matter which one.
+- Log out the user and expire the session automatically if the user account was deleted. Send them to the login page.
+
+#### Automatic Logout (i.e. for bank apps after amount of inactivity):
+
+- With client-side JavaScript, you simply create a timer and so long as the user is actively using the site, you reset the timer. If the timer expires, you log the user out. You can even provide them with a modal to notify them of the impending logout and give them the option to stay logged in.
+- There are various ways you can determine activity. Depending on the type of app you have, you could track navigation, network requests, mouse movements, or keyboard activity.
+  Ex tracking navigation:
+
+```javascript
+const location = useLocation();
+
+useEffect(() => {
+  console.log("location changed:", location.key);
+}, [location.key]);
+```
+
+- When the user is prompted with a modal to remain signed in, reset the timer.
+
+#### Automatic Redirect after Login
+
+- Can use a `redirectTo=` query string param to tell the app where to direct the user (if for example coming from an email link that should lead the user to a particular page to do something).
+- Security Warning: redirectTo query params can be abused by attackers. A baddy could use a redirectTo query param to redirect a user to a malicious site after logging in. So you should always validate the redirectTo query param to make sure it's a valid URL on your site. It's sufficient to just make sure the URL doesn't start with http or https and that it starts with /.
