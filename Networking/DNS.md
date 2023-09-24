@@ -52,3 +52,32 @@
 - DNS servers learn ohw to reach the root servers by consulting a root hints file on the server:
   - Linux: `/etc/named.root`
 - Entries can be cached with a TTL (time to live in seconds)
+
+### Types of Records:
+
+- **SOA**: Start of Authority Identifies a zone
+- **NS**: Name Server Identifies a name server that is authoritative for the zone
+- **A**: Address Records - Maps a fully qualified domain name to an IP address. Ex: `www IN A 192.168.168.201` Note the host name is not fully qualified. DNS will provide the fully qualified name with the zone (which is usually indicated by the domain) added.
+- **CNAME**: Canonical Name Creates an alias for a fully qualified domain name
+  - The owner field in the CNAME record provides the name of
+    the alias that you want to create. Then, the RDATA field provides the Canonical
+    Name — that is, the real name of the host.
+  - Ex: `files.lowewriter.com. IN CNAME www1.lowewriter.com.`
+    - Note that IN represents Internet Protocol
+- **MX**: Mail Exchange Identifies the mail server for a domain.
+  - Mail Exchange (MX) records identify the mail server for a domain. The owner field
+    provides the domain name that users address mail to. The RDATA section of the
+    record has two fields. The first is a priority number used to determine which mail
+    servers to use when several are available. The second is the fully qualified domain
+    name of the mail server itself.
+  - Ex: `lowewriter.com. IN MX 0 mail1.lowewriter.com.
+ lowewriter.com. IN MX 10 mail2.lowewriter.com.`
+  - The server name specified in the RDATA section should be an actual host name,
+    not an alias created by a CNAME record. Although some mail servers can handle
+    MX records that point to CNAMEs, not all can. As a result, you shouldn’t specify
+    an alias in an MX record.
+    Be sure to create a reverse lookup record (PTR, described in the next section) for
+    your mail servers. Some mail servers won’t accept mail from a server that doesn’t
+    have valid reverse lookup entries.
+- **PTR**: Pointer Maps an IP address to a fully qualified domain name for reverse lookups. Usually appear in special reverse lookup zones.
+  - Ex: `102.129.71.64.in-addr.arpa. IN PTR www.lowewriter.com.`
