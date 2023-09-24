@@ -20,3 +20,20 @@ of the system.
 
 - Intel IA32
 - x86-64 (extension that runs on 64 bit machines)
+
+### Type sizes:
+
+Type | Size (bytes)
+char | 1
+short | 2
+int | 4
+long | 4
+long | 4
+char | 4
+float | 4 *single precision
+double | 8 (double presicion)
+long | 10/12 (extended precision)
+
+### Instructions:
+- %edp can be a way of signifying a register (using percent)
+- instructions can have size suffixes: `movl` means move a long word (a larger sized data type with more bytes), `movb` means move byte etc.

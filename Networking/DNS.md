@@ -81,3 +81,13 @@
     have valid reverse lookup entries.
 - **PTR**: Pointer Maps an IP address to a fully qualified domain name for reverse lookups. Usually appear in special reverse lookup zones.
   - Ex: `102.129.71.64.in-addr.arpa. IN PTR www.lowewriter.com.`
+
+
+### Reverse Lookups
+- returns the fully qualified domain name for an IP Address (the opposite of a forward lookup)
+- Reverse lookups are possible because of a special domain called the in-addr.arpa 
+domain, which provides a separate fully qualified domain name for every possible 
+IP address on the Internet. To enable a reverse lookup for a particular IP address, 
+all you have to do is create a PTR record in a reverse lookup zone (a zone that is 
+authoritative for a portion of the in-addr.arpa domain). The PTR record maps 
+the in-addr.arpa domain name for the address to the host’s actual domain name.
