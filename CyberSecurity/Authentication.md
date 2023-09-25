@@ -48,6 +48,7 @@ const token = jwt.sign(payload, secret, {
   - Local storage is easily accessible by malicious JS code (localStorage.getItem('token'))
   - If you're site has no XSS vulnerabilities then local storage is okay, but to be safe it should be avoided.
   - For refreshing the page and maintaining signed in state, store the token in an httpOnly cookie, not local storage
+  - Note: you can store things like `expiresIn` and some user info if it is not particulary sensitive in local storage. The important thing is not to store the token there, but in a httpOnly cookie instead.
 - Do not keep any secret keys that are used to sign tokens in the browser. You should only have access to them on the backend server. If stored in browser someone could parse them to sign tokens.
 - Do not decode the token in the client (to extract user info etc.). This is especially important if you are using OAuth.
   - Access tokens are meant to be opaque tokens only read at the API
