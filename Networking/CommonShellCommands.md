@@ -45,3 +45,17 @@
   know  you’re experiencing a DNS problem when you can access a resource by
   specifying its IP address but not its DNS name.
 - `nslookup google.com`
+
+### ping
+- Uses ICMP (Internet Control Message Protocol) to determine if you can reach another computer/server.
+- shows how long a request took to get a response
+- `ping google.com`
+
+### route 
+- display or change routing table info
+- `route print` or `route`
+
+### tracert
+- `traceroute {hostname to reach}` on Unix, `tracert {hostname}` on Windows
+- lists hops to get to another server - useful for debugging where problems occur if you can't reach a server
+- 

@@ -19,23 +19,22 @@
 
 ```javascript
 function binarySearch(haystack, needle) {
-  let start = 0;
-  let end = haystack.length;
+  let low = 0;
+  let high = haystack.length;
 
-  while (start < end) {
-    let midpoint = Math.floor((end - start) / 2) + start; // add start offset to get correct midpoint index relative to the entire array passed in.
-    let midVal = haystack[midpoint];
+  do {
+    const midpoint = Math.floor(low + (high - low) / 2);
+    const value = haystack[midpoint];
 
-    if (midVal === needle) {
-      return midpoint;
-    } else if (midVal < needle) {
-      start = midpoint + 1;
+    if (value === needle) {
+      return true;
+    } else if (value > needle) {
+      high = midpoint; // high is exclusive, adjust to set it to the upper bound of the first half (lesser values)
     } else {
-      end = midpoint;
+      // our val is less than the needle, we need to search on the right half/higher side
+      low = midpoint + 1; // we want to drop the midpoint no need to look at it again.
     }
-  }
-
-  return -1;
+  } while (low < high); // note we do not want <= which would result in a off by one error since the high is not inclusive!
 }
 ```
 
@@ -55,8 +54,7 @@ function twoCrystalBalls(breaks: boolean[]): number {
   let i = jumpAmount;
   for (; i < breaks.length; i += jumpAmount) {
     // find point where it breaks then jump back sqrt(n) and walk forward sqrt(n)
-    if (breaks[i]) {
-      // check if we've entered the series of True points in the set
+    if (breaks[i]) { // check if we've entered the series of True points in the set
       break;
     }
   }
