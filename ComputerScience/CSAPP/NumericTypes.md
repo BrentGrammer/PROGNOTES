@@ -178,6 +178,9 @@ either p = 1 and q = 0, or p = 0 and q = 1
 
 #### Shift Operations:
 
+- Arithmetic shift - fills with copies of the sign bit
+- logical shift - fill with zeros
+
 As examples, the following table shows the effect of applying the different
 shift operations to some sample 8-bit data:
 
@@ -188,7 +191,7 @@ Operation           Values
 
 x << 4              [00110000] [01010000]
 x >> 4 (logical)    [00000110] [00001001]
-x >> 4 (arithmetic) [00000110] [11111001] - adds 1s
+x >> 4 (arithmetic) [00000110] [11111001] - adds 1s - the sign bit
 ```
 
 Observe that all but one entry involves filling with zeros. The exception
@@ -589,5 +592,3 @@ H. (f+d)-f == d
 No, for example when f is 1.0e20 and d is 1.0, the expression f+d will be
 rounded to 1.0e20, and so the expression on the left-hand side will evaluate
 to 0.0, while the right-hand side will be 1.0.
-
-

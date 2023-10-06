@@ -28,3 +28,4 @@
   - [Test Doubles (Mocking)](./Testing/TestDoubles.md)
   - [Unit Testing: Principles, Practices and Patterns (Khorikov)](./Testing/UnitTesting-Khorikov.md)
   - [Testing React Applications](./React/Testing/)
+- [GraphQL](./GraphQL/)

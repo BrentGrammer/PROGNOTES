@@ -76,6 +76,24 @@ modern processors can execute multiplnstructions at one time, a property known a
 Concurrency vs. Parallelism: Concurrency is running multiple processes over a given span of time, paralellism is running two or more processes at the same time.
 (Concurrency can include running in parallel, simultaneously, or in multiple threads that interleave and processing is jumping back and forth between then, i.e. not simultaneous execution)
 
----
+### Pointers in C
 
+- Deferencing operator: `*`
+  - `int x = *xp;`, xp is a pointer to an integer. Read the value storedin the location designated by xp and store it as a local variable named x.
+  - `*xp = y;` a write operation - store the value of parameter y at the location designated by xp.
+- Address of operator: `&`
 
+  - creates a pointer to the location holding the variable that follows it, ex: `&a`
+
+  ```c
+  // swap
+  int exchange(int *xp, int y)
+  {
+     int x = *xp;
+
+     *xp = y; // update xp memloc
+     return x; // x now is val of y.
+  }
+  ```
+
+- what we call “pointers” in C are simply addresses. Dereferencing a pointer involves copying that pointer into a register, and then using this register in a memory reference. Second, local variables such as are often kept in registers rather than stored in memory locations. Register access is much faster than memory access.

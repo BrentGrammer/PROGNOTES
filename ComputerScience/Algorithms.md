@@ -338,3 +338,98 @@ export default class Stack<T> {
 - reuse objects to retain more efficient memory usage
 - Example: a server with 10000 requests that create a user object for every single request
   - Instead of creating a new object for each one, reuse an object, set new values on it, use it for the service and hand it back to a pool (keeps memory from spiking and going up and down - keeps it consistent and efficient)
+
+## Recursion
+
+- Function calling itself
+- Needs a base case to stop the recursion.
+  - **Move everything needed for base case outside of the recursing. Don't check for base cases or when to stop inside the resurse step. Put it all at the beginning first**
+- Can have three steps (useful in path finding algos):
+  - pre: do something before recursing
+  - recurse: do the recursion
+  - post: do something after recursing before returning
+    - i.e. log out a value after calling the recursive function on each pass
+
+```javascript
+function sum(n) {
+  if (n === 0) return 0;
+  if (n === 1) return 1;
+  // recurse step with a pre-step of adding n
+  const result = n + sum(n - 1);
+  // post step of logging out the argument
+  console.log(n);
+  return result;
+}
+```
+
+- Note: when the logs occur using n = 5 for example, they will be `1,2,3,4,5` (not 5-4-3-2-1 since you go back up the stack for the return values after recursing).
+  - In recursion you do down the stack to set return addresses pointing to the previous call, and then back up the stack to send return values up to the previous calls
+
+### Quick Sort
+
+- Divide and Conquer (includes Merge Sort): to split your input into chunks and then go over those smaller subsets and solve things faster. Gets smaller and smaller to a fundamental unit
+- pick an element `P` (for Pivot)
+  - any element that is less than or equal to the Pivot element is put in the first position
+  - everything on the left side becomes less than or equal to pivot and everything on the right is greater than Pivot.
+  - Take the chunks between the Pivot and beginning and the Pivot and the end and repeat the process
+    - Do not include the Pivot (everything around the pivot)
+    - When you get to a empty array or only one item, everything is then sorted.
+    - Note that the lo and hi (left and right ends) are both inclusive
+- This algo sorts in place
+- O(n^2) worst case runtime complexity
+  - Quick sort does not always sort quickly depending on if the pivot is not in the middle etc.
+  - If the list is reversed and the pivot is `1`
+  - Ideal case would be O(nlogn) (pivot is in the center)
+
+#### Implementation
+
+- split into two main functions:
+  - partition(): produces the pivot index and moves items to one side or the other
+  - quicksort(): does the sorting, calls partition, gets the pivot, then recalls quicksort recursively and handles the base case and book keeping.
+
+Example input: [9,3,7,4,69,420,42]
+
+```javascript
+function qs(arr: number[], lo: number, hi: number): void {
+  // base case - if lo and hi positions meet
+  if (lo >= hi) return;
+
+  const pivotIdx = partition(arr, lo, hi);
+
+  // repeat again for each side of the list, but don't include the pivot index on the repeat
+  qs(arr, lo, pivotIdx - 1); // do left side of chunk, -1 for inclusive end positions (not including pivot)
+  qs(arr, pivotIdx + 1, hi); // do the right part of the chunk not including pivot
+}
+
+// returns the pivot index, lo and hi are index positions for the current chunk
+function partition(arr: number[], lo: number, hi: number): number {
+  const pivot = arr[hi];
+
+  let idx = lo - 1; // -1 to enable insertion into the first position of the chunk (which includes the actual lo idx)
+
+  // walk up to not incl. the hi
+  for (let i = lo; i < hi; i++) {
+    // compare against the pivot to determine where to place the element
+    if (arr[i] <= pivot) {
+      // inc index as soon as you find something you need to swap - the first time will inc to the first position. Idx is a marker that says everything to the left of me is sorted
+      idx++;
+      // swap, move what is less than or equal to pivot to the left position.
+      // Ex: [8,7,6,4,5] - 5 is pivot, we walk up to 4 (<=5) and swap 8 into 4s position and move 4 to 8s idx.
+      const tmp = arr[i];
+      arr[i] = arr[idx];
+      arr[idx] = tmp;
+    }
+  }
+
+  // inc idx one more time (if nothing found less than, the idx would become zero)
+  idx++;
+  // swap the pivot (in our impl the highest position in a chunk) to be the idx marked value so that it becomes the new pivot
+  arr[hi] = arr[idx];
+  // return the new pivot index position (in place of the original array)
+  return idx;
+}
+
+export default function quicksort(arr: number[]) {
+  qs(arr, 0, arr.length - 1); // end/hi is inclusive which is unusual in most algorithms
+}
+```
