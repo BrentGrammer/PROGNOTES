@@ -8,7 +8,7 @@
 
 - place the file in the `public` folder: `/public/sitemap.xml`
 - Enter the site map xml address into Google Search Console (https://mysite.com/sitemap.xml)
-- Use Screaming Frog to generate an xml sitemap
+- Use Screaming Frog to generate an xml sitemap or visit https://www.xml-sitemaps.com/
 - Can use packages for react-router client side routing sitemap generation
 
 ### Social media linking
