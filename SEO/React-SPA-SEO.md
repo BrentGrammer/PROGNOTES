@@ -6,10 +6,16 @@
 
 ### Generating a sitemap
 
+- Check https://search.google.com/test/rich-results for indexing on your site.
 - place the file in the `public` folder: `/public/sitemap.xml`
 - Enter the site map xml address into Google Search Console (https://mysite.com/sitemap.xml)
 - Use Screaming Frog to generate an xml sitemap or visit https://www.xml-sitemaps.com/
 - Can use packages for react-router client side routing sitemap generation
+- use React Helmet for improving dynamic <head> entries in a client side routed React app.
+
+### Use Link/Anchor tags
+
+- You should ensure that navigation elements are rendered with <a href="destination"> links so that Googlebot can find all the pages on your site. You can intercept clicks on these links for visitors and load content via AJAX, but Googlebot needs anchor elements for navigation. Using other types of elements with click events for navigation kills your SEO.
 
 ### Social media linking
 
