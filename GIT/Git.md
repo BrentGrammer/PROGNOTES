@@ -35,13 +35,28 @@ Clone: copy on your local machine
 
 $ git diff - shows what has changed
 
----
+#### Undoing a change:
 
-Undoing a change:
-
--git log to get hashes of commits with their messages.
+- git log to get hashes of commits with their messages.
 
 $ git reset [hash for commit - see your msg to identify] - to revert changes from a point in history
+
+### SQUASHING
+
+- `git rebase -i {commit-sha-before-you-want-to-start-squashing}`
+- press `V` in the editor to go into visual mode and highlight all the lines to squash
+- press `:s/pick/squash/gc` to select all the pick words and replace with squash (leave one commit on pick)
+- select yes for all the entries desired and `:wq` to write quit.
+
+#### After merging from latest master, to get clean history and diffs:
+
+```bash
+# https://stackoverflow.com/questions/42513931/squash-feature-branch-commit-after-merging-from-master
+git reset --soft master
+git commit -m 'All changes from my branch squashed'
+```
+
+- This will move pointer to latest master (make sure to pull latest) and separate the commits on your branch squashed for a clean history
 
 ## COMMANDS:
 
