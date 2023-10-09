@@ -20,6 +20,7 @@
 - [REACT](./React/)
   - [Debugging](./React/Debugging.md)
   - [Testing](./React/Testing/)
+  - [Next.js](https://github.com/BrentGrammer/NextJS-app/tree/master)
   - [Anthony Alicea's Understanding React](./React/Anthony-Alicea-Understanding-React/)
     - [Events](./React/Anthony-Alicea-Understanding-React/Events.md), [Hooks](./React/Anthony-Alicea-Understanding-React/Hooks.md), [useEffect](./React/Anthony-Alicea-Understanding-React/UseEffect.md)
     - [Fiber Tree, Fiber Nodes, Virtual DOM](./React/Anthony-Alicea-Understanding-React/Fibers.md)
