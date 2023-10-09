@@ -6,7 +6,7 @@
   - [Computer Systems A Programmers Perspective book](./ComputerScience/CSAPP/)
   - [Code - Charles Petzgold](./ComputerScience/Code-Petzgold.md)
   - [Designing Data Intensive Applications - Klepmann](./ComputerScience/DesigningDataIntensiveApplications.md)
-- [GIT](./GIT/)
+- [GIT](./GIT/Git.md)
 - [Networking](./Networking/)
 - [Architecture](./Architecture/)
   - [Component Design-Clean Coder series](./Architecture/ComponentDesign/)
