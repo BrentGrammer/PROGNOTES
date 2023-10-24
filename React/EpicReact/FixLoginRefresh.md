@@ -10,6 +10,8 @@ In the top level where you are getting user data if logged in:
 
 ex maybe in app.jsx:
 
+```javascript
+
 // log user in with existing token and set User state here
 
 useEffect(() => {
@@ -29,3 +31,4 @@ if (success) {
 
 // render authenticated app if there is a user or the unauthed app if not:
 if (isSuccess)
+```
