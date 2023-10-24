@@ -18,6 +18,7 @@
 - [PYTHON](./Python/)
   - [Anaconda](./Python/Anaconda/Conda.md)
 - [REACT](./React/)
+  - [React-Query](./React/React-Query/ReactQuery.md)
   - [Debugging](./React/Debugging.md)
   - [Testing](./React/Testing/)
   - [Next.js](https://github.com/BrentGrammer/NextJS-app/tree/master)
