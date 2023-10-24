@@ -19,6 +19,7 @@
   - [Anaconda](./Python/Anaconda/Conda.md)
 - [REACT](./React/)
   - [React-Query](./React/React-Query/ReactQuery.md)
+  - [Epic React (Kent Dodds)](./React/EpicReact/)
   - [Debugging](./React/Debugging.md)
   - [Testing](./React/Testing/)
   - [Next.js](https://github.com/BrentGrammer/NextJS-app/tree/master)
