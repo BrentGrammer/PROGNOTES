@@ -18,7 +18,46 @@
   - for ex, just store IDs and then get the record from the query cache
   - This is recommended because it prevents you from having two versions of a piece of data (one in local state and one in the query cache) - that could possibly get out of sync.
 - Keep side effects in event handlers (not in useEffect for ex.) - this helps with double calls with Strict mode in react 18 and is recommended best practices.
+
   - When the user performs an action, that's when the work is done - you don't do it afterwards (like in a useEffect etc.)
+
+  ### setup
+
+- `npm i @tanstack/react-query`
+- can install dev tools for debugging: `npm i --dev @tanstack/react-query-devtools`
+- import client and provider into entry point:
+
+```javascript
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import App from "./App.tsx";
+import "./index.css";
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: Infinity, // how long do you want to cache things in millisecs, Infinity means for as long as a user is on a session
+      cacheTime: Infinity, // IOW, once something is fetched, do not refetch it.
+    },
+  },
+});
+
+ReactDOM.createRoot(document.getElementById("root")!).render(
+  <React.StrictMode>
+    <QueryClientProvider client={queryClient}>
+    {/* <BrowserRouter> would go here if using react router*/}
+      <App />
+      <ReactQueryDevtools />
+    </QueryClientProvider>
+  </React.StrictMode>
+);
+```
+
+### Note on staleTime and cacheTime:
+
+StaleTime: The duration until a query transitions from fresh to stale. As long as the query is fresh, data will always be read from the cache only - no network request will happen! If the query is stale (which per default is: instantly), you will still get data from the cache, but a background refetch can happen under certain conditions.
+
+CacheTime: The duration until inactive queries will be removed from the cache. This defaults to 5 minutes. Queries transition to the inactive state as soon as there are no observers registered, so when all components which use that query have unmounted
 
 ### Main components
 
@@ -92,38 +131,6 @@ const myQuery = useQuery({
 **NOTE: useMutation does not retry on failures like useQuery**
 
 - you can pass in an optional `retry` setting to override this but it is not recommended.
-
-### setup
-
-- `npm i @tanstack/react-query`
-- can install dev tools for debugging: `npm i --dev @tanstack/react-query-devtools`
-- import client and provider into entry point:
-
-```javascript
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import App from "./App.tsx";
-import "./index.css";
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: Infinity, // how long do you want to cache things in millisecs, Infinity means for as long as a user is on a session
-      cacheTime: Infinity, // IOW, once something is fetched, do not refetch it.
-    },
-  },
-});
-
-ReactDOM.createRoot(document.getElementById("root")!).render(
-  <React.StrictMode>
-    <QueryClientProvider client={queryClient}>
-    {/* <BrowserRouter> would go here if using react router*/}
-      <App />
-      <ReactQueryDevtools />
-    </QueryClientProvider>
-  </React.StrictMode>
-);
-```
 
 - write a query in it's own file:
 
