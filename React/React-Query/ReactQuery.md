@@ -25,6 +25,7 @@
 
 - `npm i @tanstack/react-query`
 - can install dev tools for debugging: `npm i --dev @tanstack/react-query-devtools`
+- linting: yarn add -D @tanstack/eslint-plugin-query
 - import client and provider into entry point:
 
 ```javascript
