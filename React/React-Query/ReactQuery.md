@@ -422,7 +422,7 @@ export function PostInfiniteList() {
     queryFn: ({ pageParam = 1 }) => getPostsPaginated(pageParam), // set pageparam to 1 by default, not 0
   });
 
-  if (status === "loading") return <h1>Loading..</h1>;
+  if (status === "pending") return <h1>Loading..</h1>;
   if (status === "error") return <h1>{JSON.stringify(error)}</h1>;
 
   return (
