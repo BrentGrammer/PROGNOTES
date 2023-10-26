@@ -411,7 +411,7 @@ export function PostInfiniteList() {
     fetchNextPage, // use this in the click handler to get more data ("load more button")
     // hasPreviousPage,
     // isFetchingPreviousPage // can use these if dealing with getting a previous page.
-  } = useInifiniteQuery({
+  } = useInfiniteQuery({
     queryKey: ["posts", "infinite"],
     // returns what the next page is - this is returned by your api/server - should return what the next page is as part of the data fetched (i.e. on a nextPage property)
     // prevData is api data retrieved that's currently rendered on the page
