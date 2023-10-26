@@ -356,18 +356,32 @@ if (isLoading) return <Loading />;
 
 ### Fetching data on click:
 
-- use the reFetch from useQuery:
+- use the reFetch from useQuery when button is clicked
+- set enabled = false to stop it from fetching immediately
 
 ```javascript
-export const useComments = () => {
-  const { data, refetch } = useQuery({
-    queryKey: ["comments"],
-    queryFn: () => fetchComments,
+const Comments = ({ ticker }) => {
+  const {
+    data: comments,
+    refetch,
+    isFetching,
+    isError,
+  } = useQuery({
+    queryKey: ["comments", ticker],
+    queryFn: () => fetchComments(ticker),
     enabled: false,
   });
-};
 
-<button onClick={() => refetch()}>Some Button</button>;
+  return (
+    <div>
+      {!isFetching && <button onClick={() => refetch()}>Get comments</button>}
+
+      {isFetching ? <Loading /> : <CommentsList comments={comments || []} />}
+
+      {isError && <ErrorMessage message="Error retreiving comments." />}
+    </div>
+  );
+};
 ```
 
 ### Pagination
@@ -388,7 +402,7 @@ const { status, error, data, isPreviousData } = useQuery({
 <button onClick={setPage(page + 1)}>Next</button>
 ```
 
-### Inifinite Scrolling
+### Inifinite Scrolling (v5)
 
 - use hook from react-query
 - make requests to your endpoint as `{endpoint}/resource?page={page}`
@@ -396,53 +410,48 @@ const { status, error, data, isPreviousData } = useQuery({
 - flow:
   - getNextPageParam is called and gets a page number for next page
   - passes that page number into queryFn which you use to make the call to get the next page of data.
-  - use fetchNextPage from the useINfiniteQuery hook in the onclick handler when you want to get more data
+  - use fetchNextPage from the useInfiniteQuery hook in the onclick handler when you want to get more data
 
 ```javascript
 import { useInfiniteQuery } from "@tanstack/react-query";
 
-export function PostInfiniteList() {
+const Comments = ({ ticker }) => {
   const {
-    status,
-    error,
-    data,
-    isFetchingNextPage, // builtin loading state to determine if loading new data.
+    fetchNextPage,
     hasNextPage, // if getNextPageParam returns undefined, there is no next page - this is set to false then.
-    fetchNextPage, // use this in the click handler to get more data ("load more button")
-    // hasPreviousPage,
-    // isFetchingPreviousPage // can use these if dealing with getting a previous page.
+    isFetchingNextPage, // builtin loading state to determine if loading new data.
+    error: fetchCommentsError,
+    data,
   } = useInfiniteQuery({
-    queryKey: ["posts", "infinite"],
-    // returns what the next page is - this is returned by your api/server - should return what the next page is as part of the data fetched (i.e. on a nextPage property)
-    // prevData is api data retrieved that's currently rendered on the page
-    getNextPageParam: (prevData) => prevData.nextPage,
-    // optional: you can go back a page using builtin - works same as getNextPageParam:
-    getPrevousPageParam: (prevData) => prevData.nextPage,
-    // pageParam is whatever is returned by getNextPageParam above
-    queryFn: ({ pageParam = 1 }) => getPostsPaginated(pageParam), // set pageparam to 1 by default, not 0
+    enabled: startFetching,
+    queryKey: ["comments", "infinite", ticker],
+    getNextPageParam: (lastPage: FetchCommentsResponse) => lastPage.nextPage, // response has nextPage prop on it. this is passed into pageParam in the queryFn. will be null/empty when no next page
+    initialPageParam: 1,
+    queryFn: ({ pageParam }) => fetchComments(ticker, pageParam), // set pageparam to 1 by default, not 0
   });
 
-  if (status === "pending") return <h1>Loading..</h1>;
-  if (status === "error") return <h1>{JSON.stringify(error)}</h1>;
+  const comments = data?.pages.flatMap((data) => data.comments);
 
   return (
-    <>
-      <h1>Infinite Loading page</h1>
-      {/* data is what is returned from getNextPageParam. Also has data.pageParam on it(page number). */}
-      {/* data.pages has a different shape so you need to flatmap it. It is the data divided up by page. */}
-      {data.pages
-        .flatMap((data) => data.posts)
-        .map((post) => (
-          <div key={post.id}>{post.title}</div>
-        ))}
-      {hasNextPage && (
-        <button onClick={() => fetchNextPage()}>
-          {isFetchingNextPage ? "Loading.." : "Load More"}
+    <div>
+      {comments?.map((comment, idx) => (
+        <p key={`comment-${idx}`}>{comment}</p>
+      ))}
+
+      {!comments || comments.length === 0 || hasNextPage ? (
+        <button onClick={() => fetchNextPage()} disabled={isFetchingNextPage}>
+          {isFetchingNextPage ? "Loading.." : "Load Comments"}
         </button>
+      ) : null}
+
+      {fetchCommentsError && (
+        <ErrorMessage message="Error retreiving comments." />
       )}
-    </>
+    </div>
   );
-}
+};
+
+export default Comments;
 ```
 
 ### Debouncing mutation
