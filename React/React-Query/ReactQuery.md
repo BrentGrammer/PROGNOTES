@@ -496,6 +496,13 @@ const logout = () => {
 };
 ```
 
+### Clear cache for a specific query:
+
+```javascript
+const queryClient = useQueryClient();
+queryClient.resetQueries({ queryKey, exact: true }); // use the same query key you used for the query
+```
+
 ## Gotchas
 
 - Make sure that you do not load different data into the same cache.
