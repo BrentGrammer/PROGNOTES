@@ -483,15 +483,16 @@ const Notes = () => {
 ```
 
 ### Clearing the Cache when a user logs out
-
-- use the queryCache.clear() method when the user logs out
+- use the client to clear the cache.
+- alternative you can use the queryCache.clear() method when the user logs out (import {QueryCache} from '@tanstack/react-query')
 
 ```javascript
-import { queryCache } from "react-query";
+const client = useQueryClient();
 
 const logout = () => {
+  
   auth.logout();
-  queryCache.clear();
+  client.clear();
   clearReduxState();
 };
 ```
