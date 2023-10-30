@@ -19,6 +19,7 @@
   - [Anaconda](./Python/Anaconda/Conda.md)
 - [REACT](./React/)
   - [React-Query](./React/React-Query/ReactQuery.md)
+  - [Redux Toolkit](./React/ReduxToolkit.md)
   - [Epic React (Kent Dodds)](./React/EpicReact/)
   - [Debugging](./React/Debugging.md)
   - [Testing](./React/Testing/)
