@@ -127,3 +127,6 @@ export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
     };
   }
   ```
+
+### Async Thunks
+- [Example of real world app usage](https://github.com/replayio/devtools/blob/b9e0e68d667ef1b9c8017f2fa85b78a84831db2b/src/devtools/client/debugger/src/reducers/ast.ts)
