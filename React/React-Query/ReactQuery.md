@@ -39,6 +39,7 @@ const queryClient = new QueryClient({
     queries: {
       staleTime: Infinity, // how long do you want to cache things in millisecs, Infinity means for as long as a user is on a session
       cacheTime: Infinity, // IOW, once something is fetched, do not refetch it.
+      // refetchOnWindowFocuse: false // defaults to true - can turn this off if you don't want to refetch in background when window left and returned to.
     },
   },
 });
