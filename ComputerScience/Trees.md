@@ -90,3 +90,34 @@ function postOrderTraversal(head) {
   return walk(head, []);
 }
 ```
+
+## Breadth First Search
+
+- The underlying implicit data structure is a queue (the opposite of depth first search which uses a stack)
+- Using a Queue, the runtime complexity is O(N)
+  - Note: careful about using a array list which has more expensive shift and unshifting operations , then it makes the runtime O(N^2)
+- With breadth first you do not need to use recursion. Instead of recursing we push items into a queue
+- Basic algo is get node, run op, push in it's children to the queue
+
+```javascript
+// assumes binary tree
+function bfs(head, needle) {
+  const q = [head]; // should use a real queue, arrays are more expensive with shifting ops
+
+  while (q.length) {
+    const curr = q.shift(); // remove first item from queue
+    if (!curr) continue; // move to next iteration which will break the loop
+
+    if (curr.value === needle) {
+      return true;
+    }
+
+    // push on children to queue (at the end)
+    q.push(curr.left);
+    q.push(curr.right);
+  }
+
+  // if here then entire tree is traversed and we have not found value
+  return false;
+}
+```
