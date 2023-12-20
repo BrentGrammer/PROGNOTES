@@ -25,6 +25,12 @@
 - The root node of the tree will be at the end and visited last using this method
 - Start at root, recurse left to visit a terminus and then back up and right, go all the way up and down the right half in the same way and then at the end you visit the root node.
 
+## Depth first search
+
+- Preserves the shape of the tree (i.e. if you are comparing two trees)
+  - Breadth first search does not preserve shape
+- uses recursion (breadth first traversal uses iteration)
+
 ### Coding a traversal (Depth First Search)
 
 - The base case for travsersing is when the node is undefined (you have reached a leaf/terminus)
@@ -119,5 +125,28 @@ function bfs(head, needle) {
 
   // if here then entire tree is traversed and we have not found value
   return false;
+}
+```
+
+### Compare trees
+
+```javascript
+function compare(a, b) {
+  // structure check - we are at same point in structure (and end leaf on both sides) and other value check did not fail, so tree matches at this point
+  if (a === null && b === null) {
+    return true;
+  }
+
+  // structure check - structure is different, trees are different so return false
+  if (a === null || b === null) {
+    return false;
+  }
+  // value check - are the values at this point in tree equal
+  if (a.value !== b.value) {
+    return false;
+  }
+
+  // recurse over the sections of the tree (going left and then compare vals on right) - bool combinations will bubble up and combine - will fail if any one is false.
+  return compare(a.left, b.left) && compare(a.right, b.right);
 }
 ```
