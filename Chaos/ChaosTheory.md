@@ -59,7 +59,7 @@ Graphical slope indications of fixed point quality, p. 48-49
 
 Exponential function example of rabbit population at a time of iteration. P. 55
 
-Book to check out, Modeling Nature by Kingsland.
+Book to check out, Modeling Nature by Kingsland. (focused on history of population modeling and bioligists)
 
 \*With modeling techniques such as the logistical equation for iterating over different population growth rates, the goal is not to produce realistic results but to get an understanding akin to a sketch or caricature. P. 64.
 
