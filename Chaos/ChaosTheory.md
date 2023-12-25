@@ -504,18 +504,23 @@ Uncountable infinities.
 
 ## Julia Sets
 
-Internal notation, [a,b] - inclusive range
-(a,b) exclusive range
+Notation of ranges:
 
-Filled Julia set: the set of initial conditions for function f that does not tend to infinity when iterated. Ex, [-1,1] for f(x) = x^2 (the squaring function). P. 238
+- Internal notation, [a,b] - inclusive range, a and b are part of the range
+- (a,b) exclusive range - a and b are not part of the set in the range
 
-The Julia set is the boundary of the filled Julia set, ex. -1 and +1 from the above square function example. It is the boundary between two regions: initial conditions that fly off to infinity and those that do not.
+### Filled Julia set:
 
-A Julia set is the collection of points for a function that remain bounded when iterated by that function. P. 239
+- the set of initial conditions for function f that does not tend to infinity when iterated. Ex, [-1,1] for f(x) = x^2 (the squaring function). P. 238
+- The initial conditions in the set could lead to a periodic or chaotic orbit, it doesn't matter, it just matters that they do not go to infinity and are bounded.
+- A Julia set is the collection of points for a function that remain bounded when iterated by that function. P. 239
+- To test if a point is in a Julia set for a function, start iterating from it and see if the orbit goes to infinity. If it does, then it is not in the Julia set, otherwise it is.
 
-To test if a point is in a Julia set for a function, start iterating from it and see if the orbit goes to infinity. If it does, then it is not in the Julia set, otherwise it is.
+_NB: throughout the chapter filled Julia Sets are referred to as Julia Sets. The interest is the in initial conditions that do not tend towards infinity._
 
-NB: throughout the chapter filled Julia Sets are referred to as Julia Sets. The interest is the in initial conditions that do not tend towards infinity.
+### A Julia Set (i.e. not a Filled Julia Set)
+
+- The Julia set is the boundary of the filled Julia set, ex. -1 and +1 from the above square function example. It is the boundary between two regions: initial conditions that fly off to infinity and those that do not.
 
 ### Complex Numbers
 
@@ -993,3 +998,23 @@ Recommended books on strange attractors:
 - \*\*\* Gleick - Chaos: Making a New Science
   - Feldman's book was written as companion to this and highly recommended, not a dense read
 - nature's patterns: a tapestry in three parts, Shapes Flows And Branches (3 books) by Philip Ball. Good book about patterns in nature
+
+### Intrinsic Emergence
+
+- from [paper on pattern emergence](https://csc.ucdavis.edu/~cmg/papers/EverNew.pdf)
+- In the emergence of coordinated behavior, though, there is a closure in which the patterns that emerge are important within the system. That is, those patterns take on their “newness” with respect to other structures in the underlying system. Since there is no external referent for novelty or pattern, we can refer to this process as “intrinsic” emergence.
+- The system itself capitalizes on patterns that occur within it and uses them.
+- Example of randomness leading to order: self excluding random walk - a starting point is moved from in a random direction, the process repeats, but the random direction cannot be the previous direction moved. This produces fractal structures. (also the chaos game)
+- a balance between order and randomness can be reached and used to define
+  a “best” model for a given data set. The balance is given by minimizing the model’s size
+  while minimizing the amount of apparent randomness
+- Physics does not have a way of detecting the boundary between order and randomness in natural structures (i.e. measuring phase transitions).
+  - A key feature of natural structures is the two parts of order and disorder and the boundary between the two.
+- An ideal model minimizes the data size (only as many causes as necessary) and minimizes error (noise)
+- Computational theory: a machine can be reconstructed from a series of discrete
+  measurements of a process
+- There are machine classes with finite memory, those with infinite one-way
+  stack memory, those with first-in first-out queue memory, and those with infinite random access
+  memory, among others. When applied to the study of nature, these machine classes reveal
+  important distinctions among natural processes. In particular, the computationally distinct classes
+  correspond to different types of pattern or regularity
