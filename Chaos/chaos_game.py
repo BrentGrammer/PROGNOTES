@@ -49,9 +49,7 @@ def randopoint():
 def randocorner():
     """produces the coordinates of one of the three corners
     that has been determined by the window size from the system arguments"""
-    randocorner=random.choice(corners) # corners defined in upper scope: top left and right corners of the grid
-    c = randocorner
-    return c
+    return random.choice(corners) # corners defined in upper scope: top left and right corners of the grid
 
 if __name__ == "__main__":
     import sys
@@ -90,13 +88,12 @@ if __name__ == "__main__":
     halfway = midpoint(random_start,random_corner) #midpoint between point p and a random corner of the triangle 
     
     t.up()
-    dot_size = 10
+    dot_size = 2
 
-    iterations = 4 # default is 10000
-    #use the below line to set the number of iterations, higher number = more dots and longer running time
+    iterations = 100000 # default is 100000
+
     for i in range (iterations):
         random_corner=randocorner()
-        print('p: ',random_start)
         halfway=midpoint(random_start,random_corner)
         t.goto(halfway)
         
