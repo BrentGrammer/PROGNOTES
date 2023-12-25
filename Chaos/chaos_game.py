@@ -7,7 +7,7 @@ from numba import jit
 c="" # corner 
 p="" # point
 
-def turtle_setup(canv_width, canv_height):
+def turtle_setup(canv_width, canv_height, watch_game=False):
     """ Set up the canvas and a turtle for creating dots. Return a turtle
         object in hidden state with its pen up. The canvas has size canv_width
         by canv_height, with a coordinate system where (0,0) is in the bottom
@@ -22,8 +22,9 @@ def turtle_setup(canv_width, canv_height):
     t.hideturtle()
     t.speed(0) #0 is the fastest speed, 10 is fast, 6 is normal, slow is 3, and 1 is slowest
     t.color("black")#can change the color of the dots here 
-    #uncomment the below line and the last line if you do NOT want to watch the triangle being drawn 
-    screen.tracer(0, 0) 
+   
+    if not watch_game:
+        screen.tracer(0, 0) 
     
     return t
 
@@ -53,18 +54,20 @@ def randocorner():
     return c
 
 if __name__ == "__main__":
+    import sys
     import turtle
-    
-    """uncomment the following 2 lines if you want to set canvas size from command line arguments"""
-    #canv_width = int(sys.argv[1])
-    #canv_height = int(sys.argv[2])
+
+    if len(sys.argv) > 1:
+        watch_game = sys.argv[1]
+    else:
+        watch_game = ''
     
     """ if using command line arguments (above) comment out the following two lines, 
        otherwise you can use them to set the canvas size """
     canv_width = 500
     canv_height = 500
     
-    t = turtle_setup(canv_width,canv_height)
+    t = turtle_setup(canv_width,canv_height,watch_game == 'watch')
     
     #establishes corners
     middlex= (canv_width/2) # i.e. 250
@@ -80,8 +83,11 @@ if __name__ == "__main__":
     m= midpoint(p,c) #midpoint between point p and a random corner of the triangle 
     
     t.up()
+    dot_size = 10
+
+    iterations = 20
     #use the below line to set the number of iterations, higher number = more dots and longer running time
-    for i in range (100000):
+    for i in range (iterations):
         c=randocorner()
         m=midpoint(p,c)
         t.goto(m)
@@ -89,13 +95,15 @@ if __name__ == "__main__":
         if i > 5:
             # draw a point at the midpoint calculated for the current iteration
             t.pendown()
-            t.dot(2) #can change the size of the dots here 
+            t.dot(dot_size) #can change the size of the dots here 
             t.penup()
         p=m
     
     end = time.monotonic()
 
     print(f'TIME TAKEN: {end-start}')
-        
-    turtle.update() # faster rendering - don't watch game
+
+    if not watch_game:
+        turtle.update() # faster rendering - don't watch game
+
     turtle.Screen().exitonclick()
