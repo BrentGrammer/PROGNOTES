@@ -1,4 +1,9 @@
 import random
+import time
+
+from numba import jit
+
+
 c="" # corner 
 p="" # point
 
@@ -22,6 +27,7 @@ def turtle_setup(canv_width, canv_height):
     
     return t
 
+@jit(nopython=True)
 def midpoint(a, b):
     """ Return the midpoint between points a = (ax, ay) and b = (bx, by) """
     ax, ay = a
@@ -30,12 +36,14 @@ def midpoint(a, b):
     my = (ay + by) / 2
     return mx, my
 
+@jit(nopython=True)
 def randopoint():
     """generates a random point given the window size specified in the system arguments"""
     xcoord= random.randint(0, canv_width) # rand x between 0 and 500
     ycoord= random.randint(0, canv_height) # rand y between 0 and 500
     randopoint = (xcoord, ycoord)
     return randopoint
+
 
 def randocorner():
     """produces the coordinates of one of the three corners
@@ -64,13 +72,15 @@ if __name__ == "__main__":
     bottomLeftCorner= (0,0)
     bottomRightCorner= (canv_width, 0) # (500, 0) 
     corners= [topCorner, bottomLeftCorner, bottomRightCorner]
+
+    start = time.monotonic()
     
     p= randopoint() #random starting point in the window - this is run once at the start of the game
     c= randocorner() #random corner of the triangle - recomputed on each loop in the game
     m= midpoint(p,c) #midpoint between point p and a random corner of the triangle 
     
     t.up()
-   #use the below line to set the number of iterations, higher number = more dots and longer running time
+    #use the below line to set the number of iterations, higher number = more dots and longer running time
     for i in range (100000):
         c=randocorner()
         m=midpoint(p,c)
@@ -82,6 +92,10 @@ if __name__ == "__main__":
             t.dot(2) #can change the size of the dots here 
             t.penup()
         p=m
+    
+    end = time.monotonic()
+
+    print(f'TIME TAKEN: {end-start}')
         
     turtle.update() # faster rendering - don't watch game
     turtle.Screen().exitonclick()
