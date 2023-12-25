@@ -4,10 +4,10 @@ import time
 from numba import jit
 
 
-c="" # corner 
-p="" # point
+random_corner="" # corner 
+random_start="" # point
 
-def turtle_setup(canv_width, canv_height, watch_game=False):
+def turtle_setup(canv_width, canv_height, draw_speed, watch_game=False):
     """ Set up the canvas and a turtle for creating dots. Return a turtle
         object in hidden state with its pen up. The canvas has size canv_width
         by canv_height, with a coordinate system where (0,0) is in the bottom
@@ -20,7 +20,7 @@ def turtle_setup(canv_width, canv_height, watch_game=False):
     screen.setworldcoordinates(0, 0, canv_width, canv_height)
     
     t.hideturtle()
-    t.speed(0) #0 is the fastest speed, 10 is fast, 6 is normal, slow is 3, and 1 is slowest
+    t.speed(draw_speed) #0 is the fastest speed, 10 is fast, 6 is normal, slow is 3, and 1 is slowest
     t.color("black")#can change the color of the dots here 
    
     if not watch_game:
@@ -49,7 +49,7 @@ def randopoint():
 def randocorner():
     """produces the coordinates of one of the three corners
     that has been determined by the window size from the system arguments"""
-    randocorner=random.choice(corners)
+    randocorner=random.choice(corners) # corners defined in upper scope: top left and right corners of the grid
     c = randocorner
     return c
 
@@ -61,13 +61,20 @@ if __name__ == "__main__":
         watch_game = sys.argv[1]
     else:
         watch_game = ''
+    watch_game = watch_game == 'watch'
     
     """ if using command line arguments (above) comment out the following two lines, 
        otherwise you can use them to set the canvas size """
     canv_width = 500
     canv_height = 500
+    draw_speed = 1 # 1-10 1 is slowest, 10 fast, 0 is fastest
     
-    t = turtle_setup(canv_width,canv_height,watch_game == 'watch')
+    t = turtle_setup(
+        canv_width,
+        canv_height,
+        draw_speed, 
+        watch_game
+    )
     
     #establishes corners
     middlex= (canv_width/2) # i.e. 250
@@ -76,32 +83,34 @@ if __name__ == "__main__":
     bottomRightCorner= (canv_width, 0) # (500, 0) 
     corners= [topCorner, bottomLeftCorner, bottomRightCorner]
 
-    start = time.monotonic()
+    starttime = time.monotonic()
     
-    p= randopoint() #random starting point in the window - this is run once at the start of the game
-    c= randocorner() #random corner of the triangle - recomputed on each loop in the game
-    m= midpoint(p,c) #midpoint between point p and a random corner of the triangle 
+    random_start = randopoint() #random starting point in the window - recomputed on each iteration
+    random_corner = randocorner() #random corner of the triangle - uses corners created above for bound
+    halfway = midpoint(random_start,random_corner) #midpoint between point p and a random corner of the triangle 
     
     t.up()
     dot_size = 10
 
-    iterations = 20
+    iterations = 4 # default is 10000
     #use the below line to set the number of iterations, higher number = more dots and longer running time
     for i in range (iterations):
-        c=randocorner()
-        m=midpoint(p,c)
-        t.goto(m)
+        random_corner=randocorner()
+        print('p: ',random_start)
+        halfway=midpoint(random_start,random_corner)
+        t.goto(halfway)
         
-        if i > 5:
-            # draw a point at the midpoint calculated for the current iteration
-            t.pendown()
-            t.dot(dot_size) #can change the size of the dots here 
-            t.penup()
-        p=m
-    
-    end = time.monotonic()
+        # if i > 5:
+        # draw a point at the midpoint calculated for the current iteration
+        t.pendown()
+        t.dot(dot_size) #can change the size of the dots here 
+        t.penup()
 
-    print(f'TIME TAKEN: {end-start}')
+        random_start=halfway # update the random starting point to be halfway between the last start point and new random corner selected (for direction)
+    
+    endtime = time.monotonic()
+
+    print(f'TIME TAKEN: {endtime-starttime}')
 
     if not watch_game:
         turtle.update() # faster rendering - don't watch game
