@@ -32,11 +32,10 @@ def midpoint(a, b):
 
 def randopoint():
     """generates a random point given the window size specified in the system arguments"""
-    xcoord= random.randint(0, canv_width)
-    ycoord= random.randint(0, canv_height)
+    xcoord= random.randint(0, canv_width) # rand x between 0 and 500
+    ycoord= random.randint(0, canv_height) # rand y between 0 and 500
     randopoint = (xcoord, ycoord)
-    p=randopoint # Let p be a random point in the window
-    return p
+    return randopoint
 
 def randocorner():
     """produces the coordinates of one of the three corners
@@ -45,8 +44,7 @@ def randocorner():
     c = randocorner
     return c
 
-if __name__ == "__main__":    
-    import sys
+if __name__ == "__main__":
     import turtle
     
     """uncomment the following 2 lines if you want to set canvas size from command line arguments"""
@@ -58,19 +56,17 @@ if __name__ == "__main__":
     canv_width = 500
     canv_height = 500
     
-    t = turtle_setup(400, 400)
+    t = turtle_setup(canv_width,canv_height)
     
-    turtle_setup(canv_width, canv_height)
+    #establishes corners
+    middlex= (canv_width/2) # i.e. 250
+    topCorner= (middlex, canv_height) # (250, 500) middle top point
+    bottomLeftCorner= (0,0)
+    bottomRightCorner= (canv_width, 0) # (500, 0) 
+    corners= [topCorner, bottomLeftCorner, bottomRightCorner]
     
-   #establishes corners
-    middlex= (canv_width/2)
-    corner1= (middlex, canv_height)
-    corner2= (0,0)
-    corner3= (canv_width, 0)
-    corners= [corner1, corner2, corner3]
-    
-    p= randopoint() #random starting point in the window
-    c= randocorner() #random corner of the triangle 
+    p= randopoint() #random starting point in the window - this is run once at the start of the game
+    c= randocorner() #random corner of the triangle - recomputed on each loop in the game
     m= midpoint(p,c) #midpoint between point p and a random corner of the triangle 
     
     t.up()
@@ -81,6 +77,7 @@ if __name__ == "__main__":
         t.goto(m)
         
         if i > 5:
+            # draw a point at the midpoint calculated for the current iteration
             t.pendown()
             t.dot(2) #can change the size of the dots here 
             t.penup()
