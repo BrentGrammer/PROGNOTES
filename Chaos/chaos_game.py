@@ -88,13 +88,13 @@ if __name__ == "__main__":
     halfway = midpoint(random_start,random_corner) #midpoint between point p and a random corner of the triangle 
     
     t.up()
-    dot_size = 2
 
-    iterations = 100000 # default is 100000
+    iterations = 100 # default is 100000
+    dot_size = 10 if iterations < 1000 else 2
 
     for i in range (iterations):
         random_corner=randocorner()
-        halfway=midpoint(random_start,random_corner)
+        halfway=midpoint(random_start,random_corner) # halfway between the current point and a randomly selected corner of the global triangle
         t.goto(halfway)
         
         # if i > 5:
