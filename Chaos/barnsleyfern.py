@@ -5,7 +5,7 @@
 import turtle
 import random
 
-watch_game = True
+watch_game = False
 
 t = turtle.Turtle()
 screen = t.getscreen()
@@ -19,7 +19,7 @@ t.penup()
 
 x = 0
 y = 0
-iters = 300
+iters = 5000
 for n in range(iters):
     t.goto(65*x,37*y-252)
     t.pendown()
