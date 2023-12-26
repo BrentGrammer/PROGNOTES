@@ -65,7 +65,7 @@ if __name__ == "__main__":
        otherwise you can use them to set the canvas size """
     canv_width = 500
     canv_height = 500
-    draw_speed = 1 # 1-10 1 is slowest, 10 fast, 0 is fastest
+    draw_speed = 0 # 1-10 1 is slowest, 10 fast, 0 is fastest
     
     t = turtle_setup(
         canv_width,
@@ -89,7 +89,7 @@ if __name__ == "__main__":
     
     t.up()
 
-    iterations = 100 # default is 100000
+    iterations = 20000 # default is 100000
     dot_size = 10 if iterations < 1000 else 2
 
     for i in range (iterations):
