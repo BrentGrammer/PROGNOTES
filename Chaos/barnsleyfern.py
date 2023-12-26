@@ -2,6 +2,8 @@
 # good explanation of functions: https://www.youtube.com/watch?v=xoXe0AljUMA
 # https://www.algorithm-archive.org/contents/barnsley/barnsley.html
 
+# try this method as well: https://www.youtube.com/watch?v=pfMNFD-y4rM
+
 import turtle
 import random
 
@@ -21,7 +23,7 @@ x = 0
 y = 0
 iters = 5000
 for n in range(iters):
-    t.goto(65*x,37*y-252)
+    t.goto(65*x,37*y-252) # these numbers are needed to present a correct image, but why?
     t.pendown()
     t.circle(1) # draw a point
     t.penup()
