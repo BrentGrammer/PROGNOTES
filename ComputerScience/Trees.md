@@ -150,3 +150,47 @@ function compare(a, b) {
   return compare(a.left, b.left) && compare(a.right, b.right);
 }
 ```
+
+### BST Binary Search Tree
+
+- Rule at every node: The left side (including all sub-children) is less than or equal to, the right side is greater than the node.
+- Algo for this is similar to Quick Sort (uses a pivot where everything on the left is less than and everything on the right is greater than)
+
+
+### Find (Depth First)
+- finding is simpler on a BST. We use depth first search with an order on how to traverse
+
+  ```python
+  #  RUNTIME COMPLEXITY measured in height: O(h)
+  # the time complexity will be in a range: O(logn) to O(n) - depends on how balanced your bst is
+
+  find(node,val):
+    # this is the base case:
+    if !node: return false; # if not a node return early, no value found
+
+    # if found return true
+    if node.value == value: return true;
+
+    # go to the right if you've reached a point that is less than needle (vals only get smaller to the left)
+    if node.value < val:
+      return find(node.right, val) # recurse
+
+    # if here, then we are smaller than the current node val, so we continue going left:
+    return find(node.left, val)
+  ```
+
+### Insert (Depth first)
+- Similar to find algorithm, you just keep going until you hit a point that is null and insert there.
+- Ask if value to insert is less than/eq or greater than current node and go left or right until you hit null.
+
+```python
+insert(node,val):
+  if node.value < val: # go right if your insert val is greater than the node
+    # check for null to insert or continue traverse
+    if !node.right:
+      # ... create node and insert the new value here adn return
+    insert(node.right, val) # recurse
+  else if node.value >= val: # go left if insert val is less than/eq to current node
+    insert(node.left,val)
+
+```
