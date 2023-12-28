@@ -156,8 +156,8 @@ function compare(a, b) {
 - Rule at every node: The left side (including all sub-children) is less than or equal to, the right side is greater than the node.
 - Algo for this is similar to Quick Sort (uses a pivot where everything on the left is less than and everything on the right is greater than)
 
-
 ### Find (Depth First)
+
 - finding is simpler on a BST. We use depth first search with an order on how to traverse
 
   ```python
@@ -180,6 +180,7 @@ function compare(a, b) {
   ```
 
 ### Insert (Depth first)
+
 - Similar to find algorithm, you just keep going until you hit a point that is null and insert there.
 - Ask if value to insert is less than/eq or greater than current node and go left or right until you hit null.
 
@@ -193,4 +194,38 @@ insert(node,val):
   else if node.value >= val: # go left if insert val is less than/eq to current node
     insert(node.left,val)
 
+```
+
+### Delete
+
+- Case 1: If no children then simply remove the node
+- Case 2: one child - set parent to child
+  - We find the smallest value on the large (right) side and set the parent for it
+  - Or we find the largest node on the small (left) side and set the parent for it
+
+### Depth first search on a BST (Binary Search)
+
+-
+
+```javascript
+// helper function that is recursive - this is a binary search that only searches one side or the other
+function search(curr, needle) {
+  // base case - bottom of tree and exceeded height
+  if (!curr) return false;
+
+  // second base case - we've found the value
+  if (curr.value === needle) return true;
+
+  // if here, then we need to traverse
+  if (curr.value < needle) {
+    // need to go to right side of tree since the needle is greater than current node
+    return search(curr.right, needle);
+  }
+  // otherwise we do the same thing on the left hand side (current val is greater than the needle, so go left to find needle)
+  return search(curr.left, needle);
+}
+
+function dfs(head, needle) {
+  return search(head, needle);
+}
 ```
