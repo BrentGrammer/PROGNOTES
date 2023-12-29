@@ -34,4 +34,4 @@
   - [Testing React Applications](./React/Testing/)
 - [GraphQL](./GraphQL/)
 - [SEO](./SEO/)
-- [Chaos Theory](./Chaos/ChaosTheory.md)
+- [Chaos Theory](./Chaos)

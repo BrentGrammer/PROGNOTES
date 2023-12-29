@@ -98,7 +98,7 @@ Non repeating and apparently random phenomenon do not need complicated equations
 
 3. Orbits are bounded (limited to a range, not infinity, i.e. the logistical equation results have lower/upper limits of 0 and 1.
 
-4. System has sensitive dependence on initial conditions. The butterfly effect, very small chance in initial condition leads to very large change in the orbit in a short period of time.
+4. System has sensitive dependence on initial conditions. The butterfly effect, very small change in initial condition leads to very large change in the orbit in a short period of time.
 
 Chaotic systems are deterministic sources of randomness.
 
