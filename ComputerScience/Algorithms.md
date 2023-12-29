@@ -433,3 +433,157 @@ export default function quicksort(arr: number[]) {
   qs(arr, 0, arr.length - 1); // end/hi is inclusive which is unusual in most algorithms
 }
 ```
+
+## Heap (a.k.a. a Priority Queue)
+
+- A binary tree where every child and grandchild is smaller (a MaxHeap) or larger (MinHeap) than the current node
+- Whevever a node is added or deleted we must adjust the tree
+- No traversal of the tree when using heaps
+- Heaps maintain a Weak Ordering (not perfectly ordered, but there is a rule at every point)
+- A heap is always COMPLETE - there are always a left and right node and not just one with the other side empty. There are no gaps.
+
+### Heap Condition
+
+- The rule about the ordering, i.e. if a MinHeap, every node below must be larger or equal to.
+
+### MinHeap
+
+- The minimum item is the root
+- Top value must be the smallest value (all children must be greater than it)
+
+#### Adding to a minheap
+
+- Check if node to add is smaller than the parent (start at the bottom of the tree).
+- If node is smaller, then swap the parent with the node added.
+- Repeat this swapping up the tree until the node being added is not smaller than parent
+
+### MaxHeap
+
+- The maximum item is the root
+
+### Heapifying up or down
+
+- We can bubble nodes up or down (comparing greater or less than parent values to decide whether to swap)
+
+### Data Structure of a heap
+
+- _There are no node structures_ with left and right vals to keep track of, the values can be listed in an array
+- The formula for knowing what element in the array list is where in the heap is: $${\text{left child}} = 2(index) + 1$$ $${\text{right child}} = 2(index) + 2$$
+  - This makes managing the tree much simpler than if dealing with node structures
+- The nodes in a heap are numbered starting from the top and down to the left and then right (across the whole breadth/row of the tree). see [video](https://frontendmasters.com/courses/algorithms/heap/) at around 3:30
+- To find the parent node, the formula is: $${\text{parent node}} = (i - 1) / 2$$
+  - Note: use integer division or a floor operation on the result. i.e. 13 /2 = 6 (not 6.5)
+- To get the end node, just get the last item in the queue
+- Heaps are self balancing - we only remove or add where the length is and bubbling into correct position
+- Heaps are useful for priorities (thread scheduling)
+
+### Implementing a Heap
+
+```javascript
+export default class MinHeap {
+  public length; // used for insertion and deletion - need to maintain
+  private data; // list
+
+  constructor() {
+    this.length = 0;
+    this.data = [];
+  }
+
+  // Runtime is O(logn) - since half of tree is in the bottom layer (the ordering allows us to divide and conquer)
+  insert(value) {
+    this.data[this.length] = value; // add to end of list
+    this.heapifyUp(this.length) // move newly added val to correct place to follow ordering rules.
+    // increment length tracking
+    this.length++;
+  }
+
+  // Runtime is O(logn)
+  // delete sometimes called poll or pop
+  delete() {
+    // check for empty
+    if (this.length === 0) {
+      return -1; // sentinel value
+    }
+
+    const out = this.data[0];
+    this.length--; // decrement length
+    // handle only one el in list (will be 0 after decrementing):
+    if (this.length === 0) {
+      this.data = [];
+      return out;
+    }
+
+    // take head and get value, take last val in the array and put it into head's position, then bubble it down
+
+    // set the head to put the last node at the top
+    this.data[0] = this.data[this.length];
+    // start heapifying down starting at the top
+    this.heapifyDown(0);
+    return out;
+  }
+
+  // when we do deletion we need to remove head el, take last el in array and put it in first position, then heapify it all down
+  private heapifyDown(idx) {
+    // base case
+    if (idx >= this.length) {
+      // we're at the end of the list, return
+      return;
+    }
+
+    const lIdx = this.leftChild(idx);
+    const rIdx = this.rightChild(idx);
+
+    // base case 2
+    if (lIdx >= this.length) {
+      // end of list checking left so return
+      return;
+    }
+    const leftVal = this.data[lIdx];
+    const rightVal = this.data[rIdx];
+    const val = this.data[idx];
+
+    // the right value is the smallest and we are greater than that, we need to swap and heapify down (because the value is more and needs to be under the least value in this iteration)
+    if (leftVal > rightVal && val > rightVal) {
+      // swap
+      this.data[idx] = rightVal;
+      this.data[rIdx] = val;
+      this.heapifyDown(rIdx); // pass in new right with our val
+    } else if (rightVal > leftVal && val > leftVal) {
+      this.data[idx] = leftVal;
+      this.data[lIdx] = val; // swap with left
+      this.heapifyDown(lIdx);
+    }
+  }
+
+  private heapifyUp(idx) {
+    // we keep looking at parent and stop when out of range or find a parent that is larger than us. since this is min heap if we're larger then we do not bubble up
+    if (idx === 0) return; // can't heapify up from first node
+
+    const p = this.parent(idx);
+    const parentVal = this.data[p]; // val of parent
+    const v = this.data[idx]; // current val
+
+    if (parentVal > v) {
+      // swap if parent is more than us and keep going until it's not
+      this.data[idx] = parentVal; // move parent down
+      this.data[p] = v; // move current value up to parent's position
+      this.heapifyUp(p); // now repeat at the new p made
+    }
+  }
+
+  // need 5 private functions to help us
+  private parent(idx) {
+    // returns num which is the index of the parent
+    return Math.floor((idx-1 / 2)) // formula for finding parent using int division
+  }
+
+  private leftChild(idx) {
+    return idx * 2 + 1; // formula for finding left child in the list
+  }
+
+  private rightChild(idx) {
+    return idx * 2 + 2; // formula for finding right child in the list
+  }
+}
+
+```
