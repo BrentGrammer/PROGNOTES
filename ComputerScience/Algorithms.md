@@ -587,3 +587,63 @@ export default class MinHeap {
 }
 
 ```
+
+## Tries (pronounces "trees" as in Retreival Tree)
+
+- If not a priority queue, then probably is a trie
+- called a Trie tree (try tree) or a prefix tree or digital tree
+- Used in things like Auto Complete (if you type an "a" what kind of results should be gotten back? etc.)
+  - Can operate in O(1) time given the keys have a minimum/max length
+- common in interviews with questions like "You are given a list of words and need to build an autocomplete"
+- or a caching mechanism problem that involves a path which can vary at points
+  - example: we have a path we want to cache in some sort of graph: `videos/:id/title`
+  - `id` in the path can vary, so we would check if videos exists, does :id exist, does the title exist at the end of the path and return the retrieved match.
+
+### Runtime
+
+- Tries are constant time O(1) runtime complexity
+- N (the input) in the case of tries is not the length of the string we're putting into the algorithm, N is the amount of nodes.
+  - As we add more nodes, hundreds of words, does our lookup time change? No it does not.
+  - it is O(height) of the tree, but height is usually bound by some maximum allowable value (the longest english word etc.)
+
+### Structure of a Trie
+
+- In a trie of words for example, each letter would be a node and when you traverse a series of nodes that make a real word, it will have a ASTERISK CHILD - a \* node indicating that you have found a real word.
+  - alternatively some tries will have a `isWord` boolean flag on the last node of the word itself instead of a additional hanging star node (asterisk)
+
+### Searching a trie
+
+- You can do depth first or breadth first searches
+- Example: someone types a "c" and we want to show words with c in them. We do a depth first search on the trie - Depth first search will always give alphabetical ordered matches. (pre-order traversal - as we see a word collect it in the found results)
+  - We could also do a breadth first search
+- In tries you can have a Score and Frequency to prioritize which words to retrieve.
+
+### Inserting into a trie
+
+- Iterative loop where we go to current node and walk to the end to see if we need to insert
+
+```python
+insertion(str):
+  current = head
+
+  for c in str:
+    if current[c]: # if current has the character, we set current to the character
+      current = current[c]
+    else:
+      # create a new node
+      node = createNode()
+      current[c] = node
+      current = node
+
+  current.isWord = True # flag to say it's the end of a word
+
+isNode(isWordBool):
+  return {isWord: isWordBool, children: []}
+```
+
+### Deletion
+
+- Recursion is usfeful here
+- You want to get to the point of the node FIRST and then in the post operation delete your way back up.
+  - If you delete first, you lose the entire rest of the tree
+- This involves a post traversal operation
