@@ -1018,3 +1018,9 @@ Recommended books on strange attractors:
   memory, among others. When applied to the study of nature, these machine classes reveal
   important distinctions among natural processes. In particular, the computationally distinct classes
   correspond to different types of pattern or regularity
+
+# Chaos book
+
+- On first assessment, Liquid molecules adjacent to each other behave predictably and minor disturbances in one predictably affect the other.
+  - But, as further perturbations occur from molecule to molecule, more unpredictable effects emerge - a sort of result of cumulative effect of initial individual interactions of the molecules
+- When looking at chaotic structures, you can sometimes zoom in on small parts of it and see order at the local level, but at the global level the structure is chaotic.
