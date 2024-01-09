@@ -21,6 +21,7 @@ format of a JWT: `{header}.{payload}.{signature}`
 - don't store the JWT access token in a cookie. It's best to store it in session storage since storing it in a cookie make it prone to XSS attacks, and an Httponly cookie is still vulnerable to CSRF attacks
 - As long as a server has the same ACCESS_TOKEN_SECRET that was used to generate the JWT token, that server can decrypt the JWT token and get the userId.
 - Sometimes additional and unnecessary information is stored in the JWT. The JWT token should primarily contain user information
+- **Main drawback is invalidation is difficult** - You cannot invalidate them manually before expiration time if needed. There are workarounds, but you wind up losing the advantages of cookie session based auth (and need a database and reintroduce state).
 
 #### Example creating JWT:
 
@@ -65,6 +66,8 @@ const token = jwt.sign(payload, secret, {
 - With JWT you are not limited by the size of your data, with cookies you only have 4093 bytes per domain - for all cookies, not the one.
 - JWTs better for microservices since multiple servers don't need to share a session DB (cookie session management). the user data is encoded in the JWT
 - JWT tokens cannot be “invalidated” (without maintaining them in a shared db), in JWT approach the logout length precision is set by the expiration length of the access_token.
+  - An invalidation alternative: A common approach for invalidating tokens when a user changes their password is to sign the token with a hash of their password. Thus if the password changes, any previous tokens automatically fail to verify. You can extend this to logout by including a last-logout-time in the user's record and using a combination of the last-logout-time and password hash to sign the token. This requires a DB lookup each time you need to verify the token signature, but presumably you're looking up the user anyway
+  - But: approach is useful in monolithic apps, but in order to implement it in a microservices app you need all services to either store the user's password and last login or to make requests to fetch them and both are bad ideas.
 - There is no clear advantage to combining cookies and jwts
 
 ## Salting and Hashing Passwords
