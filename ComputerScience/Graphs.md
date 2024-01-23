@@ -123,3 +123,67 @@ function bfs(graph, source, needle) {
   }
 }
 ```
+
+### Depth First Search on Graph (AdjacencyList)
+
+- We will use recursion and pre and post order traversal
+- Runtime is O(V+E) - check every single vertex and every single edge worst case
+
+```javascript
+function walk(
+  graph: AdjList,
+  curr: number,
+  needle: number,
+  seen: boolean[],
+  path: number[]
+) {
+  // base case - found needle
+  if (curr === needle) return true;
+  // base case - if already seen, we've been here, the needle is not in this area, go somewhere else
+  if (seen[curr]) return false;
+
+  // make sure to flip current to true to make it seen and visited
+  seen[curr] = true; // opposed to bfs we set seen after passing the base cases
+
+  // now recurse:
+
+  // pre operation - push to path
+  path.push(curr); // we are now officially visiting this and pushing it to our pathway
+  if (curr === needle) {
+    return true; // can exit early here if found, just made sure above that the curr is in the path
+  }
+
+  // recurse
+  // list of graph edges - who is this node connected to?
+  const list = graph[curr]; // the graph edge where it's going to
+  // now we walk this list until we find the needle or exhaust our list and return false
+  // NOTE: use a for loop, not array methods because you have to be able to return or break out of them
+  for (let i = 0; i < list.length; i++) {
+    const edge = list[i];
+    // if we find the needle in a successful walk, we need to return true
+    if (walk(graph, edge.to, needle, seen, path)) {
+      // send signal back up recursive stack so that it all pops
+      return true;
+    }
+  }
+
+  // post - pop if we never found the path in this branch of the graph
+  path.pop(); // as long as we pop when we push we'll maintain the order of the array in the path we took
+
+  return false;
+}
+
+/**
+ * source - node where we want to start from
+ */
+function dfs(graph: AdjList, source: number, needle: number) {
+  const seen = new Array(graph.length).fill(false);
+  const path = [];
+
+  walk(graph, source, needle, seen, path);
+
+  if (path.length === 0) return null; // might be better to change interface to return empty path instead of null.
+
+  return path; // return the path from the source to the needle
+}
+```
