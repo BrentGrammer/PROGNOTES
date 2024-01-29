@@ -187,3 +187,119 @@ function dfs(graph: AdjList, source: number, needle: number) {
   return path; // return the path from the source to the needle
 }
 ```
+
+## Dijkstra's Shortest Path
+
+- Calculate the shortest path from one node to all other nodes in the graph
+- Requires and uses a previous array to track path
+- Cannot contain any negative weights for any edges
+- Greedy algorithm
+  - When you find a shortest path, it is the shortest path in the graph at that individual moment (this will update as you continue to iterate and find shorter paths)
+
+### General algorithm
+
+#### SETUP
+
+- Use a previous array and fill it with -1sto initialize
+  - This is used to store where we came from (which node)
+- Optionally can use a seen array (initialize to all Falses)
+  - Depending on data structure, you may not need a seen array
+- Use a distances array to calculate what the shortest distance is
+  - Initialize to all Inifinities, except for the source node (the distance of our source node is 0), the 0 is placed wherever index the source node is specified
+
+#### Main idea
+
+- Start with getting the nearest unseen/unvisited node to source, try to constantly get the lowest distance node and update all the other distances based on the new lowest path we found.
+  - In the beginning that is the source (it is visitable at a distance of 0)
+  - Source is a node that has connections to other nodes (it is a row in the matrix with the first element in the array being the node and subsequent ones being connection information to other nodes)
+- Start: mark source as seen/visited
+
+### Implementation
+
+```javascript
+/**
+ * This is the less than optimal solution
+ */ 
+
+function hasUnvisited(seen: boolean[], dists: number[]): boolean {
+  // seen is false and the distance for that node is less than infinity
+  return seen.some((s, i) => !s && dists[i] < Infinity);
+}
+// returns index that is lowest unvisited item
+// we assume if calling this function there is one
+function getLowestUnvisited(seen: boolean[], dists: number[]): number {
+  // what is the lowest distance and it has to be an unseen node
+  let idx = -1;
+  let lowestDistance = Infinity;
+  // walk through all the nodes (represented by the seen list) and find the one with lowest distance
+  for (let i = 0; i < seen.length; i++) {
+    if (seen[i]) {
+      // we visited this so skip it
+      continue;
+    }
+    // we can assume dists will be < Infinity per the hasUnvisited condition above being applied
+    if (dists[i] < lowestDistance) {
+      lowestDistance = dists[i];
+      idx = i;
+    }
+  }
+
+  return idx; // return the index that is the lowest distance
+}
+function dijkstra_list(source: number, sink: number, arr: AdjencyList) {
+  // adjacency list that represents each node and connection to all other nodes
+  const seen = new Array(arr.length).fill(false);
+  // make a previous list to track path back
+  const prev = new Array(arr.length).fill(-1);
+  // make the distances list and all distances start at infinity
+  const dists = new Array(arr.length).fill(Infinity);
+
+  // smallest distance possible, we're at source already, so distance is 0
+  dists[source] = 0; // the distance recorded to our initial source node which is where we start from
+
+  // loop over nodes until we've seen all of them and calculated lowest distances
+  while (hasUnvisited(seen, dists)) {
+    const curr = getLowestUnvisited(seen, dists);
+
+    seen[curr] = true;
+
+    const adjs = arr[curr]; // arr is the graph, we get a list of our edges
+
+    // go through each edge
+    for (let i = 0; i < adjs.length; i++) {
+      // grab the edge
+      const edge = adjs[i];
+      if (seen[edge.to]) {
+        // if we've seen it skip
+        continue;
+      }
+
+      // calc distance - this is the weight of the edge plus my distance (the source has a 0 + distance to next node weight), then we look at the next closest one and adjust all the weights - repeat this process
+      const dist = dists[curr] + edge.weight; // distance to this node (the edge node) from the node we are at
+      if (dist < dists[edge.to]) {
+        // if this distance is less than the known distance of the edge, we need to update
+        if (dist < dists[edge.to]) {
+          // the distance of the edge becomes the new smaller distance
+          dists[edge.to] = dist;
+          // previous edge has a new parent (this tracks where we are backwards through the path taken)
+          prev[edge.to] = curr;
+        }
+      }
+    }
+  }
+
+  // walk the path backwards and return the path
+  const out = [];
+  let curr = sink; // sink is where we want to go to
+
+  // we walk one parent back at a time
+  while (prev[curr] !== -1) {
+    out.push(curr); // add it to our path
+    // update current to the parent that got us to this point
+    curr = prev[curr]; // prev is the last person to update our distance to the shortest known path
+  }
+
+  out.push(source); // add original source node to path
+  return out.reverse(); // reverse our above walking backwards to get the forward path we took
+}
+```
