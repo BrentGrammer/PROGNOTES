@@ -219,7 +219,9 @@ function dfs(graph: AdjList, source: number, needle: number) {
 ```javascript
 /**
  * This is the less than optimal solution
- */ 
+ * O(V^2 + E)
+ * For optimum sol, use a min heap which eliminates need for seen array - you remove the nodes seen from min heap as you go. results in O(logV(V+E))
+ */
 
 function hasUnvisited(seen: boolean[], dists: number[]): boolean {
   // seen is false and the distance for that node is less than infinity
@@ -303,3 +305,13 @@ function dijkstra_list(source: number, sink: number, arr: AdjencyList) {
   return out.reverse(); // reverse our above walking backwards to get the forward path we took
 }
 ```
+
+### Interview question for graph
+
+- see [vid](https://frontendmasters.com/courses/algorithms/dijkstra-s-shortest-path-run-time/) at timestamp 8:00
+- 2d array with 1s and 0s
+- Find how many islands there are (any cell with 1 connected to contiguous set of 1s)
+- Use a Breadth first or depth first search
+  - Start somewhere,
+  - increment islands seen so far
+  - Scan until finding 1s and scan in all 4 directions
