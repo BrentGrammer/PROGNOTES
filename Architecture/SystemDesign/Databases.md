@@ -61,5 +61,22 @@
 - Elasticsearch is a standalone database. Its main use case is for searching text and text and/number related queries such as aggregations. Generally, it's not recommended to use Elasticsearch as the main database, as some operations such as indexing (inserting values) are more expensive compared to other databases.
 
 You can use Elasticsearch along with any other database such as MongoDB or MySQL, where the other databases can act as the primary database, and you can sync Elasticsearch with your primary database for the "searchable" parts of the data.
+
 - see https://www.elastic.co/blog/found-elasticsearch-as-nosql
 - Use Cases: https://bigdataboutique.com/blog/using-elasticsearch-or-opensearch-as-your-primary-datastore-1e5178
+
+## NoSQL
+
+## Key Value Stores
+
+- fast lookups, lower latency
+- good for caches and configuration parameters
+- dynamoDB, Redis, Zookeeper, etc. are examples
+
+### Different types of key value stores
+
+- Some write data to disk to persist if the kv store crashes
+- Other ones write only to memory (Redis is in memory)
+  - In memory is acceptable for caching since you don't lose actual data, just the cache
+- Strong and Eventual consistency as well
+
