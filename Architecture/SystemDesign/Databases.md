@@ -20,11 +20,11 @@
   Ex:
 - TRANSACTION A Begin
 - TRANSACTION B Begin
-    - TRANSACTION A Update
-      - TRANSACTION B Update (Hangs and waits for Transaction A)
-        - TRANSACTION A Commit
-          - TRANSACTION B resumes (to pick up new update)
-            - TRANSACTION B COMMIT
+  - TRANSACTION A Update
+    - TRANSACTION B Update (Hangs and waits for Transaction A)
+      - TRANSACTION A Commit
+        - TRANSACTION B resumes (to pick up new update)
+          - TRANSACTION B COMMIT
 
 ### DB Index
 
@@ -44,12 +44,22 @@
 ## SQL vs. NOSQL
 
 ### NoSQL
+
 - system will be read-heavy, NoSQL is a suitable choice for storing data.
   - MongoDB is good choice for fast reads. Other NoSQL databases like Cassandra, Riak, and DynamoDB need read-repair during the reading stage and hence provide slower reads to write performance.
 - Flexible schema
 - Not highly relational data (no complex queries needed)
 
 ### SQL
+
 - Complex queries will be needed
 - Relational data
 - Strong schema requirements
+
+## ElasticSearch
+
+- Elasticsearch is a standalone database. Its main use case is for searching text and text and/number related queries such as aggregations. Generally, it's not recommended to use Elasticsearch as the main database, as some operations such as indexing (inserting values) are more expensive compared to other databases.
+
+You can use Elasticsearch along with any other database such as MongoDB or MySQL, where the other databases can act as the primary database, and you can sync Elasticsearch with your primary database for the "searchable" parts of the data.
+- see https://www.elastic.co/blog/found-elasticsearch-as-nosql
+- Use Cases: https://bigdataboutique.com/blog/using-elasticsearch-or-opensearch-as-your-primary-datastore-1e5178
