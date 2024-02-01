@@ -1,6 +1,6 @@
 # Caching
 
-- store items that do not change frequently in cache (ex., Redis)
+- store items that do not change frequently in cache (ex., Redis or Memcache)
 - Prefer caching static or immutable data
 - Caching mutable data is more tricky and should be avoided if not necessary - dealing with stale data and keeping data in more than one place in sync
 
@@ -18,3 +18,7 @@
 - LRU - Least Recently Used policy, get rid of the least recently (oldest) used pieces in the cache.
 - LFU - Least Frequently Used policy, the least frequently used data is evicted
 - FIFO or LIFO approach, get rid of first in/last in data
+
+### Caching problems
+- If following a Round Robin load balancing strategy, when using a cache for computationally expensive operations, if the same client asks for the request again, there is a chance the RR load balancing will send them to a different server that does not have the cached response.
+  - We can use Hashing to solve this.

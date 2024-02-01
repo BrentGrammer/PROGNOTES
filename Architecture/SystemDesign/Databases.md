@@ -40,3 +40,16 @@
   - Query on the table: `SELECT * FROM large_table ORDER BY random_int DESC LIMIT 10`;
   - The large table for example would have millions of entries for the random_int col. The ordering and scanning of the table entries would take a long time without an index.
 - Typically you create an index when you first define your Table.
+
+## SQL vs. NOSQL
+
+### NoSQL
+- system will be read-heavy, NoSQL is a suitable choice for storing data.
+  - MongoDB is good choice for fast reads. Other NoSQL databases like Cassandra, Riak, and DynamoDB need read-repair during the reading stage and hence provide slower reads to write performance.
+- Flexible schema
+- Not highly relational data (no complex queries needed)
+
+### SQL
+- Complex queries will be needed
+- Relational data
+- Strong schema requirements
