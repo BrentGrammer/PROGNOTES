@@ -3,6 +3,8 @@
 - https://notes.stephenholiday.com/Kafka.pdf
 
 - Log aggregator
+- used for processing huge volume of log data streams. Like a messaging system, Kafka employs a pull-based consumption model that allows an application to consume data at its own rate and rewind the consumption whenever needed.
+  - pull based consumption differs from polling in that consumers decide when to pull data and it is not necessarily at a set interval.
 
 ## Problems solved
 
@@ -29,7 +31,8 @@
   the load to be truly balanced, we require many more partitions in a
   topic than the consumers in each group. We can easily achieve
   this by over partitioning a topic.
-    - Consumers "own" specific partitions
+
+  - Consumers "own" specific partitions
 
 - Zookeeper: responsible for the following tasks: (1) detecting the
   addition and the removal of brokers and consumers, (2) triggering
@@ -43,7 +46,20 @@
   latest consumed offset in the offset registry
 
 ### At least once delivery
+
 - Kafka gaurantees at least once delivery but not exactly once delivery
 - If consumers do not have a clean shutdown, the consumers that take over their partition may get duplicate messages due to the time the last commit of the offset was made.
 - For exactly once delivery apps need to implement their own deduplication logic to gaurantee this (does Kafka Connect take care of this?).
 - Ordering of messages is gauranteed within a partition, but not across partitions
+
+### Tradeoffs
+
+- Kafka brokers do not send an ack back to producers/publishers which greatly increases throughput compared to other messaging systems that do this.
+  - For many types of log data, it is desirable to trade durability for throughput, as long as the number
+    of dropped messages is relatively small.
+
+### Efficiencies
+
+- No ack as mentioned above
+- Smaller header info on messages compared to other systems resulting in less storage and fewer bytes needing to be transferred over the wire
+- Batching messages greatly increases throughput (say batching 50 instead of sending message 1 at a time) due to the reduced RPC overhead.
