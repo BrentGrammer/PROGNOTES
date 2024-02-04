@@ -80,3 +80,27 @@ You can use Elasticsearch along with any other database such as MongoDB or MySQL
   - In memory is acceptable for caching since you don't lose actual data, just the cache
 - Strong and Eventual consistency as well
 
+## ElasticSearch
+
+- NoSQL
+- Optimized for text searching
+- Append only favoring database
+  - Not ideal for frequent deletes or updates
+- Not Transactional - often used with a ACID compliant Source of Truth or gauranteed consistency like another database - PostgreSQL for example.
+- OLAP database (not OLTP)
+- Distributed, async and concurrent database - favors speed and efficiency over correctness (see lack of guarantees above)
+- Ideal for querying for aggregations over data, or sorting by Document Rank (favoring certain documents in a query over others based on same criteria)
+  - less suitable for operations requiring frequent access to the entire dataset, or very large results sets (let's say over 100-200 results per query).
+  - Not great for exporting data, but possible
+- Schema changes can be tricky - you can add fields, but if you need to backfill them or remove/alter fields you must re-index all the data (time consuming).
+  - Creating new indices to act as a view on top of ES with another database makes this less painful.
+- Make sure to have a data retention policy and delete old/whatever data to cut costs in storage (or store the old data in glacier storage etc. that's cheap)
+
+### Suitable Use Cases
+
+- Logs, IoT Events, Metrics - append only data streams
+- Kafka recommended as a gateway to make writes predictable and at a rate that won't overwhelm ES cluster.
+- Do NOT use ES for:
+  - systems requiring transactional gaurantees - i.e. Financial or concurrent systems with strict accuracy requirements
+  - High frequency write scenarios - in ES last write wins, so this could be problematic with race conditions etc.
+- For those looking for highly performant analytics engines for write-heavy workloads, it’s a good choice.
