@@ -887,6 +887,7 @@ All side effects must either all happen atomically or not at all.
 Apache Kafka does this and keeps the transactions internal by managing state and messaging within the framework. The overhead is amortized by processing several input messages within a single transaction. P. 478.
 
 Idempotent: operation can be performed multiple times and it has the same effect as if you performed it only once. Can be another effective way of achieving exactly once semantics with little overhead.
+Has the same outcome regardless of how many times it is performed.
 
 Operations that are not naturally idempotent can usually be made so by using some extra bit of metadata. For ex, including the monotonic offset from kafka messages with write requests to databases, can check it and ensure the same data isn't written twice.
 
