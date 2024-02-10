@@ -26,7 +26,7 @@
         - TRANSACTION B resumes (to pick up new update)
           - TRANSACTION B COMMIT
 
-### DB Index
+### Indexing
 
 - Some data requires linear time operation searches. This will be slow if on a big set of data over and over again.
 - Index allows you to create a auxillery data structure (like another table) optimized for searching on a specific column.
@@ -39,7 +39,8 @@
 - ex: `CREATE INDEX large_table_random_int_idx ON large_table(random_int);`
   - Query on the table: `SELECT * FROM large_table ORDER BY random_int DESC LIMIT 10`;
   - The large table for example would have millions of entries for the random_int col. The ordering and scanning of the table entries would take a long time without an index.
-- Typically you create an index when you first define your Table.
+- Typically you create an index when you first define your Table. 
+- Btree structure under the hood - fat tree that is shorter, so less steps to get to a value
 
 ## SQL vs. NOSQL
 
