@@ -99,8 +99,9 @@ Ex: in .gitignore file, type: /directoryName (/jsfolder) etc.
 ### Ignore tracked files:
 
 - should the file remain in the repository or not? Eg if someone new clones the repo, should they get the file or not? If YES then `git update-index --assume-unchanged <file>` is correct and the file will remain in the repository and changes will not be added with git add. If NO (for example it was some cache file, generated file etc), then `git rm --cached <file>` will remove it from repository
-- `git rm -r --cached <filename>` to remove from repo and index
+- `git rm --cached <filename>` to remove from repo and index
   - `git add .` && `git commit -am "Remove ignored files"`
+- note: use `git rm -r --cached..` for recursive approach
 
 ### IGNORING FOLDERS/FILES:
 
