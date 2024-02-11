@@ -82,17 +82,27 @@ $ touch [filename] (ex: touch index.html) <--- this creates a file.
 
 ### OTHER COMMANDS:
 
-GIT IGNORE <---USED IF YOU DON'T WANT SOMETHING INCLUDED (even if you use add ., it will skip and ignore these files -- usually log.txt log files, for example.).
+## GIT IGNORE
 
--Create a .gitignore file with the command $ touch .gitignore
--in the .gitignore file, simply type the name of the file(s) you want to ignore (i.e. log.txt, etc.) --git will then exclude these files from future commands.
+- USED IF YOU DON'T WANT SOMETHING INCLUDED (even if you use add ., it will skip and ignore these files -- usually log.txt log files, for example.).
 
-Note: you can also ignore entire directories/folders (use the forward slash, and then type the name of the folder: /dirName)
+### Create gitignore:
+
+- Create a .gitignore file with the command $ touch .gitignore
+- in the .gitignore file, simply type the name of the file(s) you want to ignore (i.e. log.txt, etc.) - git will then exclude these files from future commands.
+
+**Note:** you can also ignore entire directories/folders (use the forward slash, and then type the name of the folder: /dirName)
 Ex: in .gitignore file, type: /directoryName (/jsfolder) etc.
 
--can also ignore entire types of files with _.fileExt (ex: _.txt <---this ignores all txt files).
+- can also ignore entire types of files with _.fileExt (ex: _.txt <---this ignores all txt files).
 
-IGNORING FOLDERS/FILES:
+### Ignore tracked files:
+
+- should the file remain in the repository or not? Eg if someone new clones the repo, should they get the file or not? If YES then `git update-index --assume-unchanged <file>` is correct and the file will remain in the repository and changes will not be added with git add. If NO (for example it was some cache file, generated file etc), then `git rm --cached <file>` will remove it from repository
+- `git rm -r --cached <filename>` to remove from repo and index
+  - `git add .` && `git commit -am "Remove ignored files"`
+
+### IGNORING FOLDERS/FILES:
 
 /images
 That will ignore any file OR directory named images in the same directory as the gitignore file you are using.
@@ -105,9 +115,9 @@ If you want to specify that it should only match the images directory then add t
 
 $ clear <---clears the content of the window to clean it up.
 
-USAGE:
+## USAGE:
 
-Note: Start your project or work from the local repository and don't edit on gitHub - do all editing locally to keep histories from not synching.
+**Note:** Start your project or work from the local repository and don't edit on gitHub - do all editing locally to keep histories from not synching.
 
 1. Initialize the current working folder as a repository:
    $ git init --this initializes the current folder. A .git folder is created in the directory (it is hidden by default)
