@@ -74,7 +74,7 @@ const token = jwt.sign(payload, secret, {
 
 - Good library to use for hashing and salting pws is [bcryptjs](https://www.npmjs.com/package/bcryptjs). This lib generates a random salt for you.
 - Apply unique salt (random unpredictable string) to each password
-  - A system-wide salt is pointless to mitigate attacks; it would just make passwords longer.
+  - A system-wide single salt is pointless to mitigate attacks; it would just make passwords longer.
   - should generate a unique salt upon creation of each stored credential (not just per user or system-wide). That includes passwords created during registration or as the result of a password reset.
 - The salt doesn't need to be encrypted, for example. Salts are in place to prevent someone from cracking passwords at large and can be stored in cleartext in the database. However, do not make the salts readily accessible to the public
 - A common practice is to simply append the salt to the hash of the pw.
