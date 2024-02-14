@@ -4,6 +4,9 @@
 - The percentage of a given period of time where the system is operational
 
 ### Measuring Availability
+
+$$\text{Number of non-error Responses} \over \text{Number of total requests}$$
+
 - The percentage of time that a system is operational and up during a given year.
 - measured in '9s' (percentages with the number 9). Ex: 99% availability = two nines of availability, 99.9% availability means it has three nines availability (number of 9s in the metric). 90% = one nine
   - 4 nines and up availability is target (five nines is gold standard and considered **Highly Available**)
@@ -11,6 +14,7 @@
   - SLO - service level objective - a SLA is made up of SLOs, more granular gaurantees
 
 ### High Availability - use REDUNDANCY to eliminate single points of failure
+
 - Ensuring high levels of availability has tradeoffs and costs - higher latency or lower throughput for example.
 - Need to decide whether high availability (i.e. five nines etc) is necessary for the system
 - **Need to eliminate single points of failure using REDUNDANCY**
