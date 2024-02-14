@@ -39,7 +39,7 @@
 - ex: `CREATE INDEX large_table_random_int_idx ON large_table(random_int);`
   - Query on the table: `SELECT * FROM large_table ORDER BY random_int DESC LIMIT 10`;
   - The large table for example would have millions of entries for the random_int col. The ordering and scanning of the table entries would take a long time without an index.
-- Typically you create an index when you first define your Table. 
+- Typically you create an index when you first define your Table.
 - Btree structure under the hood - fat tree that is shorter, so less steps to get to a value
 
 ## SQL vs. NOSQL
@@ -105,3 +105,8 @@ You can use Elasticsearch along with any other database such as MongoDB or MySQL
   - systems requiring transactional gaurantees - i.e. Financial or concurrent systems with strict accuracy requirements
   - High frequency write scenarios - in ES last write wins, so this could be problematic with race conditions etc.
 - For those looking for highly performant analytics engines for write-heavy workloads, it’s a good choice.
+
+## Sqlite
+
+- In memory database good for development (not necessarily production)
+- Is a basic text file on the file system containing the data - no engine needed.
