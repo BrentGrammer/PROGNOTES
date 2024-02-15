@@ -13,6 +13,7 @@ Good link with ex.: https://stackoverflow.com/questions/1592649/examples-of-algo
 - Linear - 1 unit of work more for each input added
 
 - QuasiLinear - n log n - Slightly more than linear - Sorting. Merge Sort Quick Sort, Heap Sort. divide and conquer strategies. Halve the amount of space you need to search, but you need to search the whole space each time - go over n chars, halve how much you need to do then go over n chars and halve that, etc.
+
   - The log n is a little extra on top of O(N) since we pass through the list one time but sorting has a bit of runtime overhead.
 
 - Quadratic - handshake problem - each new person has to shake everyone's hand in room
@@ -22,6 +23,7 @@ Good link with ex.: https://stackoverflow.com/questions/1592649/examples-of-algo
 ## Time Complexity
 
 - Elementary operation, unit of work - something that does not take a lot of time - i.e. looking up a memory address, looking up an item in an array etc.
+- defined as the number of times a particular instruction set is executed rather than the total time taken
 
 - O(how many operations per input) - operation is the whole algo steps per input.
 
