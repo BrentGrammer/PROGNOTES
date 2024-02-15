@@ -62,7 +62,7 @@ const token = jwt.sign(payload, secret, {
 ### JWT vs. Cookies
 
 - Cookies with sessions require a session db to manage and keep track of sessions, JWTs do not require session db management.
-- Cookies are appropriate for web browser to server communication. Mobile apps for ex. might have more difficulty dealing with cookies. JWTs are more versatile and flexible.
+- Cookies are appropriate for web browser to server communication. Mobile apps for ex. might have more difficulty dealing with cookies. JWTs are more versatile and flexible and more mobile friendly.
 - With JWT you are not limited by the size of your data, with cookies you only have 4093 bytes per domain - for all cookies, not the one.
 - JWTs better for microservices since multiple servers don't need to share a session DB (cookie session management). the user data is encoded in the JWT
 - JWT tokens cannot be “invalidated” (without maintaining them in a shared db), in JWT approach the logout length precision is set by the expiration length of the access_token.

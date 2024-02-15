@@ -3,6 +3,8 @@
 ## Symmetric Encryption
 
 - uses a secret key that it used to encrypt a token with AES (Advanced Encrytion Standard)
+- The same key is used to both encrypt and decrypt a token
+  - Normally used on server that both encrypts/decrypts JWT tokens for example.
 - Faster than asymmetric encryption
 - Uses only one key and that key must be shared between the two parties (client and server for ex.)
   - This is vulnerable to HTTP Man in the Middle attacks because the server must share the key over the wire with the client.
@@ -32,6 +34,8 @@ console.log("Failed decrypted: ", failedDecrypted);
   - a pair of keys - a Public Key and a Private Key
   - Keys are mathematically bound such that if you encrypt a message using the public key, that message can only be decrypted using the Private key.
   - Anyone can see the public key, but only the server has the private key associated with that public key
+- Used when something needs to be encrypted on one machine (i.e. a server) and it needs to be decrypted on another (i.e. a client machine)
+  - Private key stays on the server and the public key is used by client to decrypt the data.
 
 ## HTTPS
 
