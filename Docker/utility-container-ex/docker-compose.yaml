@@ -1,0 +1,12 @@
+# Example Utility Container docker compose for a node project
+# run `docker-compose run --rm npm init` <-- service name followed by command to pass in. --rm removes
+version: "3.8"
+services:
+  npm:
+    build: ./
+    stdin_open: true # ensures -it mode if command needs user input
+    tty: true
+    volumes:
+      - ./:/app # bind app folder to container workdir
+
+# note: on linux there are permissions issues: https://www.udemy.com/course/docker-kubernetes-the-practical-guide/learn/lecture/22167140#questions/12977214/
