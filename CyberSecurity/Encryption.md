@@ -30,6 +30,7 @@ console.log("Failed decrypted: ", failedDecrypted);
 
 ## Asymmetric Encryption (Public key Encryption)
 
+- A public key is distributed and used to encrypt data, that data can only be decrypted using the public and private key (which only the owner possesses)
 - Relies on two keys to encrypt and decrypt messages
   - a pair of keys - a Public Key and a Private Key
   - Keys are mathematically bound such that if you encrypt a message using the public key, that message can only be decrypted using the Private key.
@@ -73,3 +74,15 @@ console.log("Failed decrypted: ", failedDecrypted);
   - The cert contains the public key (and usually these public/private key pairs are given to the server by the Certificate Authority) and the name of the entity that owns the key pair (i.e. the entity that owns the server) and an assurance from the CA that the public key belongs to this server and the cert proves that the server is who they say they are.
   - The cert will be signed by a private key from the CA and the client will use the public key of the CA to verify the certificate.
 - Because CAs are well known trusted entities, most browsers have the public keys of all the major Certificate Authorities stored in them so that it can easily verify all the SSL certs that will be received from various servers.
+
+### Digitally Signing documents
+
+- Bob produces a hash of some data (this does not involve a public or private key)
+- Bob uses his private key to encrypt the hash (this is the signature)
+- You use Bob's public key to decrypt the signature obtaining the original hash for the data
+- You run the same hash function bob used over the data and verify that the hash output matches the decrypted hash obtained from the signature
+
+So the reason this guarantees that Bob sent this data is that if you decrypt the hash with Bob's public key (which is linked/associated with his private key), then the hash you get from decryption is guaranteed to be the hash that Bob started with, encrypted and sent with the data as it's signature.
+
+If the hash that you produce from the data does not match, then that means:
+The data was altered by someone other than Bob - it is not the original data that was signed

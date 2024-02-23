@@ -69,7 +69,7 @@ Network ID: 10010000 00011100 00010000 00000000
 
 - Shorthand for indicating how many bits the network ID address part of the IP addr takes up.
   - Ex: the IP address 144.28.16.17 with the subnet mask 255.255.240.0 can be represented as
-    `144.28.16.17/20` because the subnet mask 255.255.240.0 has 20 network ID bits.
+    `144.28.16.17/20` because the subnet mask 255.255.240.0 has 20 network ID bits leaving 12 bits for the host portion (32 bits total for an IP addr).
 - The default subnet masks are three subnet masks that correspond to the standard Class
   A, B, and C address assignments. .../8,.../16,.../24
 

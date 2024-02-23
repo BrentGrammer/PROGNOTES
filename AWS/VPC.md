@@ -1,6 +1,8 @@
 # VPC and Subnets
+- good [intro video](https://www.youtube.com/watch?v=bGDMeD6kOz0)
 - Virtual Private Cloud - private network to deploy resources
-- Linked to a specific region
+- Linked to a specific region, but spans all availability zones in that region (subnets within the vpc only span one AZ - see below)
+- Each instance in a VPC can have a public (internet accessible) and private (only within VPC accessible) IP address. (you can also turn off public ip address)
 - **SUBNETS**: A partition of your VPC network associated with and corresponds to an Availability Zone
   - Ex: you can have a public subnet accessible by the internet and a private subnet that's not
     - Public: accessible by internet
@@ -11,7 +13,12 @@
       - Need to create a Route table and configure private subnets manually
   - use **Route Tables** to define access between the internet and between subnets
 - CIDR Range: a range of IP addresses that are allowed within the VPC
-  - tip:can use https://cidr.xyz to get more info on the CIDR ips to select - shows you range of addresses you'll get.  The private IPs of your EC2 instances in that VPC should be within that range (they are assigned automatically when you launch an instance into a VPC)
+  - Minimum is /28 (16 host addrs) and maximum size allowed is /16 (65,536 IP host addrs)
+    - probably avoid 10.0 and 10.1 up through 10.10 (since people will probably pick those already)
+    - When choosing how many think about the maximum number of regions the business will operate in and add a few as a buffer. Shoot for 2 network IP ranges for each region per account.
+      - see [video](https://learn.cantrill.io/courses/1101194/lectures/26950363) at timestamp 10:41
+  - recommended is to use 10. addressed networks within that range (10.1 through to 10.255). try starting with 10.16
+  - tip:can use https://cidr.xyz to get more info on the CIDR ips to select - shows you range of addresses you'll get. The private IPs of your EC2 instances in that VPC should be within that range (they are assigned automatically when you launch an instance into a VPC)
 - Internet Gateway: helps the VPC instance/subnet connect with the internet.
   - An Internet Gateway is attached to the VPC
   - Pubic subnets have a route to the internet gateway (traffic goes through it for comms with internet and subnet)
@@ -22,6 +29,7 @@
   - Route from private subnet goes to NAT Gateway/Instance and that goes to the Internet Gateway
 
 # Security
+
 - NACL - Network ACL
   - **Security at the subnet level**
   - Firewall that controls traffic to and from a subnet
@@ -35,26 +43,29 @@
   - Firewall that controlls traffic to and from an ENI (Elastic Network Instance) or an EC2 instance
   - Can only have ALLOW rules
   - Rules can include IP Addresses and other security groups
-  - Stateful (retains request knowledge/associations): return traffic is automatically allowed regardless of rules.  any changes applied to an incoming rule will be automatically applied to the outgoing rule.
+  - Stateful (retains request knowledge/associations): return traffic is automatically allowed regardless of rules. any changes applied to an incoming rule will be automatically applied to the outgoing rule.
 
 # VPC Flow Logs
+
 - Info about IP traffic going into interfaces
-    - VPC Flow Logs
-    - Subnet Flow Logs
-    - Elastic Network Interfce Flow Logs
+  - VPC Flow Logs
+  - Subnet Flow Logs
+  - Elastic Network Interfce Flow Logs
 - Not enabled by default - you must enable it for the VPC
 - Helps to monitor and troubleshoot connectivity issues
   - Get netowrk traffic information, load balancers, RDS, other AWS Services
 - Can do into S3 or cloudwatch logs
 
 # VPC Peering:
+
 - Connect two VPCs privately using AWS' network
 - Make them behave as if they are in the same network.
 - The IP address range of the two must not overlap (CIDR range)
 - NOT Transitive - if you add a new VPC peering to one of the VPCs it will not be able to talk to the other one automatically (You need to pair the third with the remaining one to make that work)
 
 # VPC Endpoints:
-- Connect to AWS public services from a VPC using a private connection using the AWS network instead of the public internet 
+
+- Connect to AWS public services from a VPC using a private connection using the AWS network instead of the public internet
 - Better security
 - Less latency eliminating public network hops
 - **Types**:
@@ -64,6 +75,7 @@
     - Ex, connect to Cloudwatch to push a metric from instance in VPC
 
 # VPC PrivateLink
+
 - Part of VPC Endpoints family
 - Allows you to connect a service in your VPC to other outside services privately external to AWS
   - Does not require peering (does not scale) or internet gatways etc.
@@ -74,6 +86,7 @@
 # Hybrid Options
 
 ## Site to Site VPN
+
 - Connect on premise VPN to AWS
 - Connection is automatically encrypted and goes over the public internet
 - limited bandwidth since it's over the internet
@@ -82,18 +95,20 @@
   - Once those are provisioned you then create the Site to Site VPN and that's how they're linked.
 
 ## Direct Connect (DX)
+
 - Establish a actual physical connection between on premise machines/data center and AWS
 - Much more expensive and takes a month to establish
 - **Fast connection, and Private**
 
 # AWS Client VPN
+
 - Connect from your computer using OpenVPN to your private network in AWS and on premises
 - Used if you have EC2 instances, for ex., deployed in a private IP, but from your computer you want to access them as if you were in the VPC network.
-- Install the client on your computer and connect over the internet but you will be connecting as if you were in the VPC. 
+- Install the client on your computer and connect over the internet but you will be connecting as if you were in the VPC.
 
 # AWS Transit Gateway
+
 - Simplifies trying to manage complicated topolagies of connecting VPCs into one hub and spoke interface
 - No need for managing peering, etc.
 - Works with AWS VPCs, Direct Connect Gateway and all the VPN connection options
 - **Way to connect hundreds or thousands of VPCs together including on premises**
-

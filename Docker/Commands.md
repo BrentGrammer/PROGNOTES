@@ -36,6 +36,12 @@
 
 - docker exec -it <container name> sh
 
+## Building
+
+- `docker build -f ./Dockerfile.prod -t yourdockeracct/imagename .`
+- Target a stage in a multi-stage dockerfile: `docker build --target <stage-name> -f ./Dockerfile.prod .`
+  - Useful if you want to just run a stage and stop in a dockerfile (testing etc.)
+
 # Docker Compose
 
 - docker-compose run --rm <service-name> <cmd>

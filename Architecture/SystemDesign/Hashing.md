@@ -9,8 +9,10 @@
   - Ex: hash result would get evenly distributed data values around servers etc.
 - Some Premade industry grade algorithms with uniformity:
   - MD5
+    - This is not as trusted and less secure - possible to generate collisions
   - SHA1
   - BCrypt
+  - Sha2-512 - more secure
 
 ## When to use Hashing
 

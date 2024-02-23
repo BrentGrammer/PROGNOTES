@@ -1,5 +1,13 @@
 # Algorithms
 
+## General patterns and Cues:
+
+If it’s an array then problems can be solved usually with two pointers, sliding windows etc.
+
+Or heap + map if you see most/ least frequent
+
+Trees/ maps can mean bfs dfs traversal etc.
+
 ### Binary Search
 
 - Is the dataset you have ordered? if it is then there are advantages to this you can use
