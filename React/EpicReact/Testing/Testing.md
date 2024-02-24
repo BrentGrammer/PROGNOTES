@@ -46,7 +46,7 @@ test('basic test', () => {
 }
 ```
 
-### PATTERN FOR GETTING ELS/ROLES etc:
+### PATTERN FOR GETTING ELEMENT ROLE AND NAME IN DEVTOOLS etc:
 
 1. Select element in browser dev tools inspect
 2. Check Accessibility tab -> computed properties (check role, name etc.)
