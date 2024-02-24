@@ -46,6 +46,23 @@ export default defineConfig({
 });
 ```
 
+### Recommended TypeScript config:
+
+- see [recommended configuration for TypeScript](https://docs.cypress.io/guides/tooling/typescript-support#Install-TypeScript)
+- Fixes "cannot find cy" warning
+- Add a tsconfig.json in the cypress folder:
+
+```json
+{
+  "compilerOptions": {
+    "target": "es5",
+    "lib": ["es5", "dom"],
+    "types": ["cypress", "node"]
+  },
+  "include": ["**/*.ts"]
+}
+```
+
 ### Conditional assigning of base url for CI:
 
 - See [video](https://epicreact.dev/modules/build-an-epic-react-app/e2e-testing-solution-01) at timestamp 0:16 for possible config.
