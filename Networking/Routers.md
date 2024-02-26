@@ -25,3 +25,12 @@
   - `0.0.0.0` is a catch all for everything else
   - ex: The subnet mask 0.0.0.0 reduces the entire destination address to 0.0.0.0, which matches the destination network 0.0.0.0. Therefore, the router forwards the packet on to the ISP’s router at 107.0.65.31 via the external interface.
 - Entries in the table are evaluated in order and the first match is used.
+
+## Hosts file
+
+- on Mac: in `/etc/hosts`
+- on Windows: `C:\Windows\System32\Drivers\etc\hosts`
+- You can update entries for local development (for example in a k8s setup to redirect a domain to localhost):
+  - `127.0.0.1 mydomain.dev`
+  - Going to ticketing.dev in the browser will redirect to localhost
+  - Note that if you get a connection is not private locally you can type 'thisisunsafe' to get past it.

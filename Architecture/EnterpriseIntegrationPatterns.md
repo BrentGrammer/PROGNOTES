@@ -1,7 +1,10 @@
 # Enterprise Integration Patterns (Messaging)
 
 - Coupling: measure of how many assumptions systems make about each other during communication.
+
   - Example: RPC (Remote Procedure Calls) - the caller machine assumes function signature on the remote callee system will not change. Communicating with a specific address assumes the address won't change, There is also the assumption that the remote system will be up and operating and network hops will be functional without errors, etc.
+
+- Marshalling: Example - a subroutine which looks (from the outside) in every respect like a remote subroutine. On the inside, it is almost empty: all it does is take the values of the parameters which are passed to it, and put them in a message. This is known as marshalling.
 
 ## Terms
 

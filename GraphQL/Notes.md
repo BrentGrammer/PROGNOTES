@@ -1,6 +1,7 @@
 # GraphQL
 
 - A **spec** that describes a declarative query language that clients can use to ask an API for exact data they want. Strongly typed schemas and flexibility in how the API resolves data acheives this.
+- usign graphql, you have the luxury of requesting your data in the format that you desire (with REST, you are constrained by what the backend returns).
 
 ### Main Terms
 

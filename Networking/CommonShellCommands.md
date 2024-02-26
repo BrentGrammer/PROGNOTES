@@ -58,4 +58,3 @@
 ### tracert
 - `traceroute {hostname to reach}` on Unix, `tracert {hostname}` on Windows
 - lists hops to get to another server - useful for debugging where problems occur if you can't reach a server
-- 

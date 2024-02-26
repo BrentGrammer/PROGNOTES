@@ -39,7 +39,11 @@ Walk through of useReducer hook source code in react-dom development source: htt
 - Really it is a specialized version of useReducer() hook.
 - if state is complex, you should use useReducer hook instead.
 
-USING MULTIPLE HOOKS IN A COMPONENT:
+### Initial state/mounting
+
+- The initial value of a useState hook is always discarded on re-renders - it only has an effect when the component mounts.
+
+### USING MULTIPLE HOOKS IN A COMPONENT:
 
 - If using more than one hook (i.e. useState more than one time or a combination of hooks), each hook is added to the hook queue in the order they are called.
   - when the component renders it calls the hooks in the order they are in the queue/linked list created by the declaration of them in the component.

@@ -154,3 +154,8 @@ module.exports = {
   "include": ["./src/**/*.tsx", "./src/**/*.ts"]
 }
 ```
+
+## Testing mistakes
+
+### Do not repeat tests
+- If a user registration is tested in one test you don't need to register a new user for the other tests. You can call the HTTP requests directly
