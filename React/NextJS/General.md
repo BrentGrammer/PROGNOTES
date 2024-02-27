@@ -71,3 +71,8 @@
 ### Root folder
 
 - configuration files for eslint, next, postcss, tailwind and typescript
+
+## Deploying
+
+- For cheaper costs use SST: https://docs.sst.dev/start/nextjs
+- or use Vercel
