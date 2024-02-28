@@ -1,7 +1,7 @@
 # React Query
 
-- Good vid: https://www.youtube.com/watch?v=r8Dg0KVnfMA&t=1353s
-  left off around 38:40
+- [An Async State Manager](https://portal.gitnation.org/contents/thinking-in-react-query) (independent of how to fetch data)
+- [crash course](https://www.youtube.com/watch?v=r8Dg0KVnfMA&t=1353s)
 
 ### Benefits
 
@@ -12,7 +12,7 @@
   - Also moving away from a tab in the browser and back to the app tab will trigger a refetch. Refetching occurs including when the tab is unfocused/focused.
 - Automatic exponential backoff and retries for failed requests.
 
-### Best Practices
+## Best Practices
 
 - try to keep the minimal amount of state you need in order to derive other data from the query cache.
   - for ex, just store IDs and then get the record from the query cache
@@ -21,7 +21,53 @@
 
   - When the user performs an action, that's when the work is done - you don't do it afterwards (like in a useEffect etc.)
 
-  ### setup
+### Anti-Patterns:
+
+- Do not set local state with the result of a query in the `onSuccess` callback - React Query is the keeper of this state and should be the source of truth by referencing the query key for that state.
+- Also don't use a useEffect to dispatch an action with the query result to redux etc. React-Query is the state manager for this data so that is unnecessary.
+
+## When does React Query refetch queries?
+
+- Based on Triggers:
+  - on window focus
+  - on component mount
+  - when network is regained
+  - when query key changes
+- Async state needs to be unpdated at some point in time and these are the events that trigger an update.
+- See below - this does not happen all of the time for all queries:
+
+### StaleTime
+
+- NOTE: React Query does not do this for all queries, only for queries that are STALE.
+- If data is considered fresh, it will be pulled from the cache without a refetch, otherwise for stale data we get cached data and then a refetch.
+- **StaleTime defaults to 0** - by default React Query considers everything stale and refetches all the time.
+  - You need to decide what the staleTime is.
+  - Example: config settings that are stable that do not need many changes (only when server restarts), use `staleTime: Infinity`
+    - or if you have a multi-user updating system that updates happen at the same time, then staleTime of 0 might be good.
+
+#### Recommended approach to staleTime:
+
+- Set a default globally and override it when needed.
+
+```javascript
+// set global default:
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 2 * 60 * 1000, // 2 min.
+    },
+  },
+});
+
+// in query to override:
+useQuery({
+  queryKey,
+  queryFn,
+  staleTime: 5 * 60 * 1000, // 5 min.
+});
+```
+
+## setup
 
 - `npm i @tanstack/react-query`
 - can install dev tools for debugging: `npm i --dev @tanstack/react-query-devtools`
@@ -88,7 +134,7 @@ const myQuery = useQuery({
 }
 ```
 
-#### Query keys
+## Query keys
 
 - need to be unique
 - can think of them as an array of strings based on path/namespace:
@@ -96,7 +142,24 @@ const myQuery = useQuery({
   - `posts` = ["posts"]
   - `posts/id/comments` = ["posts",post.id,"comments"]
 
-#### Mutations
+### Use Query keys like dependencies to sync state
+
+```javascript
+function useIssues() {
+  // using global state to store a set of filters selected by user (also could use a url param)
+  const filters = userStore((state) => state.filters); // manager returns new object on changes
+
+  return useQuery({
+    queryKey: ["issues", filters], // use the data in the key so updates will trigger this query
+    queryFn: () => {
+      const url = "...";
+      return axios.get(url).then((res) => res.data);
+    },
+  });
+}
+```
+
+## Mutations
 
 - Mutations: used to update data
 
@@ -484,6 +547,7 @@ const Notes = () => {
 ```
 
 ### Clearing the Cache when a user logs out
+
 - use the client to clear the cache.
 - alternative you can use the queryCache.clear() method when the user logs out (import {QueryCache} from '@tanstack/react-query')
 
@@ -491,7 +555,6 @@ const Notes = () => {
 const client = useQueryClient();
 
 const logout = () => {
-  
   auth.logout();
   client.clear();
   clearReduxState();
