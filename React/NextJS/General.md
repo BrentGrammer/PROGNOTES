@@ -1,9 +1,15 @@
-# NextJS Course Part 1
+# NextJS
 
+
+### From Mosh Hademi's NextJS course:
 - Github with starter project (finished): https://github.com/mosh-hamedani/next-course
 
 - Forum for questions:https://forum.codewithmosh.com/
 - Good youtube series: https://www.youtube.com/watch?v=E1HzFvXgrCs
+
+### See also:
+
+- [React Server Components](../Anthony-Alicea-Understanding-React/ServerComponents.md) from Understanding React by Tony Alicea.
 
 ## NextJS overview
 
@@ -14,7 +20,12 @@
 - SSR: render components on the server and send the content to the client.
   - Faster
   - More SEO friendly
+
+### Use cases:
 - Static Site Generation - pre-render static pages for fast serving
+  - React traditionally used for highly interactive websites
+  - NextJS is useful for making static or content driven pages using React
+- 
 
 ### Prereqs:
 
