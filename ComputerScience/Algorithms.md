@@ -387,7 +387,11 @@ function sum(n) {
 - O(n^2) worst case runtime complexity
   - Quick sort does not always sort quickly depending on if the pivot is not in the middle etc.
   - If the list is reversed and the pivot is `1`
-  - Ideal case would be O(nlogn) (pivot is in the center)
+  - Ideal case would be O(n*logn) (pivot is in the center)
+  - NOT GOOD to use quick sort if you have sorted or almost sorted data (use insertion sort instead for ex.)
+  - If data is random and not sorted, then quick sort is good
+- O(1) Memory space since it sorts array in place.
+  - This is an advantage over something like MergeSort which creates new items in memory.
 
 #### Implementation
 
@@ -414,6 +418,7 @@ function partition(arr: number[], lo: number, hi: number): number {
   const pivot = arr[hi];
 
   let idx = lo - 1; // -1 to enable insertion into the first position of the chunk (which includes the actual lo idx)
+  // idx is where we swap to when finding val <= pivot and is a marker says everything to left of me is sorted
 
   // walk up to not incl. the hi
   for (let i = lo; i < hi; i++) {
@@ -433,6 +438,7 @@ function partition(arr: number[], lo: number, hi: number): number {
   idx++;
   // swap the pivot (in our impl the highest position in a chunk) to be the idx marked value so that it becomes the new pivot
   arr[hi] = arr[idx];
+  arr[idx] = pivot; // arr[hi] was stored in pivot already so it is saved there and we can reuse here for the swap
   // return the new pivot index position (in place of the original array)
   return idx;
 }
