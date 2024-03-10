@@ -235,3 +235,165 @@
   - When using cloud (PaaS) for hosting, all services will have a allocated DNS name that points to a load balancer in front of your microservice.
     - You just use the DNS layer for communication with the service and don't need to know IP addrs etc.
 - Kubernetes or container orchestration services have names for the services and built-in DNS you use for communication with services.
+
+# Security
+
+## Encrypting data (in transit and at rest)
+
+- Sensitive data must be encrypted in transit at a minimum
+  - must use industry standard algorithms (do not roll your own)
+  - Use TLS (Transport Layer Security) HTTPS
+    - Get SSL Certificate issued from Certificate Authorities for each of your services (you need to request this)
+    - need a mechanism for updating the SSL Certs and certificate management when they expire. (cloud providers usually have a service for this)
+- There may be a requirement from customer to store data encrypted at rest
+  - Disks that data is stored on should be encrypted.
+  - Need a secure way to manage keys
+  - Cloud providers are offering encyrption at rest service for databases and files etc.
+  - Remember to encrypt backups as well!
+
+## Authentication
+
+- Requests needs to tell us who the caller is
+
+### Conventional Methods
+
+- Use Authorization header in the request for HTTP requests.
+  - i.e. contains username and password ("Basic Authentication")
+    - this requires storing passwords (requires care for securely hashing etc.)
+  - Could contain an API Key
+    - each client of a service has their own API key
+    - Requires more secrets to manage and rotate if they are compromised
+- Use Client Certificates
+  - uses public key cryptography - secure way of caller to prove their identity.
+  - also requires complex management
+
+### Use OAuth 2 and OpenID Connect
+
+- Build on Industry standard protocols: OAuth 2.0 and OpenID Connect
+- Uses an **Authorization Server**
+  - Client authenticates by sending creds to Auth server
+  - Auth server returns access token with limited lifetime
+  - Access token is used by client (i.e. in Authorization header) with requests to services
+  - the tokens are signed using public-key cryptography so its possible to verify that the token was issued by the auth server.
+- Advantages:
+  - Only one service has the job of identifying users and managing their credentials securely
+  - Because industry standard protocols are used you don't have to write this service - you can use third party solutions. (i.e. IdentityServer4 - an OpenID Connect and OAuth 2.0 framework for .NET Core)
+
+### resources for protocols:
+
+- [Getting Started with OAuth 2.0](https://app.pluralsight.com/library/courses/oauth-2-getting-started/table-of-contents)
+
+## Authorization
+
+- What can authenticated users do? Permissions etc.
+
+### The Confused Deputy Problem
+
+- Requests made to downstream services that are forwarded after a user/client request are made with permissions that are too lenient because they are coming from an internal service instead of the user.
+  - Example: client > Order service > Payment service -- the payment service would allow the Order service to perform more actions because the permissions are set for the service instead of the client.
+  - The risk is if the client uses the request made to the order service, for example, to trick the payment service into making the order with another credit card because the payment service accepts all actions requests coming from the internal order service.
+- a solution is to use **"On Behalf of" access tokens**.
+  - The upstream service tells the downstream service that the request is being made on behalf of the client, so appropriate permissions and restrictions can be applied by the downstream service
+
+## Network Security
+
+- You can use Virtual Networks to wrap services and protect or close them off from outside traffic.
+- Use an API Gateway (Backend for Frontend) pattern to handle traffic coming from the outside world in between the clients and the services.
+  - Allows incoming traffic from internet, but also is connected to the Virtual Network protecting the services.
+  - Can filter and be selective about which requests to allow through to the Virtual Network.
+  - Cloud API Gateways can be configured with a Firewall and come with DDoS and SQL Injection protection
+  - For multiple clients that are only authorized for certain users (i.e. an admin UI portal), you can apply IP Whitelisting on the API Gateway
+
+## Defense in Depth
+
+- Do not rely on a single layer of security, but use multiple layers and combinations of techniques.
+- Use all techniques described: Encryption, Access Tokens, Network Security
+- Penetration testing by a team of InfoSec experts is recommended
+- Automated testing to confirm that security features are working correctly
+  - run tests that confirm that unauthorized users are unable to call apis and are rejected.
+- Attack Detection monitoring for patterns in real-time (can be detected in progress):
+  - Port scanning
+  - repeated login attempts
+  - http requests fishing for sensitive files
+  - SQL injection attempts
+  - configure alerts when these are detected.
+    - Can block the IP of the attacker or shut down service
+- Auditing for all actions performed in the system
+  - logs should be provided to review who did what and when they did it
+
+# Deploying Micro Services
+
+## Release Pipeline
+
+- Build > Unit Tests > Deploy micro service to a cloud deployed resource/env > Service level integration Tests (service in isolation testing) > Deploy to QA env for e2e tests > Release Gate (manual or risk assessment testing) > Deploy to Prod
+  - Very important to use the same procedure you used to push to QA env for pushing to Prod
+
+## Environments
+
+- Development
+- QA
+- Dedicated to Penetration testing
+- Performance Testing environmment
+- Prod
+  - Could have multiple prod envs per customer or per region
+
+### Parameterize deployment scripts
+
+- JSON or Yaml files are used to express what is different about the environment we are deploying to.
+  - i.e. desired state pattern: files describe the state of deployment, i.e. Kubernetes uses this and compares with what the manifests ask for and what is on the actual cluster - if difference k8s will make adjustments until matches desired state
+- Often these files are used in conjuction with deployment scripts to allow deployment of specific service to specific env
+  - `deploy orderingService 1.0.4 qa.yaml` or `kubectl apply -f qa_config.yaml`
+  - deploy this service into the qa environment
+  ```yaml
+  # qa.yaml
+  Name: QA
+  Region: us-west-2
+  VMSize: Medium
+  MinInstances: 2
+  MaxInstances: 5
+  ```
+- Use Terraform or Azure ARM Templates
+  - allows to template the cloud infra you need to host the services
+  - Usually involve base templates that are overriden with environment specific configuration.
+
+### Artifact Registries
+
+- Build artifacts are stored in a registry
+  - Allows easy ability to deploy the latest version or ROLL BACK to a previous stored version quickly
+- Using Containers, you can store the images in a container registry
+  - Can identify which container you want to deploy
+    - example of name and tag with version: `eshopcontainers/orderingservice:1.3.1`
+
+### Deploying strategies
+
+- Blue/Green
+  - Run old and new versions of a service simulataneously
+  - Use a load balancer to swap traffic from one to the other
+  - No downtime while waiting for the new service to start up (no downtime)
+- Rolling Upgrade
+  - Gradually replace individual instances of older versions with newer versions until all instances are upgraded.
+- Kubernetes is designed to host microservices and these strategies are built in
+  - Also makes rolling back easy as you just point manifest files to point at the previous tagged version (image) of the service.
+
+## Monitoring Services
+
+- Host Metrics
+  - CPU percentage usage
+  - Memory usage
+  - detect if we need to scale out to meet demand
+  - Can setup alerts via cloud providers
+- Application Metrics
+  - HTTP request failures
+  - Alerts for 401 (hacking attempt) or 500 errors (bugs in code)
+  - Message Queue alerts for large number of messages backing up (scale out signal)
+  - Dead Letter Queue alerts - indicates there is a problem processing messages
+- Health Checks
+  - web API that can be called to check if services are functioning
+    - just report "Ok" to indicate it started successfully
+    - information on what downstream deps are accessible
+- Logs
+  - Each service should emit logs to a centralized place
+  - Containers have a standardized approach to capture logs builtin
+  - ElasticSearch could be a store for logs and use Kibana to view them
+  - Use Azure Application insights, AWS CloudWatch etc.
+  - Can use the centralized place for logs to display dashboards and chart metrics
