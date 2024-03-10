@@ -1,10 +1,15 @@
 # Micro Services
 
-[Pluralsight course](https://app.pluralsight.com/ilx/video-courses/b4f7ab87-3bff-4f28-847a-3af0a3db2edc/c018ca9a-08ea-4cc9-ac24-d2de738d45dd/78bda0de-683f-447f-94e1-40a2279697c8)
+## Resources and Further Reading:
+
+- [Pluralsight course](https://app.pluralsight.com/ilx/video-courses/b4f7ab87-3bff-4f28-847a-3af0a3db2edc/c018ca9a-08ea-4cc9-ac24-d2de738d45dd/78bda0de-683f-447f-94e1-40a2279697c8)
 
 - [eShopOnContainers example application in microservices](https://github.com/dotnet-architecture/eShopOnContainers/tree/dev)
 
 - [Free ebook on .NET Microservices arhitecture](https://learn.microsoft.com/en-us/dotnet/architecture/microservices/)
+- [Building Microservices by Sam Newman](https://www.amazon.com/Building-Microservices-Designing-Fine-Grained-Systems/dp/1492034029/ref=tmm_pap_swatch_0?_encoding=UTF8&dib_tag=se&dib=eyJ2IjoiMSJ9.r-azj9TSEi92CduCOEkPwpd7etX5loA86NJ2FCaFGIB3SBtfIQNRKmKy4WFMt2SCJBCFC6SVKxbXEnbokevg38hM2Lcnmud-RKj-h0F4EcXNkoRlVCiU7gru6847kWGQTx6Uo-LzYDwKX32gqOKqy9qnzGO_ReR8N9rKpR3BYqUM3WTkGDYJMwXGDxCgS7OJ.iPAdVKro_d8qP1Gh9uFH7bWdMKHS0GstDS5EnG_yH3s&qid=1710038840&sr=8-1#customerReviews)
+
+## Benefits
 
 - Fault tolerant than monoliths
 - Reduce dependences between services and keeps application at least partially running
