@@ -7,7 +7,7 @@
 - [eShopOnContainers example application in microservices](https://github.com/dotnet-architecture/eShopOnContainers/tree/dev)
 
 - [Free ebook on .NET Microservices arhitecture](https://learn.microsoft.com/en-us/dotnet/architecture/microservices/)
-- [Building Microservices by Sam Newman](https://www.amazon.com/Building-Microservices-Designing-Fine-Grained-Systems/dp/1492034029/ref=tmm_pap_swatch_0?_encoding=UTF8&dib_tag=se&dib=eyJ2IjoiMSJ9.r-azj9TSEi92CduCOEkPwpd7etX5loA86NJ2FCaFGIB3SBtfIQNRKmKy4WFMt2SCJBCFC6SVKxbXEnbokevg38hM2Lcnmud-RKj-h0F4EcXNkoRlVCiU7gru6847kWGQTx6Uo-LzYDwKX32gqOKqy9qnzGO_ReR8N9rKpR3BYqUM3WTkGDYJMwXGDxCgS7OJ.iPAdVKro_d8qP1Gh9uFH7bWdMKHS0GstDS5EnG_yH3s&qid=1710038840&sr=8-1#customerReviews)
+- [Building Microservices by Sam Newman](https://www.amazon.com/Building-Microservices-Designing-Fine-Grained-Systems/dp/B09RTQY7SX/ref=sr_1_2?crid=LEALOYA87RG6&dib=eyJ2IjoiMSJ9.r-azj9TSEi92CduCOEkPwk5PYG1tLk1WO1V_TlVnfDRQJrNUMGpKOukdQ9xBupb7lA6aDksmnj9WEbB2m70BxAapOTrObMIDlvkbMKikJDSLqI72ApGw43DsvMc-UeSoMsDHYpQpQxX5rzgmwokDm9brdnCptPs9kSPl8K9AOl8QKFvCdpHr20utf00uFvVTqYcKUyJrk3Mo7NCM0jsDPujdotC_09fiTF9iwq58k3GQBnZ46t9mWQPeE-KPE_uP6us9vj0nnd5DOpn8xs2Wyw2zWSIBiLpBW3GqrcCze9I.7R0pA7qi3P4FSCrCdhKuF9txI_gWIs8UCnnlDulGJwo&dib_tag=se&keywords=building+microservices&qid=1710039082&sprefix=building+microservices%2Caps%2C115&sr=8-2)
 
 ## Benefits
 
