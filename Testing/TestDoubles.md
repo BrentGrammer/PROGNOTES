@@ -1,5 +1,7 @@
 # Test Doubles
 
+- Also see [Testing with Python](../Python/testing/testing.md)
+
 ### 5 kinds of test doubles:
 
 #### Dummy (hard coded null or string value for ex.)
@@ -51,6 +53,7 @@
   - **Mocks check that method calls happen in the right order or with the correct arguments.**
 
 ### Disadvantages of Test Doubles:
+
 - Add complexity, make tests harder to understand, can lead you to think you're testing something that you are not.
 - Test Doubles get out of sync with the real objects they replace (the real object can change causing the code to no longer work, but the test will pass since it is using an old mock that still works.)
 - Hinders refactoring - doubles can be tied to the implementation details of your source code.
