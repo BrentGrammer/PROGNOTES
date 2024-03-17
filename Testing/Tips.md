@@ -14,3 +14,8 @@ it("handles empty input", () => {
   doIt(empty as Security[]);
 });
 ```
+
+### Three kinds of Assertions:
+- Return Value or Expected Exception
+- State Change: Use the exposed API to query the updated state after an action and confirm it is what is expected.
+- Method Call: check that a function got called. (Uses Mock or Spies)

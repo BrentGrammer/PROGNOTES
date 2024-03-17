@@ -2,14 +2,70 @@
 
 ### 5 kinds of test doubles:
 
-- dummy (hard coded null or string value for ex.), stub (configured dependency that returns values based on different scenarios), spy, mock, and fake (usually implemented to replace a dependency that doesn't exist yet, similar to stubs).
-- These can be consolidated into two basic types: Mocks (Mock and Spy) and Stubs (Dummy, Stub, Fake)
+#### Dummy (hard coded null or string value for ex.)
+
+- Needed when you need to pass something to a unit class or method under test
+- Usually it is None/Null or an empty set/collection.
+- Indicates a design smell of too many compulsory arguments (you can use a default argument set to Null to remove the need to pass a dummy in)
+- The dummy is a placeholder and not used in the case you are testing.
+
+#### Stub (configured dependency that returns values based on different scenarios)
+
+- Simple controlled replacement, use these when it is easier to use this over the real collaborator object in tests.
+- Has the same interface as the object that it is replacing in the test.
+
+#### Fake (usually implemented to replace a dependency that doesn't exist yet, similar to stubs).
+
+- Fakes have an implementation that works and is suitable to the test env, as opposed to stubs which return fixed values
+- Ex: File in python can be replaced with io.StringIO (same interface and avoids working with file system in tests)
+- A real database can be replaced with an in memory database
+- A real webserver can be replaced with a lightweight one.
+- Purpose is to make tests run faster and not have to write as much code using fakes as you would if you used a stub.
+
+#### Spy
+
+- Unlike a stub, makes assertions about what happens in the test case
+- used in Method Call assertions: check that a function got called. (Uses Mock or Spies)
+- **Records any interactions, so you can make assertions on what happened afterwards** - it "spies" on the object and what happens to it.
+
+#### Mock
+
+- Unlike a stub, makes assertions about what happens in the test case
+- see [demo](https://app.pluralsight.com/ilx/video-courses/5a80aa07-b192-4111-a612-473392f6bdf9/ee9ce99a-d229-4203-a798-7f8bc834e40c/107da86b-4c34-4556-97b1-6cf089bfafcc) of a mock.
+- Method Call assertions: check that a function got called. (Uses Mock or Spies)
+- A mock is set up in advance with expectations for the calls that should happen, but if they don't happen as expected, then it raises an exception inside the mock implementation that occurs during the act part of the test (a spy raises the error afterwards in the assert phase of the test).
+
+### These can be consolidated into two basic types:
+
+- Mocks (Mock and Spy)
+- Stubs (Dummy, Stub, Fake)
+
+- From simplest to moving towards aactually replacing the collaborator in the test: Dummy > Stub > Fake > Spy > Mock
+
+### When to use Test Doubles:
+
+- When the unit of code you are testing has a dependency on some other code and you don't want to use the real dependency.
+- If you have a collaborator that is awkward to use in a test, replace it with a Dummy, Stub or Fake. (Stub is a good choise most of the time)
+- If you want to test the contract between a unit under test and a collaborator, use a Spy or a Mock.
+  - Spies and Mocks ensure that interactions are correct.
+  - **Mocks check that method calls happen in the right order or with the correct arguments.**
+
+### Disadvantages of Test Doubles:
+- Add complexity, make tests harder to understand, can lead you to think you're testing something that you are not.
+- Test Doubles get out of sync with the real objects they replace (the real object can change causing the code to no longer work, but the test will pass since it is using an old mock that still works.)
+- Hinders refactoring - doubles can be tied to the implementation details of your source code.
 
 ## Mocks
 
 A mock is a test double that allows you to examine interactions between the system under test (SUT) and its collaborators.
 
-- Mocks can make tests fragile and shuold be used with discretion
+- Mocks can make tests fragile and should be used with discretion
+
+### Mocks vs. Spies
+
+- Spies and mocks are similar in that they both check for correct interactions.
+- A mock will explode EARLIER in the test which can be helpful if you want to stop execution as soon as something goes wrong (you will get a stack trace that points to the heart of the production code). A spy will only tell you something went wrong afterwards.
+- Spies are simpler to implement and easier to understand.
 
 ### Mocks vs. Stubs
 

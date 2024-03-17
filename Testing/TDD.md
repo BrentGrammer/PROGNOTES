@@ -1,5 +1,7 @@
 # Test Driven Development
 
+- Writing tests and production code is interleaved so that through an iterative process, the design of the code **emerges** between the interaction of writing tests and source code concurrently.
+
 ### TDD Rules, the 3 laws
 
 1. Write no production code until first writing a failing unit test.
@@ -29,7 +31,25 @@ This results in a cycle that lasts about 20 seconds. You bounce back and forth b
 - Treat the test code just as though it was production code - make it clean and refactor it following good design and principles.
 - Absolute certainty that the tests prove the program is correct and bug free is impossible, but the tests provide protection enough to eliminate the fear of making changes to the production code base.
 
-### [Refactoring exercise](https://cleancoders.com/episode/clean-code-episode-6-p1) (16:00)
+### Benefits of TDD
+
+- Drives you towards writing code that is easy to test, so it will be isolated, decoupled and have high coherence.
+  - Results in driving you to more smaller testable units of code.
+- Makes you think first about the interface and then the implementation
+- Decreases debugging and increases devlopment speed.
+- **Eliminates fear of changing the code to prevent rot.**
+
+#### Tests serve as documentation for how to use the system
+
+- If you want to know how to create an object in the system, there are unit tests that create that object every way that it can be created.
+- How do I call an API function? There are unit tests that call that API function every way it can be called.
+- Tests stay in sync with the application code. They are low level documentation of the system.
+
+#### **Writing tests first force you to write production code that is testable** - i.e. the code will be decoupled
+
+- Writing tests first also prevents you from taking shortcuts that are tempting when writing the tests after the fact. Some code might be hard to test, and you've already tested it manually, so you take shortcuts in the test afterwards.
+
+## [Refactoring exercise](https://cleancoders.com/episode/clean-code-episode-6-p1) (16:00)
 
 When dealing with refactoring a messy function, try the following if applicable:
 
@@ -68,21 +88,6 @@ private class HtmlFormatter {
 
 - in the new class with the extracted logic, rename variables if unclear to more meaningful names
 - Extract pieces of logic to small functions that read logically one after the other in a predictable way.
-
-### The need for tests
-
-- Decreases debugging and increases devlopment speed.
-- **Eliminates fear of changing the code to prevent rot.**
-
-#### Tests serve as documentation for how to use the system
-
-- If you want to know how to create an object in the system, there are unit tests that create that object every way that it can be created.
-- How do I call an API function? There are unit tests that call that API function every way it can be called.
-- Tests stay in sync with the application code. They are low level documentation of the system.
-
-#### **Writing tests first force you to write production code that is testable** - i.e. the code will be decoupled
-
-- Writing tests first also prevents you from taking shortcuts that are tempting when writing the tests after the fact. Some code might be hard to test, and you've already tested it manually, so you take shortcuts in the test afterwards.
 
 ## [Bowling Game Demonstration](https://cleancoders.com/episode/clean-code-episode-6-p2)
 
@@ -601,3 +606,20 @@ WE'RE DONE - the algorithm we have in place satisfies the rules of the bowling g
   - Accountants deal with this by following a DISCIPLINE called double entry book keeping.
 - Test Driven Development is a similar discipline to double entry book keeping to prevent small errors from bringing the system down.
   - Everything is stated twice - once on the test side and once in the production code, their separate complimentary streams meet at a successful execution of the test (like the credits and debits meet at 0 in double entry book keeping.)
+
+## Further tips and practices
+
+### Triangulation
+
+- Add a new case to an existing test (i.e. if it is a simple test) that forces you to generalize the code.
+
+```python
+def test_fizzbuzz_normal_number():
+    assert fizzbuzz(1) == "1" # original case, just return 1 in source code
+    assert fizzbuzz(2) == "2" # added case, force the source code to be generic
+
+
+# source code changes to be more general instead of returning "1" to pass the one case originally
+def fizzbuzz(number):
+    return str(number)
+```

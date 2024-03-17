@@ -36,6 +36,7 @@
   - [Test Doubles (Mocking)](./Testing/TestDoubles.md)
   - [Unit Testing: Principles, Practices and Patterns (Khorikov)](./Testing/UnitTesting-Khorikov.md)
   - [Testing React Applications](./React/Testing/)
+  - [Testing with Python](./Python/testing/testing.md)
 - [GraphQL](./GraphQL/)
 - [SEO](./SEO/)
 - [Chaos Theory](./Chaos)

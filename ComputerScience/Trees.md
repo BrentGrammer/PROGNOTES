@@ -7,6 +7,13 @@
 
 - https://frontendmasters.com/courses/algorithms/tree-traversals/
 
+### Pre, In, Post order traversal differences:
+
+- The prefix for the search name is the location of the root in the order of the set (left, root, right) - therefore in-order is when the root is in the middle (not before (=pre) or after (=post))
+- in means "inside" or in the middle.
+- post means "after" so the root is searched after left and right
+- pre means "before" so the root is searched before left and right.
+
 ### Pre-order Traversal (root is visited at beginning) - depth first search
 
 - First visit the node, then recurse to traverse (left then right).
