@@ -1,0 +1,169 @@
+DECORATORS:
+
+-A function that takes in and wraps another function, returns a closure that executes and returns it's result, and adds functionality that the original function passed in did not have.
+
+decorator_func(my_func) # returns closure that when called runs extra functionalilty and calls the passed in fn with args passed in.
+
+Ex:
+
+def outer_function(fn):
+  def inner_function(*args, **kwargs):
+    ...extra functionality
+    return fn(*args, **kwargs)
+
+  return inner_function
+
+def my_func(a, b):
+  ...
+
+my_func = outer_function(my_func)
+
+my_func(1,2) # executes the closure which executes the passed in my_func with args passed in.
+
+-----
+
+The `@` SYMBOL:
+
+-Convenience syntax which assigns the label of the original function to a call to the decorator function with the original fn passed in.
+
+The @ decorator syntax:
+1) calls the decorator function with the defined function beneath it passed in
+2) Assigns the returned closure from the decorator to the same label as the function being decorated.
+So that the original function name can be called which runs the original with the added functionality (from the decorator)
+
+Note: the closure returned is the inner function with added functionality and a free variable which points to the function passed into the decorator.  This closure also calls the passed in function and returns it's result when the returned closure is called.
+
+Syntax:
+
+@decorator_func
+def my_func(a,b):
+  ...
+
+same as:
+
+my_func = decorator_func(my_func)
+
+
+Ex:
+
+@outer_func
+def my_func(a,b):
+  ...
+
+# passes in my_func to outer_func and executes it so that when you call my_func, you are calling the returned closure with the added functionality from the decorator fn
+
+Equivalent to:
+def my_func(a,b):
+  ...
+
+my_func = outer_func(my_func)
+
+------
+
+INTROSPECTION:
+
+-For debugging purposes, you might want to overwrite doc strings and names of the returned closure in the decorator function (otherwise they will not reflect the decorated function but the function that is returning and executing it inside the decorator)
+
+def outer_func(fn):
+  def inner(*args, **kwargs):
+    ...extra stuff
+    return fn(*args, **kwargs)
+  inner.__name__ = fn.__name__
+  inner.__doc__ = fn.__doc__ # if there is a docstring
+  return inner
+
+
+
+--
+
+USING @WRAPS:
+
+*Python provides a tool to fix metadata for the function definition returned by introspection (doing this manually is very complicated)
+
+-pass the closure (inner function) to the wraps decorator after passing in the original function to wraps which will fix the definition metadata returned on introspection.  Finally assign it's result to inner (wraps is a decorator) before returning inner
+
+from functools import wraps
+
+def outer_func(fn):
+  def inner(*args, **kwargs):
+    ...extra stuff
+    return fn(*args, **kwargs)
+  inner = wraps(fn)(inner)
+  return inner
+
+With the `@` syntax:
+
+
+def outer_func(fn):
+  @wraps(fn)
+  def inner(*args, **kwargs):
+    ...extra stuff
+    return fn(*args, **kwargs)
+  return inner
+
+@outer_func
+def my_func:
+  ...
+
+help(my_func) # returns metadata for my_func instead of the closure returned from the decorator now
+
+=======
+
+PARAMATERIZED DECORATORS:
+
+-Used when you need a variable passed into a decorator
+
+-When using the `@` syntax, a parameterized decorator must return the original decorator function instead of the inner function closure of the decorator (because @decorator_func can only take one parameter which must be the function passed in)
+
+1) Wrap an outer function around the decorator (this is a decorator factory)
+2) Define the decorator function in the body with the fn param 
+3) 
+
+Ex: 
+
+my_dec = decorator_func('myParam') # returns the original decorator
+
+@my_dec
+def my_func:
+  ....
+
+A PARAMETERIZED DECORATOR WITH @ SYNTAX IS A DECORATOR FACTORY:
+
+*** An outer function takes in the parameter for the decorator and returns the decorator with the param passed in.
+
+@decorator_factory('myParam')
+def my_func:
+  ...
+
+Ex:
+
+def timed(reps):
+  # the original decorator:
+  def decorator(fn):
+    @wraps(fn)
+    def inner(*args, **kwargs)
+      count = 0
+      for i in range(reps):
+        result = fn(*args, **kwargs)
+        count++
+      print(count)
+      return result
+    return inner
+
+  # Finally return the decorator
+  return decorator
+
+# calls the decorator factory timed above with the passed in param which returns the decorator which is used to wrap the function below it with the returned decorator.
+
+@timed(10)  
+def my_func():
+  ...
+
+my_func()
+  
+
+
+
+
+
+

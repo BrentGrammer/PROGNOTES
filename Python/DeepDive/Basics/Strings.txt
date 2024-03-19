@@ -1,0 +1,140 @@
+STRINGS:
+
+-------------------
+
+Note on Unicode:
+
+from https://nedbatchelder.com/text/unipain.html
+
+ the data coming into and going out of your program must be bytes. But you don’t need to deal with bytes on the inside of your
+ program. The best strategy is to decode incoming bytes (to utf-8) as soon as possible, producing unicode. You use unicode throughout 
+ your program, and then when outputting data, encode it to bytes as late as possible.
+
+ Python 3 uses byte strings (ASCII or non UniCode), and str type is Unicode string. 
+
+ ---------
+
+Can use standard string library which has constants which are useful 
+
+Ex: string.ascii_uppercase #-> 'ABCDFGHIJKLMNOPQRSTUVWXYZ'
+
+-------------------
+
+-Similar to Lists in Python.
+
+***STRINGS ARE IMMUTABLE (Unlike Lists - you cannot access indexes and update them or use append etc. to change them in place)
+
+- You can do many of the other list operations on them:
+
+len()
+in 
+not in    ex: 'lo' in 'Hello' # returns True  Note: matching is case sensitive!
+index     ex: string[1] # returns second letter in string
+slicing   ex: string[1:3]
+for loops ex: for letter in string:
+                print(letter)
+
+string.title() ## converts string to a title: str = "hello world"; str.title() <-- "Hello World"
+string.upper() ## converts chars to uppercase
+string.lower() ## converts string to lower  NOTE: these return a copy since strings are IMMUTABLE
+(to mutate a string, assign it to self: spam = "string"; spam = spam.upper())
+
+string.isupper() ## returns boolean: evaluates to True if all chars are uppercase
+string.islower() ## returns boolean: evaluates to True if all chars are lowercase
+('12345' would return false for any of the calls)
+
+.isalpha() <-- returns boolean, true if only letters and not blank 'hello'
+.isalnum() <-- returns boolean, true if only letters and numbers in string 'Hello123'
+.isdecimal() <-- returns boolean, true if numbers in the string i.e. '123'
+.isspace() <-- returns boolean, true if only whitespaces in string i.e. str = 'hello world' str[5].isspace() # True
+.title()   <-- returns boolean, true if string has words with only first letter capitalized and rest lowercase i.e. "Title String"
+
+
+.startswith() <-- returns boolean, str = "hello world"; str.startswith("hello") # True
+.endswith()   <-- returns boolean, str.endswith("ello"); # False
+
+.join() <-- combine a list of string values: called on a string, pass in a list of strings, returns a string:
+            ','.join(["1", "2"])  # returns "1,2" -- it joins a list of strings passed in with the string it's called on
+            another ex: "\n".join(["1", "2"])  # "1
+
+                                                  2"
+
+.split() <-- pass in a string and returns a List of strings split on whitespace characters or value passed in
+            Ex: "My name is Brent" str.split("m") <-- ['My', 'na', 'e', 'is', 'Brent'] # (takes out the char passed in)
+
+string.rjust(<total length int>) <-- right justify a string
+string.ljust(10) <-- left justify add padding to end
+
+string.rjust(10, '*') <-- replaces num of spaces with string pased in : '**********string'
+string.center(20,'=')  <-- centers string with total num of chars: "=======Hello======="
+
+string.strip() <-- remove all whitespace from either side of string
+string.lstrip() <--- remove left whitespace
+string.rstrip() <---remove right whitespace
+
+  Pass in characters to remove any of them from either side of the string:
+  str = SpamSpamBaconEggsSpam; str.split('amSp');  # will remove any of the chars passed in from either side. 'BaconEggs'
+
+string.replace(<target>,<replaceWith>)  <-- replaces the first arg in string with the second arg
+
+Get last character: string[-1]
+
+
+-----------
+
+String Formatting:
+
+-use %s for a conversion specifier and then provide a Tuple of strings after a % (no quotes on the values):
+
+str = "This is a %s string with %s specifiers" % (formatted, some)  <-- "This is a formatted string with some specifiers"
+
+-----------
+
+Changing strings:
+
+-You have to use index slicing to get the part you want and concatentation to assign a new value to it in a new string:
+
+string1 = "Hi World"
+
+string2 = "Hello " + string1[3:]"  # saves "Hello World"
+
+---------
+
+Math Operations on strings:
+
+-You can use math operators on strings:
+
+"Hey" * 4 
+# prints 'HeyHeyHeyHey'
+
+------------
+
+SPECIAL CHARS:
+
+\' escape a quote
+\t Tab
+\n Newline
+\\ escape a backslash (show backslash)
+
+Ex: "Hello\nHow are you?\nI'm fine"
+prints:
+Hello
+How are you?
+I'm fine
+
+--
+
+RAW STRINGS:
+
+r"This is a raw string\n"
+
+prints: "This is a raw string\\n" <--literally prints everything in between quotes
+
+--
+
+MULTILINE STRINGS:
+
+"""string that can span
+   multiple lines and retain
+   formatting"""
+

@@ -1,0 +1,241 @@
+GENERATORS:
+
+-Generator Functions: A function that uses the `yield` statement and returns a generator object (automatically done by Python)
+They are generator factories (regular functions) that create and return generators when called - they are not generators themselves.
+
+-Generator Objects are iterators implementing the iterator protocol (you can call
+Ex:
+iter() and next() on them)
+gen = my_generator()
+iter(gen) # -> returns the same object since generators are iterators
+
+-Generators are lazy iterators - all of the elements do not have to be loaded up front, they are calculated and returned when they are requested.
+
+-Generators can be infinite iterators
+
+-A Generator is exhausted whenever a return statement occurs in the function.
+
+-Generator Expressions: concise way of creating generators using comprehension syntax and useful for simple situations.
+
+-Very useful for creating iterators with much less code.
+
+------
+
+Generators provide a way to:
+ 1) start looping over an iterable
+ 2) emit the value of each loop without exiting the function and retaining the state of the loop
+ 3) Pause execution of the loop to allow for some operation on the emitted value
+ 4) Resume the loop and continue
+ 5) Finally return after the operation is complete.
+
+Process:
+
+- A function uses the yield command to emit a value and suspend the execution of the function when a `yield` statement is reached
+- The next(g) call on the generator passed in returns the emitted value from the suspended function
+- After you are done operating on it, you call next() again to resume execution of the function and get the next emitted value from the next `yield` statement.
+- The generator object is exhausted when a return statement is used which raises a StopIteration and returns the exxcetion message
+
+----
+
+CREATING A GENERATOR:
+
+- Define a function that contains a `yield` command.  Python sees this and does not create a regular function, but a generator object that you can call next on.
+
+ 1) calling the function creates and returns a generator object
+ 2) call next(genObj) to start execution of the generator function
+ 3) When `yield ...` is reached in the function, execution is paused and the value is returned from the next call.
+ 4) When next(genObj) is called again, execution resumes until the next `yield` statement
+ 
+  * If there are no more yield statements AND no return statement in the generator function and next() is called, then `None` is returned implicitly raising a StopIteration.
+
+If there is a return statement, then the iterator is exhausted and a StopIteration exception occurs and the function returns the message that comes with that exception.  The message that comes with it will be whatever you return in the return statement.
+
+Ex:
+
+def song():
+  print('line 1')
+  yield "First lyric"
+  print('line 2')
+  yield "Second lyric"
+
+lines = song() 
+# -> generates the generator and returns the object with next available on it.
+
+line = next(lines) 
+# -> starts the execution of the generator function adn returns the value from `yield` statement to the line variable
+
+line = next(lines)
+
+line = next(lines) # -> None returned implicitly and raises a StopIteration, no more yield statements to run
+
+--
+
+-Since generators are iterators, you can loop over them in a for loop where next() is implicitly called over and over:
+
+for line in lines:
+  print(line)
+
+# ->
+line 1
+First lyric
+line 2
+Second lyric
+
+Note: In a for loop Python ses the StopIteration to stop the loop and it will not be raises visually.
+
+
+------------
+
+CREATING ITERATORS USING A GENERATOR FUNCTION:
+
+def factorials(n):
+  for i in range(n):
+    yield math.factorial(n)
+
+CREATING AN ITERABLE USING A GENERATOR:
+
+-Generators are iterators that become exhausted as with any iterator.
+-This can lead to subtle bugs when reusing the generator before it's been exhausted, but iterated through a number of times.
+
+-You need to make an iterable that implements the iterable protocol (__iter__() which returns the iterator - in this case the generator).
+That way you do not have to worry about iterating over a partially exhausted generator object
+
+Example:
+
+def squares(n):
+  for i in range(n):
+    yield i ** 2
+
+class Squares_Iterable:
+  def __init__(self, n):
+    self.n = n
+
+  def __iter__(self):
+    return squares(self.n)
+
+Example with generator inside the iterable class:
+
+class Squares_Iterable:
+  def __init__(self, n):
+    self.n = n
+
+  def __iter__(self):
+    return Squares.squares_gen(self.n)
+
+  @staticmethod
+  def squares_gen(n):
+    for i in range(n):
+      yield i ** 2
+------
+
+GENERATOR EXPRESSIONS:
+
+Syntax: (<yield expression> <operation> <condition>)
+
+-Same as list comprehension syntax except  the outer [] are replaced with ()
+
+-Evaluation is LAZY - the entire iterable elements are not loaded into memory before evaluation (unlike list comprehensions which use eager evaluation and built and 
+load the entire list before evaluating the beginning expression)
+
+*PERFORMANCE: 
+-A generator is returned immediately from an expression where a list comprehension takes time to generate the list.
+-Iteration is faster over the list comprehension, since objects are created ahead of time before iterating
+-If iterating over all elements, generator expressions take the same time as a list comprehension, since the elements are loaded as they are requested
+**If you do not need to iterate over all the elements, then the generator expression is more efficient
+
+Ex: you have a list of a lot of calls to the database, but only need to make the requests as demanded.  The list comprehension will generate all requests before making the first, while the generator comprehension will only generate the ones called for.
+
+*MEMORY EFFICIENT:
+-Once the item is loaded into memory and used, it is discarded and that memory is free.
+-A list comprehension needs more memory to store the entire eagerly loaded list items.  The generator expressions just needs memory for one item at a time.
+(Useful for situations if you're reading through a large file - you only need to load chunks instead of the entire thing into memory, and the file is exhausted anyways after reading it)
+
+-Generator expressions have local scope
+-have access to nonlocal variables (if nested expressions involved) and global scope
+
+MAJOR DIFFERENCE: 
+
+-List comprehensions are iterables(lists), so Python uses the __iter__() method to do iteration which uses returns new iterators) - they do not get exhausted
+-Generator Expressions are Iterators, so they get exhausted.
+
+---
+
+Ex:
+
+[i ** 2 for i in range(5)] # --> returns a list
+(i ** 2 for i in range(5)) # --> returns a generator
+
+-the generator expression contains an expression that is yielded at the beginning:
+(i ** 2 for i in range(5)) # --> this yields i ** 2 for each iteration in the range
+
+-=-------
+
+NESTED GENERATOR EXPRESSIONS:
+
+-Just like with List comprehensions, you can nest generator expressions inside each other, they are closures (functions that access a nonlocal variable) and have access to the variables in the outer generator scope in the expression)
+
+- You can also nest a list comprehension inside a generator comprehension.
+*The advantage is that a list comprehension returns a list iterable which is not exhaustable (a generator expression would return a generator which is exhaustable iterator and needs to be called with list or a list comprehension etc. to iterate through it).  
+The outer generator will perform lazy evaluation on the inner list comprehension, speeding up performance.
+
+start = 1
+stop = 18
+
+mult_gen = ( [i*j in range(start, stop + 1)] for i in range(start, stop+1) )
+
+for row in mult_gen:
+  print(row)  
+# once you iterate through mult_gen, the rows are being calcuated as lists
+
+# prints:
+[1,2,3,4,5,6,7,8,9,10]
+[2,4,6,8,10,12,14,16,18,20]
+etc...
+
+-Nesting a list comprehension inside a generator is just as efficient as nesting a generator in a generator, because the outer generator uses lazy evaluation on the list comprehension 
+The list comprehension is not calculated until it is iterated over
+(in other words, generating the generator with the comprehension is very fast, whereas generating nested lists in a comprehension requires eager loading so all elements are calculated up front)
+
+
+*****As above, the generator comprehension generates the generator faster than a list comprehension, but when iterating over all elements, the time for each operation is about the same (since the elements do need to be calculated when requested by the generator still).
+
+*******The real advantage to the approach is less time IF you do not need to iterate over all the items in the collection, but some unknown number that may be less than the entire number of elements.
+
+OR
+
+****The memory required by using a generator even if you have to iterate over all elements is extremely less than that of using a list comprehension, since elements are lazy loaded and discarded as they are requested and used.
+(Useful for situations if you're reading through a large file - you only need to load chunks instead of the entire thing into memory)
+
+---------
+
+YIELD FROM:
+
+-Delegate iteration to another iterator, so the work does not need to be done manually.
+
+-`yield from` command can be used in place of an inner loop to simplify syntax.
+
+-Example getting all items from 3 files and chaining them together with inner loop:
+
+def read_all_data():
+  for file in ('file1.csv', 'file2.csv', 'file3.csv'):
+    with open(file) as f:
+      for line in f:
+        yield line
+
+# The inner loop is using the file iterator and yielding values directly.  When .next() is called on read_all_data, the iteration is delegated to the file iterator - the for loop is calling next on the file iterator and the yield is using the generator function to return the value
+
+- Example using `yield from` to replace the inner loop on file:
+
+def read_all_data():
+  for file in ('file1.csv', 'file2.csv', 'file3.csv'):
+    with open(file) as f:
+      yield from f
+
+# This delegates yielding to another iterator
+
+Syntax: yield from [iterable]  #--> yields each element in the iterable
+
+
+  
+
+

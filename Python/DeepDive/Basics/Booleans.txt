@@ -1,0 +1,185 @@
+Booleans:
+
+True
+False 
+
+**Booleans are integers with extra functionality (the ability to compare with and or not, etc.)
+**Booleans are of a concrete bool class which is an integer subclass
+
+-The bool class inherits from integers and so accepts methods such as addition, subtraction, division, etc.  and also adds and, etc. operators
+
+-Boolean instances are singleton objects - they point to a memory address with a bool type and an integer as the value (0 or 1).
+they retain this same memory address throughout the lifetime of the application.
+
+**IOW, True will always be one object and have the same memory address and the only instance of that Boolean object in the application (same with False)
+
+---
+
+TRUTHY AND FALSEY OBJECTS IN PYHTON:
+
+**All objects evaluate to True except:
+  - None object
+  - False object
+  - 0 in any numeric type (dec, float, etc.) 
+  - empty sequence(eg empty list, tuple, string, etc.)
+  - empty mapping types (empty dictionaries, empty sets, etc)
+  - custom classes that implement a __bool__ or __len__ which returns False or 0.
+
+**These are the only occassions where an object evaluates as False!
+
+Example:
+
+if my_list:
+  # execute code
+
+***This is equivalent to checking if my_list is not None and is not empty ( len(my_list) > 0 )
+
+Gotcha:
+-Python checks the __bool__ and __len__ of objects to determine truthy or false valuation
+Ex:
+class Person:
+  def __len__(self):
+    return 0
+  def __bool__(self):
+    return False
+# since the length/bool is overwritten, this obj will be False
+**NOTE: the __bool__() is called first, if Python does not find the __bool__ method, it looks for
+the __len__ method.  If neither are found, the object is evaluated as True by default. 
+
+
+---
+
+Comparisons:
+
+You can compare with both == and is operators because they are singleton objects. 
+
+a == True; a is True #=> both of these will work because both the internal state remains unchanged (it's always the 1 or 0) and the memory address remains the same as well.
+
+NOTE: the memory address of True is not the same as the memory address of 1 (1 is an int, and True is still a bool type even if it's internal state is an int.)
+
+Ex: 
+True is 1 #=> returns False - the memory addr of 1 is not the same as the object mem addr of the bool True.
+
+True == 1 #==> returns True - the internal state of True is the int 1 which is equal to the internal state of 1 which is the int 1 obviously.
+
+True > False #==> True - you might use this on occasion in List Comprehensions for example.
+
+True + True #-> returns 2
+-True #-> returns -1
+
+---
+
+
+# NOTE: the Capital T and F at the beginning of these boolean values!
+
+Boolean Operators:
+
+and 
+or - great for setting default values
+not  # not True yields False - like the ! in JavaScript, just returns the opposite
+
+TRUTHY FALSY VALUES:
+
+FALSY: 
+empty string '', 
+int 0, 
+float 0.0, 
+None, 
+null, 
+empty sequences are all falsey.  
+
+All other objects are Truthy!
+
+***ONLY 0 IS FALSEY IN PYTHON!  All other numbers are truthy!  
+bool(-1) => returns True
+
+--
+
+OR OPERATOR:
+
+x or y #-> if x is truthy, returns x, otherwise returns y
+**Can use to set default values:
+
+x = y or 'N/A'
+
+#also can use with multiple values:
+x = y or z or 'N/A' . #-> Will take the first truthy value evaluating from left to right.
+
+--
+
+AND OPERATOR:
+
+x and y #-> if x is falsey, return x, otherwise return y
+
+# Can use this to avoid division by 0 for example:
+x = a and total/a
+#** If a is 0, it will be returned since it is falsey.  This shortcircuits the possibility of dividing total by 0.
+
+This is the same as :
+ 
+if a == 0:
+  return 0;
+else:
+  return total/a;
+
+
+# useful to return a string value or an empty string (use it in combination with the OR operator):
+return (s and s[0]) or ''
+# (if s is falsey then will return s[0] - if s[0] is then falsey, then '' will be returned.
+-What you are doing is defaulting a falsey value to a default value with or.
+The part after and is short circuited to prevent index lookup errors if the value is not iterable, since if the first param is falsey the and op immediately returns it and doesn't evaluate the index.
+
+
+
+--
+
+NOT OPERATOR:
+
+not x #-> returns False if x is truthy, returns True if x is falsey
+
+not [] #-> returns True
+not [1,2] #-> returns False
+
+--
+
+Note using and operator with 0 will return 0 if it is the first operand
+
+0 and 'true'
+# returns 0 (not False)
+
+You need to use bool(0)
+bool(0) and 'true'
+# returns False
+
+------------
+
+Boolean Constructor:
+
+bool(x) --> returns True when x is True, returns False when x is false
+
+***Every class in Python contains a definition of how to cast itself depending on state to True or False if asked to do so in the code.
+This returns an object's Truth Value (it's truthiness).
+
+----------
+
+Operator Precendence:
+
+highest precedence to lowest precedence:
+
+< > <= >= == != in is
+not
+and 
+or
+
+Using short circuiting to check for null or None values if running an operation depending on the existence of a value:
+
+if x and x[0] in y:
+  # do operation - will not run check if x is null, it's length is 0 or it is None
+
+# this is useful because without checking for x before and using short circuiting, the code would throw an error if x is null or None.  This takes care of that check and the code will not run if x is falsey.
+
+
+
+
+
+

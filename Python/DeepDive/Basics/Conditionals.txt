@@ -1,0 +1,18 @@
+
+CONDITIONALS:
+
+if <condition>:
+  code to run if true
+else:
+  code to run if false
+
+elif statement is the else if statement in python:
+
+if condition:
+  code
+elif another condition:
+  more code
+else: 
+  more code
+
+-------------

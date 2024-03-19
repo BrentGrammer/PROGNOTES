@@ -1,0 +1,97 @@
+COMMAND LINE:
+
+help conventions:
+
+ -n N [-a] [-b | -c] 
+# this means that -n is required and takes a value N, -a is optional, -b and -c are optional but you can only provide one or the other.
+IOW, optional params and flags are wrapped in brackets 
+
+flag: parameter that has a specified label and a pre-defined value (i.e. --verbose or -q for verbose or quiet mode, or --save-dev on npm)
+parameter: can be named or unnamed, named with `-` is one letter name and with `--` is a param name with more than one letter
+
+-You can pass arguments to the python command after the module name:
+
+$ python module.py arg1 arg2 arg3 ...etc.
+
+-Use the argv property from the standard sys module to get access to those arguments (in sys.argv):
+
+Ex:
+
+$ python module.py arg1 arg2
+
+# module.py script:
+
+import sys
+
+print(sys.argv)
+# --> ['module.py', 'arg1', 'arg2']
+
+-The first element in sys.argv would be the filename in this case, so if you wanted to get the others, you could access with:
+
+sys.argv[1:]
+
+----
+
+NAMED PARAMETERS:
+
+Convention: if the param name is multiple letters, use -- (doubledash), if it is a single letter, use - (single dash):
+myscript.py --param-name value -p value
+
+-A common pattern is to prepend the name of the parameter with two dashes followed by a space and a value:
+
+# --param-name value --param2-name value2
+
+-To get and handle the args in your program, slice the argv after the first index (0) to the end and in steps of 2 (a third parameter in iteration) for the keys and start at index 2 for the values:
+
+keys = sys.argv[1::2]
+values = sys.argv[2::2]
+
+-Make a dictionary out of the extracted keys n values using zip and a dictionary comprehension:
+
+args = {k: v for k, v in zip(keys, values)}
+# --> { '--param-name': 'value', '--param2-name': 'value2' }
+
+- Get the args to use in your program:
+
+first = args.get('--param-name', None) # default value is 2nd arg
+
+-----
+
+ARGPARSE:
+
+-use the python library argparse to grab and use multiple arguments that are passed in on the command line.
+and create the dictionary for you
+
+-comes with build in functionality like error handling and help messages
+
+Ex using positional arguments (no named args in the command line):
+
+import argparse
+
+# 1) Create the parser:
+# description is for the user when they call --help so they can see a list of paramters with documentation
+
+parser = argparse.ArgumentParser(description='This does this thing')
+
+
+# 2) Add arguments to the parser:
+
+parser.add_argument("value_key", help="first argument", type=int)
+parser.add_argument("value_key_2", help="second argument", type=int)
+
+# 3) pass in the args from argv to parse_args:
+
+parser.parse_args(sys.argv[1:]) # this is the default param
+ 
+or
+
+parser.parse_args() # will do the same as above if no args passed in.
+
+NAMED PARAMETERS:
+
+-use a '-' or '--' before the name to make it a named parameter (accessed by args.paramname or overwritten by the dest='value' named argument in the parser if specified)
+
+
+
+
+

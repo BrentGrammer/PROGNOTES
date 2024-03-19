@@ -1,0 +1,193 @@
+LISTS:
+
+(iterable data types in Python are called sequences)
+
+-Contains multiple values in an ordered sequence
+
+***LISTS ARE MUTABLE and assigning them to a variable points to a reference address for them.  This means that if you assign
+   the list elsewhere and modify it, you are modifying the original list (you assigned a reference to it and not a separate
+   copy)
+   Ex: x = [1,2]; y = x; y[0] = 'a';  print(x);  # will pring ['a', 2] since list was mutated by y which stored it's address.
+
+   Lists are modified in place, unlike Strings and Tuples for example.
+
+**The reason Lists are mutable is because it allows for having potentially extremely large lists which would be expensive
+to make copies of everytime you need to store or pass it into a function call.  This makes dealing with a potentially large
+list computationally cheap.
+
+APPENDING TO A LIST:
+
+my_list.append(el) ---> this mutates the list directly and does not create a new memory address
+
+my_list = my_list + [el]  ----> This evaluates the right side and combines the list concatenated to the original and does create a new object and memory address.  This results in a single list with the elements in the list added
+
+(NOTE: If you do want to make copies of Lists you can use the Standard Library copy module: import copy)
+import copy
+spam = [1,2,3]
+cheese = copy.deepcopy(spam) # stores a copy of the List instead of a reference
+
+Syntax note: you can write lists on multiple lines and Python will not register a new block with indentation:
+List = [ value,
+         value,
+         value ]
+
+[<value>, <value>, etc]
+
+You can refer to indexes from the end with negative numbers
+
+list[-1] == last item in the list
+
+SLICE:
+-You can get a slice of a list by using two indexes in the brackets
+Note: if the second number is beyond the length of the list, the slice will just get the items to the  end of list.
+
+list[start:end]
+
+# the end index is not included in the returned slice - 
+
+list[1:3] <-- returns index 1 up to but not including index 3 items.
+
+-You can assign a slice using slice syntax:
+
+list[1:3] = ['new1', 'new2', new3']
+
+# will replace the original indexes starting at index 1 up to but not including 3 with these values.  If the 
+end value goes beyond the length of the array, the values will just be appended to the end beyond the length.
+
+Shorthand syntax:
+
+list[:2] <-- python knows that the first index start is 0
+list[1:] <-- grab values at index 1 to the end of the list
+
+---
+
+-delete an item from a list - use the del keyword
+
+del list[2] <-- deletes the item at index 2 in the list
+
+--
+
+List concatenation and replication with operators:
+
+x = [1,2,3] + [4,5,6]
+ # x is now [1,2,3,4,5,6]
+
+x = [1,2,3] * 2
+ # x is now [1,2,3,1,2,3]
+
+-convert value(s) to list with builtin function list(values)
+it will put letters of string into an array
+
+list('Hello')
+ # returns ['H','e','l','l', 'o']
+
+ --
+
+ Check for values in a list:
+
+ <value> in <list>
+ # returns true if value is in the list:
+
+ '1' in ['1','2','3']
+   # returns true
+
+  '1' not in ['1','2','3']
+   # returns false
+
+
+--------
+
+MULTIPLE ASSIGNMENT:
+
+x = ['blue', 'large']
+
+color, size = x
+
+# assigns color to first index and size to second index value
+
+or can use outside of lists:
+
+size, color, cost = 'large', 'blue', 55
+
+*Useful in swap assignment operations:
+
+a = 1
+b = 2
+
+b, a = a, b
+# values are now swapped
+
+-----------
+
+LIST METHODS:
+
+list.index() - returns index number of value passed in (*only the first time it sees it)
+list.append() = adds value passed in to end of list
+list.insert(<index int>, <value>) - inserts item at index number passed in
+list.remove(<value>) - removes value passed in from list (only first instance of value is removed)
+
+list.sort(key=str.lower) - sorts numerically or alphabetically
+(* Note: ACII-betical sort - any strings with capital letters will be sorted first ('Z' comes before 'a')
+pass in key arg to sort all alphabetically: )
+list.sort() for ints
+
+list.sort(reverse=True) - sorts in reverse order with keyword arg passed in
+(* cannot sort a list with mixed data types i.e. strings and ints)
+
+(These methods return None so don't assign them to the list)
+
+==============
+
+LIST COMPREHENSIONS:
+
+-Tranform a list based on a conditional
+
+syntax: [transformation iteration filter]
+
+Ex: [item[::1] for item in lst if len(item) > 2]
+
+-You can break up the parts over multiple lines:
+
+[ transformation
+  iteration
+  filter ]
+
+---
+
+-Uses Eager Evaluation(instead of lazy evaluation) - the entire list is built BEFORE the beginning expression is evaluated.
+[i ** 2 for i in range(5)] # --> the entire list of 5 elements is built and then i is squared for each.
+
+List Comprehensions have their own local scope--
+***Think of a list comprehension as a function - everything inside the [] is the body of a function that is executed when Python evaluates it.
+
+-When python compiles a list comprehension before runtime, it creates a temp function for it that returns the new list, executes that at runtime and creates a memory object whose adress is assigned to the left operand in the assignment.
+
+-Can access global variables in upper level scope:
+
+num = 100
+
+ls = [x**2 for x in range(num)] # num is visible inside the list comprehension function scope
+
+-List Comprehensiopns can access nonlocal variables and become closures:
+
+def my_func(num):
+  sq = [x**2 for x in range(num)]
+# num is a free variable and the list comprehension is like an inner function accessing it and is therefore a closure.
+
+-Nested List Comprehensions:
+
+[ [i * j for j in range(5)] for i in range(5) ] # i is from the outer comprehension and makes the inner comnprehension a closure
+
+-You can nest for loops:
+
+[(i, j, k) for i in range(5) for j in range(5) for k in range(5)] # returns a list of tuples and runs the for loops in order:
+
+i.e.
+l = []
+for i in range(5):
+  for j in range95):
+    for k in range(5):
+      l.append((i,j,k))
+
+-You can have if statements anywhere in the list comprehension - be careful about using variables that are not created yet.
+  

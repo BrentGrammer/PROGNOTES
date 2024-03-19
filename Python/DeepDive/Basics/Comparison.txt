@@ -1,0 +1,54 @@
+
+
+Operators:
+
+is 
+is not  # both of these compare memory addresses and return a bool
+
+< > <= >=  # ordering - do not work with all types - cannot mix with complex numbers.  Can mix with decimals/floats/ints/doubles
+
+--
+
+in 
+not in # both of these only work with iterable data types
+
+**for dictionaries, only the key name is checked, not the value:
+
+1 in { 'key1': 1 }
+# returns false since 1 does not match the key name
+
+--
+
+*NOTE: operators can be chained:
+
+# this chaing just puts and in between the expressions under the hood:
+a == b == c #===>   a == b and b == c
+
+1 < 2 < 3 ==> 1 < 2 and 1 < 3
+#this would return true.
+
+
+
+
+-------
+
+2 fundamental ways of comparing variables:
+
+ - by Memory Address (use is)
+
+ - by Object state (use ==)
+
+Comparing by memory address:
+
+use the is operator:
+  
+ var_1 is var_2  # returns Boolean, compares memory addresses
+ var_1 is not var_2
+ not(var_1 is var_2)
+
+use the equality operator for comparing state (contents/data):
+ 
+ var_1 == var_2 # returns Boolean, compares the internal state contents
+ var_1 != var_2
+
+**Generally use == and not is because shared referencing may or may not be set up by Python.  Always compare by value instead of reference.

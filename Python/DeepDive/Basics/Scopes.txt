@@ -1,0 +1,162 @@
+
+SCOPE CHAIN IN PYTHON:
+
+-Built-in Scope (includes builtin globals)
+  -Global Scope (module or file)
+    -Local Scope (created by functions)
+      -Nonlocal Scope (inner functions defined and called inside functions)
+
+
+---
+
+NAMESPACE:
+
+-A table that stores the labels (variable identifier name) and the references they point to ( memory addresses they are bound to) in each scope.
+Each scope has a namespace.
+
+SCOPE IN PYTHON:
+
+*There is no true global scope that goes across all modules in Python.
+ -There is a Built-in Scope with some builtin global objects:
+   -True, False, None, dict, print...
+
+-Works similar to JavaScript - if local variable is not found, the enclosing namespace is searched to find it.
+
+----
+
+LOCAL SCOPE IN FUNCTIONS:
+
+NOTE: Variables inside of function bodies are not created until the function is called.
+
+*
+Every time a function is called it's own local scope is created
+(At compile time, Python figures out that variables inside function definitions will be assigned to that local scope.  The scope and namespace for the function is not created - this will only happen at runtime when the function is called)
+
+-Any variable assignments inside a function body will tell python to create locally scoped variables
+
+a = 0
+
+def my_func(a):
+  a = 100
+  print(a) # prints 100, not 0
+(The local a MASKS the global a in the enclosing scope - everytime an assignment is done in Python at runtime, it will scope it accordingly and create a new binding in the local scope)
+
+print(a) # prints 0 since local function scope is destroyed after it fu=inishes running
+
+GLOBAL KEYWORD:
+
+-You can tell python to make the variable global inside a function body with the `global` keyword to override the default namespacing to local scope:
+
+a = 0
+
+def my_func():
+  global a
+  a = 100
+
+# this tells python not to scope a locally but to make it globally scoped.
+
+my_func()
+print(a) # prints 100 instead of 0
+
+----
+
+NONLOCAL SCOPE:
+
+-Scope of inner functions defined and executed inside of functions
+
+-Use the `nonloacl` key word to tell python that the variable is the one in the enclosing nonlocal scopes (Python will only look up the scope chain until the global scope (will not look in global or builtin scopes for the variable)
+(the keyword is only needed when you want to make an assignment and overwrite a nonlocal variable so as not to mask it)
+
+def outer_func():
+  x = 'hello'
+
+  def inner_func():
+    nonlocal x
+    x = 'python'
+
+  inner_func()
+
+  print(x)
+
+outer_func()
+
+# prints 'python'
+
+---------
+
+SHARED SCOPES:
+
+-Be careful about having shared labels across shared scopes
+
+-Can be particularly tricky when dealing with loops
+
+Ex:
+
+def adder(n):
+  def inner(x):
+    return x + n
+  return inner
+
+add_1 = adder(1) # closure with n as free var pointing to 1
+add_2 = adder(2) # closure with n as free var pointing to 2
+add_1(10) # -> 11
+add_2(10) # -> 12
+
+# Now you may want to reduce repition by using a loop:
+
+adders = []
+// add inner functions to the list
+# n is shared between the two scopes here - the n in the for statement and the n in the append are the same, n is global and the lambda is NOT a closure:
+
+for n in range(1,3):
+  adders.append(lambda x: x + n)
+
+# n = 3 --> each lambda added to the array is pointing to the n in the for statment which is modified to point to 2.
+adders[0](10) #-> returns 12, since n is pointing to 2 after the for loop completes using n when this is called.
+
+IOW, What is being added to the array is a symbol/label that is pointing towards an object referenced by the global n in the for statement.  This object gets modified to 2, and so all of the references added to the array are pointing to 2.
+
+***
+
+the symbol `n` is not evaluated in Python until the lambda functions are run!
+ - lambda is created, a symbol `n` is stored 
+ - Python will look up and derefrence `n` when the lambda is run
+
+***
+
+***You can also get this bug even if you use closures:
+
+-Create the loop inside a function to make the lambdas closures:
+
+def create_adders():
+  adders = []
+
+  # n is now a free variable in top level function scope
+  # the lambda is an inner function(closure) accessing free var n
+  for n in range(1,3):
+    adders.append(lambda x: x + n)
+  return adders # a list of closures
+
+adders = create_adders();
+adders[0](10) # -> still returns 12 because the loop updates n which cell in closure is pointing to when this is evaluated.
+
+SOLUTION:
+
+DON'T USE A CLOSURE - assign a default accessing `n` in the loop:
+
+-assign the `n` in the lambda as a default value to an extra argument and use that argument in the addition
+
+-*** Defaults get evaluated at Creation Time instead of later at Run Time in Python, so the current value of y when the loop is run and the lambda is created which will be called later, the lambda is created with y pointing to the value of n in the current loop.
+Note: This is actually not a closure since y is pointing to an object and not a cell.  y is not a free variable in the lambda, since y is local and n is not metnioned in the body of the lambda
+
+def create_adders():
+  adders = []
+  for n in range(1,3):
+    # assign y to default `n` and use `y` in lambda
+`   adders.append(lambda x, y=n: x + y)
+  return adders 
+   
+adders = create_adders()
+
+adders[0](10) # -> returns 11 as desired
+

@@ -1,0 +1,4 @@
+SETS:
+
+-Mutable - do not contain repeating elements - all els are unique
+

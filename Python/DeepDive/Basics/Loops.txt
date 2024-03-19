@@ -1,0 +1,48 @@
+LOOPS:
+
+While loop:
+
+name = ''
+
+while len(name) == 0:
+  print('enter your name')
+print('Thank you')
+
+-use break statements to stop an infinite loop:
+
+while name == '':
+  input('enter your name')
+  if len(name) > 0:
+    break
+print('Thank you')
+
+
+-use continue statement to jump back to the beginning of the while loop:
+
+spam = 0
+while spam < 5:
+  spam = spam + 1
+  if spam == 3:
+    continue
+  print(str(spam))
+
+# prints 1,2,4,5
+
+--
+
+FOR LOOP:
+
+-use range function to get a range object
+-you can use one param to start at 0 to n-1 or pass in a start and end int.
+
+for i in range(10):
+  print(str(i))
+
+#0 1 2 3 4 5 6 7 8 9
+
+for i in range(3,7):
+  print(str(i))
+
+-*****Use len() to get the length of a list if iterating over it:
+
+     for i in range(len(list)):

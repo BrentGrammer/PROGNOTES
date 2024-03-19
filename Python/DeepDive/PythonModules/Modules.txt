@@ -1,0 +1,179 @@
+STANDARD LIBRARY:
+
+-Modules that come with Python with additional helper functions.
+-A Module is a python program that contains the helper functions and makes them available to use in your program.
+
+
+re  (for regular expressions)
+math
+random
+os
+sys
+shelve (work with saving and writing binary data)
+shutil (copy move files and folders and unlink files/folders)
+send2trash (install with pip: safely delete files n folders to recycle bin)
+
+-You need to import the module in your program to use the helpers:
+
+import random
+random.randint(1, 10)
+
+
+(can import multiple by separating with a comma:
+  import random, sys, math
+)
+
+-You can import specifics from a module:
+
+from random import *
+
+# now you don't need the random. in front:
+  randint(1,10)
+
+***Better to use import <module> to make it explicit where the function is coming from.
+
+EARLY EXIT EXAMPLE:
+
+import sys
+
+print('Hello')
+sys.exit()
+print('Goodbye')
+
+THIRD PARTY MODULES:
+
+-Install with pip
+-run this command from the terminal - on windows use $ pip install <ModuleName>
+see docs: http://automatetheboringstuff.com/appendixa/
+
+# only prints 'Hello' and exits program early
+
+---------------------
+
+Example 3rd Party Modules:
+
+PYPERCLIP:
+STANDARD LIBRARY:
+
+-Modules that come with Python with additional helper functions.
+-A Module is a python program that contains the helper functions and makes them available to use in your program.
+
+math
+random
+os
+sys
+shutil
+re
+logging
+webbrowser
+
+-You need to import the module in your program to use the helpers:
+
+import random
+random.randint(1, 10)
+
+
+(can import multiple by separating with a comma:
+  import random, sys, math
+)
+
+-You can import specifics from a module:
+
+from random import *
+
+# now you don't need the random. in front:
+  randint(1,10)
+
+***Better to use import <module> to make it explicit where the function is coming from.
+
+EARLY EXIT EXAMPLE:
+
+import sys
+
+print('Hello')
+sys.exit()
+print('Goodbye')
+
+====================================
+
+THIRD PARTY MODULES:
+
+-Install with pip
+-run this command from the terminal - on windows use $ pip install <ModuleName>
+see docs: http://automatetheboringstuff.com/appendixa/
+
+# only prints 'Hello' and exits program early
+
+pyperclip - copy/paste to clipboard
+requests - download files from web or web pages (html string)
+beautifulsoup - for web scraping
+
+
+Example 3rd Party Modules:
+
+PYPERCLIP:
+pyperclip (copy and paste from clipboard)
+
+pip install pyperclip
+
+import pyperclip
+pyperclip.copy("this is copied to clipboard now")
+pyperclip.paste() # prints the copied text
+
+-------------
+
+COPY:
+
+If you do want to make copies of mutable data types in Python like Lists you can use the Standard Library copy module:
+import copy
+spam = [1,2,3]
+cheese = copy.deepcopy(spam) # stores a copy of the List instead of a reference
+
+-----------
+
+PPRINT:
+
+Pretty print lists or dictionaries in a more readable format (sorts and puts in a column):
+
+import pprint  
+
+pprint.pprint(dict)
+
+*You can use pformat() to turn the pretty printed list or dict into a string
+
+dictString = pprint.pformat(dict)
+print(dictString)  ## prints the formatted dict as a string
+
+-------------------
+
+RE:
+
+-Used for regular expressions:
+
+import re
+
+message = "Message with phone number in it: 555-555-5555."
+
+## create a regex object with re.compile:
+## use a raw string (a string with r"") to be able to use back slashes and special regex chars without having to escape
+
+phoneNumRegex = re.compile(r'\d\d\d-\d\d\d-\d\d\d\d')
+
+## Regex data type has a search method to search a string passed in for the regex defined:
+## this returns a Match Object which you can assign to a var to capture.
+## You can then use .group() to get the string text of the matches
+
+mo = phoneNumRegex.search(message)
+print(mo.group())
+
+# This will print the first appearence of the matching text to the regex (phoneNumRegex)
+## Use the .findall() method on the regex object to get all occurrences of the regex match - returns a List of strings that match.
+# You don't need to capture a match object since this method returns the list of strings from it's first call.
+
+Ex: listOfMatches = phoneNumRegex.findall(message)
+    
+--------------------
+
+
+
+ 

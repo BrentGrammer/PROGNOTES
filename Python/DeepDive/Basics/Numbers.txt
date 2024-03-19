@@ -1,0 +1,396 @@
+
+
+-In CPython (reference version built on C), on startup, numbers -5 through 256 are cached.  Whenever an int is used in that range, Python will use the cached version instead of creating a new one.
+
+a = 10 --->referenced cached object created at startup
+
+a = 257 =----> creates a new number object since outside of range
+
+b = 257 ---> Does not use shared reference and creates separate object at different memory address.
+
+a is b ---> False
+
+---------------------------
+Types of Numbers:
+
+
+category   python data type
+Integer  - int
+Rational - fractions.Fraction
+Real     - float, decimal.Decimal (more precision)
+Complex  - complex
+Boolean  - bool (0 is False, 1 is True) -- behind the seens True/False are numbers
+
+---------------------------------
+
+INTEGERS:
+
+Data type: int
+
+Storage of Integers:
+
+-Integers are stored in the computer in binary form as bits (a bit is one number, either 0 or 1).  Ex: the number 19 requires 5 bits: 10011
+
+-The largest positive number that can be stored in a bit is 255
+
+-To include negative numbers, you must use one bit to store the pos or neg sign - 7 bits left to store the actual number - 
+-128 to 127 is what you can store in 8 bits.
+(0 does not need an extra bit so you can add a number to the range
+If you have an unsigned integer type, 32 bits can store the range 0 ... 4,294,967,296
+
+-In a 32 bit OS, memory spaces are limited by address number -> 32 bits
+(the address itself is limited to a 32 bit integer)
+-Every address is one byte
+
+Langauges like Java and C have different number types that are capable of holding different sizes of integers (i.e. 8-bit (byte) or 16-bit numbers (short), int 32 bits or long 64 bits)
+unsigned int - a positive number
+signed int - could be negative with a - sign
+
+In Python:
+the int is an object which uses a variable number of bits.  As the number gets bigger Python will assign more bits to hold it.
+
+The max limit of an integer size in Python is dependent on the memory available for the program.
+
+Note: As the numbers get bigger - calculation performance gets slower as well.
+
+---
+
+OPERATIONS WITH INTEGERS:
+
++  --> returns int
+-  --> returns int
+*  --> returns int
+/  --> returns float (i.e. 10/2 returns 5.0 as a float type for ex.)
+** --> returns int
+
+// floor division - returns int without remainder -- 155 // 4 => 38
+%  modulo  - returns remainder int
+
+Note on floor of real numbers:
+floor is the largest int <= n (basically rounds down to nearest int)
+1.9999 === floor is 1
+-3.1   === floor is -4
+
+--- floor is different than truncation (just dropping the decimal and giving the integer before it)---
+
+math.floor(9/4) => -3  (rounds down)
+math.trunc(9/4) => -2  (just cuts the decimal portion off)
+# Note: they do operate the same when both numbers are positive though
+
+--------------
+
+Int Constructor:
+
+passing in no value returns 0:
+
+a = int() #=> 0
+
+int(10.988878) #=> 10
+
+int(True) #=> 1
+
+Other constructors:
+
+bin(10) #=> returns binary equivalent - 0b1010
+
+hex(255) #=> returns hexadecimal equivalent - 0xff
+
+# Note the prefixes that indicate the base - 0x for hex for ex.
+
+----------
+
+RATIONAL NUMBERS:
+
+-Fractions of Integer numbers. can be positive or negative
+-or any real number with a finite number of digits (i.e. 1.25)
+
+Pi is not a rational number for example.
+
+Rational numbers (fractions) can be represented in Python using the Fractions class from the standard library module fractions:
+
+from fractions import Fraction
+x = Fraction(3,4) #=> returns 3/4
+
+Note: Fractions are automatically reduced by the Fractoin constructor:
+i.e. 6/10 is reduced to 3/5
+
+-Any float can be written as a rational number (fraction) since they have a finite precision after the decimal.
+
+
+-----------------
+
+FLOATS:
+
+***Floats only have approximate precision because some decimals in base 10 do not havve finite representations in binary base (which is how they are stored in the computer)
+
+-Floats have a finite precision - there are not an infinite amount of numbers after the decimal you can use in any computer language.  
+
+-Python uses floats by default since they are faster to deal with than decimals.
+
+Significant Digits: all digits except trailing and leading zeros.  The numbers necessary to represent the number in memory.
+i.e. 1.2345 #=> has 5 significant digits
+     12345000000 #=> still 5 significant digits - the 0s are stored as an exponent for the number.
+
+Note: Some rational numbers in base 10 do not have a finite rational number equivalent in base 2 (i.e. 1/10 is not a finite number in base 2)
+0.1 cannot be represented exactly in binary notation (which is how it is stored in the computer) since in binary form it has an infinite series of numbers after the point.
+
+if you print(0.1), python will show 0.1, but behind the scenes it is slightly off and only an approximation (if you check many decimals on the number with format(n, '.25f') you'll see the number is not exactly 0.1
+
+To Parse a number to a float:
+
+float(n) #=> n can be a number or string (will be coerced to a num by Python)
+
+To parse a Fraction you need to convert the number to a fraction
+from fractions import Fraction
+float(Fraction(22/11))
+
+EQUALITY:
+
+Rounding - a kind of absolute tolerance - not foolproof
+Absolute Tolerance - ineffective with large numbers and unreliable
+Relative Tolerance - ineffective in some cases
+*Must use a combo of abs and relative tolerance using the math.isclose() builtin standard library.
+
+2 floats assigned the same value will not necessarily be equal since they are imprecise numbers.
+
+You can use round on both sides of the comparison operator to compare equality:
+
+round(0.1 + 0.1 + 0.1, 5) == round(0.3, 5)
+
+# True .. both resulting values are rounded to 5 digit/decimal places.
+
+ABSOLUTE TOLERANCE:
+
+***A better way to compare floats is to compare them in a range and see if their difference is greater than the original value:
+
+(Where Epsilon is a small positive number).
+
+a=b if and only if |a - b| < Epsilon 
+
+def is_equal(x, y, eps)
+  return math.fabs(x-y) < eps
+
+Another way is to specify that the difference between the two numbers be a percentage of their size (i.e. two numbers are within x% of each other).
+Note: This way is not fool proof.  Absolute tolerances are not effective when comparing large numbers
+
+RELATIVE TOLERANCE TEST:
+
+-Instead of absolute Tolerance, use relative tolerance:
+maximum allowed difference is a percentage relative to the larger of the two numbers.
+
+rel_tol = 0.001%
+
+tol = rel_tol * max(|x|, |y|)
+
+math.fabs(x - y) < tol  
+# returns bool if numbers within the percentage difference
+
+**WARNING: Using relative tolerance tests on numbers close to 0 does not work!  i.e. comparing 0.00000001 and 0.
+
+---
+
+**The solution which can be used more widely with all floats is a combination of absolute and relative tolerances:
+
+Make the tolerance the greater of the two (the relative tolerance or the absolute tolerance):
+
+tol = max(rel_tol * max(|x|,|y|), abs_tol)
+
+
+USE THE MATH.ISCLOSE METHOD TO COMPARE FLOATS:
+
+-This is a standard library method built in to the module which combines absolute and relative tolerance testing as above.  
+
+-Set the relative tolerance for dealing with larger numbers, and the absolute tolerance for dealing with small numbers
+
+math.isclose(a,b,*,rel_tol, abs_tol)
+
+Ex:
+math.isclose(x,y,rel_tol=0.01, abs_tol=0.01)
+# this would work when dealing with numbers close to zero.
+
+isclose(x,y,rel_tol=0.01,abs_tol=0.000001)
+
+**If you do not pass in a absolute tolerance value, then it will be zero by default and only relative tolerance will be used.  Always specify abs_tol unless just using relative tolerance tests.
+
+-You have to come up with the tolerance values and decide what tolerances you will allow.
+In General you do not change the rel and abs tolerance once they are set.
+
+----
+
+COERCING FLOATS TO INTEGERS:
+
+4 ways:
+
+use math library (standard)
+
+from math import trunc
+# Truncate:
+trunc(10.4) -> 10
+trunc(-10.4) -> -10
+
+(you can also use the int() constructor to truncate - doing this meansyou dont 
+have to import the math library -- int(10.4) -> 10)
+
+from math import floor
+# Floor - largest int less than the value:
+floor(n)
+
+# Ceiling - smallest int greater than the value
+from math import ceil
+ceil(10.2) -> 11
+ceil(-10.3) -> -10
+
+-------------------------------
+
+DECIMAL:
+
+-Use the decimal standard library module which comes with a Decimal constructor to create decimals
+( from decimal import Decimal )
+
+-A way to deal with numbers and eliminate approximation caused by floats and avoid using fractions which are computationally more expensive to do arithmentic with.  
+***Unlike floats, Decimals are completely accurate and finite numbers with absolute precision.
+
+*Unless you absolutely need precision (i.e. in Banking and finance), you should use floats over decimals as they are more efficient and easier to work with than Decimals.
+
+-Note: There are performance and memory overhead considerations (decimals take more memory to use than floats - this probably isn't an issue unless dealing with extremely large amount of numbers). 
+ 
+***Decimals are also much slower to use and process than floats - unless you really need the precision, you should use floats which perform and are operated on much faster than Decimals.
+
+-You need to specify a context which you determine how precise (precision) the decimal will be (to what number of digits) and rounding algorithm
+
+You can set a global context and a local context (so you don't have to reset global context settings when dealing with scenarios requiring different context settings.  
+
+global: decimal.getcontext()             # default - returns global context object
+local:  decimal.localcontext((ctx=None)) # defaults to global context if nothing passed in. local returns a context manager (different from global context) that you use `with` statement.
+-the with statement will create a block that causes the local context to be automatically cleaned up. 
+
+Settings (in global or local context):
+
+NOTE: These only apply to arithmetic operations and are not presentational:
+-2 properties on global context to set
+ .rounding # change rounding algorithm
+ .prec     @=# number 
+
+decimal.getcontext().rounding = decimal.ROUND_HALF_UP
+decimal.getcontext().prec = 6 
+# returns global context then sets the rounding prop on it.
+
+--
+Example using global context:
+
+import decimal 
+from decimal import Decimal    # eliminates having to write Decimal.decimal
+
+# common to set a variable to the context returned:
+g_ctx = decimal.getcontext()
+
+g_ctx.rounding = decimal.ROUND_HALF_UP
+g_ctx.prec = 28
+
+--
+
+Set local context:
+
+with decimal.localcontext() as ctx:
+  ctx.prec = 2  # sets precision of local context
+  ctx.rounding = decimal.ROUNT_HALF_UP
+
+# after you exit the local context, the global context settings will remain in tact and used instead.
+NOTE: inside the with block decimal.getcontext() returns the local context object.
+----
+
+DECIMAL CONTRUCTOR:
+
+-Usually you do NOT pass in floats in general - the decimal const converts the float to it's imprecise decimal.
+
+***The precision set in your global/local context does NOT affect the decimal constructor.  The precision setting has no affect on the number passed into the decimal constructor.  It will only affect the arithmetic operations on the decimals.
+
+-Pass in other decimals, ints, tuples, strings
+
+Using tuples in the constructor:
+
+decimal((sign, (d1, d2, d3, ...), <power of 10 to multiple by>))
+# sign is 0 for positive and 1 for negative sign
+# multiple of ten to multiply by is how many places to put the decimal - i.e. 10 to power of -2 moves decimal to the left two places from the end 
+(312 x 10(-2) ) = 3.12
+
+**Careful: wrap all elements of the tuple in parens (there should be two parens - one set to wrap all the inputs inside the tuple as an argument, not just one)
+
+Ex:
+3.1415 ===> decimal((0, (3, 1, 4, 1, 5), -4)) # ==> returns 3.1415
+
+**If using literals, then just pass a string (in general don't use tuples)
+Ex: decimal('3.1415') # ==> returns 3.1415 decimal
+
+
+---
+
+OPERATORS WITH DECIMALS:
+
+*Operators perform differently with decimals than with floats and integers. 
+
+Ex:
+-The // Div operator performs truncated division on decimals (on ints and floats it is floor division)
+
+The math module converts the decimal to a float and then runs the operation losing it's precision. 
+
+***NOTE: Avoid using the math module operations with Decimals - if you use operations imported from the math module with decimals, the precision of the result will be lost (which is the point of using decimals in the first place.)
+
+If there is a built in method on the Decimal object then use that for computation and don't use the imported corresponding math method:
+
+a = Decimal('2.0')
+a.sqrt()
+a.exp()
+a.ln()
+# these builtin decimal method operations will retain precision
+
+# do not use import math and then math.sqrt(a) - will be an imprecise and different result from the above built in methods on Decimal object.
+
+
+=====================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+

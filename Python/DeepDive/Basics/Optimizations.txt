@@ -1,0 +1,74 @@
+INTERNING:
+
+-Reusing objects on demand that are cached
+
+-In CPython (reference version built on C), on startup, numbers -5 through 256 are cached.  Whenever an int is used in that range, Python will use the cached version instead of creating a new one.
+
+
+-------
+
+INTERNING STRINGS:
+
+-As Python code is compiled, identifiers (variable names, function names and class names etc.) are interned
+
+-some string literals that look like an identifier are interned as well  (i.e. they meet the criteria for an identifier name
+
+-You can intern strings with sys.force:
+
+import sys
+
+a = sys.intern('string to intern')
+b = sys.intern('string to intern')
+# don't set by to intern a or another object will be created
+
+* In general don't do this, but if you have a large number of strings that have lots of repititions you need to work with, you can intern the repeating strings in the large body of text.
+
+-------
+
+PEEPHOLE OPTIMIZATIONS IN PYTHON:
+
+-This optimization happens at compile time (python code is compiled as it runs)
+
+Built in optimizations in Python:
+
+-Note: calculations that are constant (i.e. a math calc like 24 * 60) get precalculated by python and the result is stored so that the calculation is not run everytime that line of code is used (i.e. if you have a large number of these calculations)
+
+-Values from expressions that are less than 20 characters long in sequence are also stored so that everytime Pyhton sees the same expression, it will not run it again, but just use the cached result for it.
+
+-When you have an expression involving primitives (i.e. a list as [1,2,3] instead of variables), python replaces the mutable data type with an immutable since it can be treated as a constant.
+
+Lists ---> tuples
+sets ---> frozensets
+
+
+SETS:
+
+***Looking up members of a SET is much faster than in a list or tuple -- sets are like dictionaries
+Whenever you can prefer using set membership
+
+Use Sets instead of lists or tuples if the member length is very long or if you are repeatedly searching over the elements.
+Ex:
+  instead of: if e in [1,2,3...] or if e in (1,2,3...)
+  use:  if e in {1,2,3...}
+# this is not necessary if the list is short or there are only one or a very small numbre of calculations on it.
+
+--------------
+
+TESTING PERFORMANCE TIMES:
+
+use time standard library module:
+
+import time
+
+start = time.perf_counter()
+...def or code to run...
+end = time.perf_counter()
+
+print(end - start)
+
+
+
+
+
+
+

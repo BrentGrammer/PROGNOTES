@@ -1,0 +1,45 @@
+DEBUGGING:
+
+
+EXCEPTIONS:
+
+-Python raises an Exception when an error occurs.
+-Use Exceptions for errors that you can display to the user (invalid form fields, input etc.)
+
+-Raise your own exceptions which tells Python stop running this code and move to the accept statement:
+
+raise Exception('Error message here')
+
+Ex:
+
+def someFunction(arg):
+  if len(arg) == 0:
+    raise Exception("Empty argument")
+
+-The traceback in the exception logged will have info on where the error occurred.
+You can get it's string value using the traceback module (standard library) using the format_exc() method
+
+# You can log the error information to a file and keep the program running
+
+import traceback
+
+try:
+  raise Exception('Error')
+except: 
+  errorFile = open('error_log.txt', 'a')  
+  errorFile.write(traceback.format_exc())
+  errorFile.close()
+  print('Error logged in text file.')
+
+--------------
+
+ASSERTIONS:
+
+-Used to check code and display error messages to the programmer to catch bugs (not to the user)
+-If assertion fails, then an AssertionException is raised.
+
+assert <condition>, <error Message string>  <-- if condition evaluates to False, an AssertionError is raised.
+
+assert 'neededKey' in someObject.keys(), 'The needed key is missing in this object'
+
+# this will raise an assertion error if the neededKey is not in the object.

@@ -1,0 +1,286 @@
+
+
+## Use the standard library re module.
+
+import re
+
+? <-- match preceeding group 0 or 1 times.
+* <-- match 0 or more times
++ <-- match 1 or more times
+{3} <-- match exactly that number of times (3 in this case)
+{3,5} <-- match anywhere from 3 to 5 times
+{3,} <-- match 3 or more times
+{3,5}? <-- non-greedy match - will match least amount of text 
+
+^ <-- match must begin at the start of the string (r'^Hello') will not match 'He said "Hello"' (the start is " not Hello)
+$ <-- match must be at the end of the string (i.e. r'world$') will not match "Hello world!" because of the ! - "world" it is not at the end of the string
+^<String>$ <-- must match the entire string (cannot just be part of it) r'^\d+$'  <- match string that begins and ends with digits (the string must be all digits)
+
+. <-- match anything except a newline (including spaces, etc.) (r'.at' matches 'cat', 'hat', 'bat' etc.)
+.* <-- match any pattern whatsoever. Greedy by default -will match as much text as possible
+.*? <-- non-greedy match of any character pattern
+
+regex = re.compile(r'<regexString>')
+mo = regex.search() - find the first occurence of the match (returned as a Match Object, call .group() to get string)
+mo.group()
+
+regex.findall() - find all matching occurrences (returned as a List of strings)
+## Note: with findall(), if there are two or more capture groups in the regex, the list will be tuples with each group of the match in the tuple.
+[('capturegroup1', 'capturegroup2'), ('group1', 'group2'), etc...]
+
+
+** If no matches found, then the match object (stored in mo here) will be None
+** If you try to call .group() on mo in that case, you will get a AttributeError.
+you can check with if mo != None:
+
+CHARACTER CLASSES:
+
+\d <--- any digit 0-9
+\D <--- any character that is NOT a digit 0-9
+\w <--- any word character including 0-9 digits, letters, and underscores ('_') - does not include punctuation or spaces
+\W <--- anything that is NOT a digit, underscore, or letter
+\s <--- space characters - any space, tab or newline character
+\S <--- matches anything that is not a space, tab or newline
+
+[] <-- custom class - put all chars that you want to be included in the custom class
+[a-z] <-- match any lowercase character in the range - a to z
+[a-zA-Z] <-- match any lower or uppercase letter from a - z
+^ <--- match everything that is not the character(s) or set class etc. # example: consonants = r.compile(r'[^aeiouAEIOU]')
+Note: you don't need to escape special chars inside a custom char class (i.e. . + ? () etc.)
+
+Second arguments to re.compile:
+re.compile(<regex>, re.DOTALL)     <-- includes newlines with a .* search
+re.compile(<regex>, re.IGNORECASE) <-- will match all cases upper and lower
+re.compile(<regex>, re.VERBOSE)    <-- allows for formatting in multiline string ignoring whitespace and comments for readbility
+-To use multiple args, use the pipe: re.compile(<regex>, re.DOTALL | re.VERBOSE | re.IGNORECASE)
+ 
+
+=====================================
+
+import re
+
+message = "Message with phone number in it: 555-555-5555."
+
+## create a regex object with re.compile:
+## use a raw string (a string with r"") to be able to use back slashes and special regex chars without having to escape
+
+phoneNumRegex = re.compile(r'\d\d\d-\d\d\d-\d\d\d\d')
+
+## Regex data type has a search method to search a string passed in for the regex defined:
+## this returns a Match Object which you can assign to a var to capture.
+## You can then use .group() to get the string text of the matches
+
+mo = phoneNumRegex.search(message)
+print(mo.group())
+
+# This will print the first appearence of the matching text to the regex (phoneNumRegex)
+
+-------------
+
+FINDALL():
+
+## Use the .findall() method on the regex object to get all occurrences of the regex match - returns a List of strings that match.
+# You don't need to capture a match object since this method returns the list of strings from it's first call.
+
+Ex: listOfMatches = phoneNumRegex.findall(message)
+
+## Note: with findall(), if there are two or more capture groups in the regex, the list will be tuples with each group of the match in the tuple.
+[('capturegroup1', 'capturegroup2'), ('group1', 'group2'), etc...]
+
+To get a full match in the tuples returned wrap the whole expression in parens:
+
+re.compile(r'((\d\d\d)-(\d\d\d-\d\d\d\d))')   ## returns [('123-456-7890', '123', '456-7890')]
+
+
+-----------
+
+MARKING OUT GROUPS TO CAPTURE PART OF A REGEX MATCH:
+
+-Example marking groups in the phonenumber regex:
+
+phoneNumRegex = re.compile(r'(\d\d\d)-(\d\d\d-\d\d\d\d)')
+
+# This captures the area code in one group and the rest of the number in a second group
+# You can access the groups by passing an int to the .group() method on the match object returned from .search()
+
+mo = phoneNumRegex.search('Number is 123-456-7890')
+mo.group(1)  ## returns '123'
+
+Note: to find literal parens, escape opening and closing parens with a back slash:
+phoneNumRegex = re.compile(r'\(\d\d\d\) \d\d\d-\d\d\d\d')
+mo = phoneNumRegex.search('Number is (123) 456-7890')
+matches = mo.group() ## returns '(123) 456-7890'
+
+-Use the pipe | to match one of several patterns matching the regex:
+batRegex = re.compile(r'Bat(man|mobile|copter)')
+mo = batRegex.search('Batmobile is cool.')
+mo.group ## returns 'Batmobile since it matches one of the patterns in regex (Note the parens are not part of the search since they are built in capturing markers in regexs)
+
+----------------------
+
+-
+
+Example of ?:
+
+batRegex = re.compile(r'Bat(wo)?man')  # wo can appear 0 or one times - this matches both Batman or Batwoman
+
+## Ex. with matching phone number with optional area code:
+phoneRegex = re.compile(r'(\d\d\d-)?-\d\d\d-\d\d\d\d')  # this matches number with or without area code
+
+# If you want to search for a literal question mark, use the back slash:
+re.compile('How are you\?')
+
+-
+
+Example of *:
+
+re.compile(r'Bat(wo)*man') ## this would match Batwowowowowman as well as Batman and Batwoman
+
+-
+
+Example of +:
+
+re.compile(r'Bat(wo)+man')  ## will match Batwoman and Batwowowowoman but not Batman since wo is not optional
+
+-
+
+Example of {}:
+
+re.compile(r'(Ha){3}')  ## Matches 'HaHaHa'
+
+Combined exp matching 3 phone numbers in a row with optional area code:
+(Note the optional comma which would include the last number in the sequence)
+
+re.compile(r'((\d\d\d-)?\d\d\d-\d\d\d\d(,)?{3})')
+## Would match "My numbers are 333-222-3333, 342-3333, 555-444-2222'
+
+
+-Match from a range of times:
+
+re.compile(r'(Ha){3,5')  ## Matches 'HaHaHa', 'HaHaHaHa', 'HaHaHaHaHaHa' 
+(Note: this would match the first 5 occurences in a long repeated sequence, i.e. 'HaHaHaHaHaHaHaHaHa' would return a match of the first five 'Ha's)
+
+------
+
+GREEDY / NONGREEDY MATCHES:
+
+-By default Python regex matches are greedy:
+
+Ex: regex = re.compile(r'(\d){3,5}')
+    regex.search('1234567890')
+
+    ## Matches '12345' and not '123' or another combo of numbers
+       Python matches as early as possible and the longest possible string that matches the patterns
+
+NONGREEDY MATCH: Use the ? after a pattern (not a group) 
+
+Ex:
+regex = re.compile(r'(\d){3,5}?') ## matches smallest possible string - non-greedy 
+regex.search('1234567890')
+## matches '123'
+
+----------
+
+CHARACTER CLASSES:
+
+\d <--- any digit 0-9
+\D <--- any character that is NOT a digit 0-9
+\w <--- any word character including 0-9 digits, letters, and underscores ('_') - does not include punctuation or spaces
+\W <--- anything that is NOT a digit, underscore, or letter
+\s <--- space characters - any space, tab or newline character
+\S <--- matches anything that is not a space, tab or newline
+
+Example of using char classes:
+
+regex = re.compile(r'\d+\s\w+')  ## find one or more digits followed by a space/tab/nl followed by any word character.
+regex.findall()
+# will match ['12 words' '11 words'] etc.
+
+---
+
+CREATE CUSTOM CHARACTER CLASS:
+
+use [] and put all the characters that you want to be in the character class.
+
+ex:
+
+vowelRegex = re.compile(r'[aeiou]') ## same as (r'a|e|i|o|u')
+             re.compile(r'[a-z]')   ## range of letters from a to z will match
+
+             match both lower and uppercase vowels: re.compile(r'[aeiouAEIOU]')
+
+# Example search for two occurrences in a row of any character in the custom class:
+
+re.compile(r'[aeiouAEIOU]{2}')  ## would match 'ea' in eat or 'oo' in food.
+
+## ^ - match everything that is not in the character class:
+
+consonants = r.compile(r'[^aeiouAEIOU]')
+
+------------
+
+.* Example:
+
+'First name: Al Last name: Sweigart'
+regex = re.compile(r'First name: (.*) Last name: (.*)')  
+regex.findall()    ## returns [('Al', 'Sweigart')]
+
+.*? - .* is greedy matching as much text as possible, adding the ? makes it non-greedy to match as little as possible:
+
+text = '<first text inside angles> text outside of first match>'
+regex = re.compile(r'<(.*?)>')
+regex.findall()  ## returns ['first text inside angles']
+
+regex = re.compile(r'<(.*)>')
+regex.findall()  ## returns ['first text inside angles> text outside of first match'] <-- greedy match without the ?
+(note that since the matching is in a group capture, that is what is returned with findall())
+
+-including newline characters (pass re.DOTALL as a second param to the re.compile function): 
+
+text = 'Line1.\nLine2.\nLine3.'
+re.compile(r'.*', re.DOTALL)  ## will match the entire string including newline chars.
+
+IGNORE CASE MATCHING:
+
+-pass re.INGORECASE to the re.compile method:
+
+re.compile(r'[aeiou]', re.IGNORECASE)  ## will match capital vowels as well.
+
+======================
+
+FIND AND REPLACE:
+
+-use the regex.sub(<ReplaceString>, <originalWholeString>) method on a regex object.
+
+regex = re.compile(r'Agent \w+')
+regex.findall('Agent Muller and Agent Alice are on the job.')
+## returns ['Agent Muller', 'Agent Alice']
+
+regex.sub('Redacted', 'Agent Muller and Agent Alice are on the job.)
+## returns 'Agent Redacted and Agent Redacted are on the job.'
+
+-Get the first letter of the name/word:
+regex = re.compile(r'Agent (\w)\w*') ## put first word char in group and follow with 0 or more ward chars
+regex.findall('Agent Alice and Agent Bob')
+## returns ['A', 'B']
+
+-Access the grouped letter with \<groupNum> in a raw string:
+regex.sub(r'Agent \1', 'Agent Alice and Agent Bob)
+## returns 'Agent A and Agent B'
+
+------------------
+
+Using re.VERBOSE to make regex patterns more readable (you can use newlines and white space which will not be matched and include
+comments as well which will be ignored):
+
+re.compile(r'''
+(\d\d\d)|     # area code without parens
+(\(\d\d\d\) ) # -or- area code with parens and space
+-
+\d\d\d 
+-
+\d\d\d\d''', re.VERBOSE)
+
+
+
+

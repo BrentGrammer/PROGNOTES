@@ -1,0 +1,198 @@
+
+
+ROOT FOLDER: C:\ on windows, just \ on Linux and Mac
+
+Use os module:
+
+import os
+
+os.getcwd() <--gets the current working directory
+os.chdir(<path>) <--changes cwd to path passed in
+
+os.path.join('folder1', 'folder2', 'file.png')
+## returns foler1\folder2\file.png path formatted according to the OS.
+
+os.path.abspath(<path>)  <-- returns absolute path of a relative path passed in
+os.path.isabs('c:\\path\\file.png') <-- returns True if path is absolute
+os.path.relpath('c:\\path\folder\file.png', 'c:\\path')  <--generates a relative path based on second arg as the root.
+os.path.dirname('c:\\path\\folder\\file.png') <-- returns just the folder path 'c:\\path\\folder' without filename
+os.path.basename('c:\\path\\folder\\file.png') <-- returns last part after final slash, i.e. 'file.png' - can be file or folder
+os.path.exists(<absolute path>) <-- Returns True or False whether the path exists.
+os.path.isfile(<path>) <-- returns True or False whether path passed in is a file
+os.path.isdir(<path>)  <-- returns boolean whether path is a folder
+
+os.listdir(<path>) <-- returns a list of all directories/folders in the path passed in
+
+os.path.getsize(<path to file>) <-- returns file size in bytes as an integer (1000000 bytes is a megabyte)
+
+os.makedirs('c:\\folder1\\folder2\\')  <-- will create all folders in path passed in
+
+
+
+
+----------------------
+
+*To make scripts work on all operating systems, import the standard library os module:
+
+Use the .path method to create a path that is appropriate to the operating system of the user:
+
+os.path.join('folder1', 'folder2', 'file.png')
+## returns foler1\folder2\file.png path formatted according to the OS.
+
+-You can use the current working directory method getcwd(): currentDir = os.getcwd()
+## You can use or set this and anytime you have a method that deals with just a filename, python will assume that file is in 
+the current working directory and look for it there.
+
+-Change the working directory with os.chdir(<newFilePath>)
+
+---
+PATHS:
+
+Folder separators: '\' backslash on windows, on Linux and Mac it is forward slash '/'
+
+*When writing paths in Python, you need to escape the backslash folder separators:
+
+'c:\\folder\\path'
+or you can use a raw string: r'c:\folder\path'
+
+Relative Paths: Does not use root directory in path: '.\path\file.png' or 'path\file.png'
+
+os.path.abspath('..\file.png')  <-- returns absolute path of a relative path passed in
+
+os.path.isabs('c:\\path\\file.png') <-- returns True if path is absolute
+
+os.path.relpath('c:\\path\folder\file.png', 'c:\\path')  <--generates a relative path based on second arg as the root.
+
+os.path.dirname('c:\\path\\folder\\file.png') <-- returns just the folder path 'c:\\path\\folder' without filename
+
+os.path.basename('c:\\path\\folder\\file.png') <-- returns last part after final slash, i.e. 'file.png' - can be file or folder
+
+os.path.exists(<absolute path>) <-- Returns True or False whether the path exists.
+
+===================
+
+READING AND WRITING TO FILES:
+
+WORKING WITH PLAIN TEXT FILES:
+
+***Always close the file when done with it with the close() method.
+
+## opens file in read mode and returns a file object.
+
+file = open('c:\\path\to\file.txt')
+
+# file data type has methods:
+
+content = file.read() <-- returns string of file contents  **can only read it once - you need to call open() again to read it again (save it to a variable)
+file.close() <-- closes the file
+
+file.readlines() <-- returns each line of a file as strings inside a List.
+
+Writing to files:
+
+file = open('c:\\filepath\\file.txt', 'w') <-- open in write mode - overwrites everything in file and starts from scratch
+file = open('c:\\filepath\\file.txt', 'a') <-- open in append mode - attach to the end of the file
+# if file does not exist, python will create a new file
+
+file.write('content which will overwrite content in file.') <-- returns integer of how many chars written to file
+
+-------------------
+
+WORKING WITH BINARY FILES:
+
+Shelf files are binary files that are like dictionaries
+
+import shelve
+
+-Make changes to a shelf file as if it were a dictionary and then close the file with .close():
+
+shelfFile = shelve.open('filename')
+shelfFile['key'] = 'values'
+shelfFile.close()
+
+# get values from shelf file:
+shelfFile = shelve.open('filename')
+shelfFile['key']  
+shelfFile.close()
+
+## Note: the shelve open command creates 3 files on windows in the cwd: filename.bak, filename.dat, filename.dir
+
+Access keys and values:
+
+list(shelfFile.keys())  ## (convert to list to read it as that)
+list(shelfFile.values())
+
+==========================
+
+MOVING AND COPYING FILES AND FOLDERS:
+
+import shutil
+
+shutil.copy('c:\\source.txt', 'c:\\destination')
+# returns string of the full path where file was copied to: 'c:\\desitination\\source.txt'
+
+shutil.copy('c:\\source.txt', 'c:\\destination\\newname.txt')
+# renames the file to the new name if included in destination path
+
+#Copy entire files and folders in a folder to a new folder:
+shutil.copytree('c:\\folder', 'c:\\folder_backup')
+
+# move file to another folder (removes from current folder)
+shutil.move('c:\\file.txt', 'c:\\folder')
+
+# rename a file: use move to the same folder and use the new name:
+shutil.move('c:\\folder\\file.txt', 'c:\\folder\\newname.txt')
+
+============================
+
+DELETING FILES:
+
+import os
+
+os.unlink('file.txt')
+
+# delete a folder (folder must be empty):
+os.rmdir('c:\\folder')
+
+# removes folder with any files inside it:
+os.rmtree('c:\\folder')
+
+
+*** UNLINK IS PERMANENT - DO A DRY RUN: 
+
+for filename in os.listdir(os.getcwd()):
+  if filename.endswith('.txt'):
+    #unlink(filename)   <--- comment out the unlink and check the files printed to make sure it's okay to remove them.
+    print(filename)
+
+OR USE SEND2TRASH module:
+
+-Install with pip ( $ pip install send2trash )
+
+import send2trash
+
+send2trash.send2trash(<filepath>)  <-- sends to recycle bin
+
+========
+
+WALKING THROUGH A DIRECTORY TREE:
+
+## os.walk() returns three values and walks through the folder tree if you want to do something to all files in a folder tree:
+folderName - string of the folder of current iteration
+subfolders - List of folders inside the current iteration folder
+filenames  - List of filename strings in the current iteration folder
+
+# use os.walk() with a for loop:
+
+for folderName, subfolders, filenames in os.walk('c:\\rootFoler'):
+  for filename in filenames:
+    ## do something with each file
+  for subfolder in subfolders:
+    ## do something with all the folders
+
+## os.walk will return a type that can be iterated over - each iteration will go deeper into the folder tree returning any
+folders or files contained in that level.
+  
+
+
+

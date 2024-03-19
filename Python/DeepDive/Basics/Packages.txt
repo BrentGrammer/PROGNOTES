@@ -1,0 +1,231 @@
+
+PACKAGES:
+
+-Packages are modules that contain other modules or packages(sub-packages)
+-IOW, directories or folders that have a group of modules or subpackages in them
+
+-Purpose is to group modules to reduce import statements and organize code better.
+
+File Structure
+
+package_dir
+  __init__.py
+  module.py
+  sub_package_folder
+    __init__.py
+    module.py
+    sub_package2_folder
+      __init__.py
+      module.py
+
+-Represent a heirarchy of modules: Ex: package1.module1 or pack1.pack1_1.mod1_1
+(dotted notation just represents nested heirarchy, not properties of an object - found in __path__ or package attributes on the package)
+
+------------------------
+
+* A package must have a value specified for __path__ property (regular modules do not have that attribute set - it will be empty)
+The __path__ property is set to the absolute path of the directory of the package
+the __file__ property is the path to the __init__.py file in the package directory containing source code
+
+Note: Modules all have a __package__ attribute that is set to the package that the module is in. (If the module is in the root of the app, then it's __package__ property will be an empty string)
+
+-Like modules, packages do not have to be entities in a file system (loaders and finders can get them)
+Typically packages are entities on the file system though (like modules).
+
+In a file system a directory represents a package (since directories can hold other files/dirs, as a package holds other modules and packages)
+*The package name is the name of the directory (like the file name becomes the module name with modules)
+
+Where does python find code for a package (directory)?
+-There is a __init__.py file in the package directory which contains the module code of the package that python looks at when importing a package.
+* If Python sees the __init__.py file in the directory, it knows that it is a package
+(Note: without the file, Python does create an implicit namespace package)
+
+When Imported:
+
+1) Code in the directory of the package's __init__.py is loaded into memory
+2) Code in memory is executed, and cached in sys.modules with a key matching the name of the package directory
+3) Symbol for the package name is added to the global namespace (key is the package name and is referencing the same object loaded into memory)
+If you are importing a nested module, then all of the packages in the heirarchy will be imported
+
+-------------------
+EXPOSING SIMPLIFIED EXPORTS TO THE USER:
+
+-Can be used to expose simple imports for a nested package module to a user by manipulating the __init__.py
+
+# my_package.__init__.py in the package folder:
+
+from my_package.sub_module import my_function 
+from my_package.nested_sub_package.module import my_other_func
+
+# Now the user can just use:
+
+import my_package
+
+my_package.my_function()
+my_package.my_other_func()
+
+==============
+
+STRUCTURING PACKAGES
+
+---
+
+-NOTE: best approach is to use the as syntax:
+
+// in file importing package to:
+
+import common.package1 as package1
+
+package1.my_func_in_module_1() 
+
+NOTE: importing this way does not put the common symbol in the global namespace - only package1
+without the as syntax - common would be in the global namespace of the module it's imported into (and accessible as a symbol)
+
+----
+
+-Create package folders with __init__.py files, and inside some, you can create module files with short names (don't add the package name to the file)
+
+package folder structure:
+
+(each folder has an __init__.py) - common is the master package folder 
+
+common
+  __init__.py
+  package1
+    __init__.py
+    module1.py
+    module2.py
+    module3.py
+
+
+
+-To prevent having to import nested packages with dot notation, import the modules inside the __init__.py file of the package under common:
+
+// in common/package1/__init__.py:
+
+import common.package1.module1
+import common.package1.module2
+import common.package1.module3
+
+- The idea is to import all the submodules into the init file so you can just import the package into another file and have access to the nested modules.
+
+- Now in your main file you want to import the modules, you can just do:
+
+import common.package1
+
+# to access functions in the modules in package1:
+package1.module1.my_func()
+
+- If you want to eliminate this nesting, use the import * syntax:
+NOTE: using import * syntax is generally not good practice, it works in this instance
+
+// in common/package1/__init__.py:
+from common.package1.module1 import *
+
+- Now in the file you want to import the module functiopns into, yu don't have to access them in a nested way:
+
+common.package1.my_func() # works
+
+----
+AS SYNTAX: Best approach:
+
+- Can use `as` syntax to eliminate nesting:
+
+// in file importing package to:
+
+import common.package1 as package1
+
+package1.my_func() 
+
+--
+
+Relative imports:
+- Useful if you want to import from a sub folder under a top level package.  This way if you change the higher level package name, you don't have to change all of the imports in the nested __init__.py file.
+
+// in common/package1/__init__.py after changing common folder to be shared for example:
+
+from .module1 import *
+from .module2 import *
+etc...
+
+# the dot says import the module from the current directory
+If you are more than one level deep, just add a dot for each level
+from ..module1 import *
+
+--
+
+LIMIT SYMBOLS IMPORTED:
+
+- If you have helper functions or symbols you do not want imported and to remain scoped to the module they're in, prefix those symbols with an underscore `_`
+
+// in common/package1/module1.py:
+
+def my_real_func():
+  _helper_private_func()
+  ...
+
+def _helper_private_func():
+  ...
+
+# the helper private function will not be imported with from  .module1 import * inside common/package1/__init__.py -- if Python sees a `_` in front of the funcion, it will not put it into the namespace where the import * statement is being called.
+
+--
+
+Alternative way to export only certain symbols is to use the __all__ built in variable and set it to a list of symbols to export:
+
+// in common/package1/module1.py:
+
+__all__ = ['my_real_func'] 
+
+-Now in common/package1/__init__.py:
+from .module1 import * 
+# will only export this symbol in the import * statement from this module
+
+=======
+
+NESTED PACKAGES:
+
+common
+  __init__.py
+  models
+    __init__.py
+    posts
+      __init__.py 
+      post.py
+      posts.py
+main.py 
+ 
+---
+
+using __all__
+
+// models/posts/posts.py:
+
+__all__ = ['my_func']
+
+// models/post/post.py
+__all__ = ['myfunc_in_post']
+
+// models/posts/__init__.py:
+from .post import *
+from .posts import *  
+
+# only export the symbols from __all__ in the sub packages:
+__all__ = (post.__all__ +
+           posts.__all__)
+
+// in common/models/__init__.py (top level package):
+from .posts import *
+from .users import *
+
+__all__ = (posts.__all__ + 
+          post.__all__)
+           
+
+
+
+// in main.py:
+
+import common.models as models
+
+post = models.my_func_in_post() # you don;t have to go into nested common.models.post.post to get the func etc

@@ -1,0 +1,21 @@
+TUPLES:
+
+Same as Lists except they are immutable and use parens instead of square brackets.
+
+
+(value, value, value)
+
+-The elements in a tuple may or may not be mutable.
+
+**The contents of the tuple can possible change if the elements are mutable, even though you cannot add, replace or remove individual elements to tuples
+
+
+1, 2, 3  # Parens are not needed and are just for clarity to the reader in tuples (only a comma between the values is needed)
+(1, 2, 3)
+
+Make a tuple with a single value:
+1, 
+(1,)  # the comma is required after the value to make it a tuple
+
+Empty tuple:
+()

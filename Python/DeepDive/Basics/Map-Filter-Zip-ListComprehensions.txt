@@ -1,0 +1,145 @@
+MAP, FILTER, ZIP:
+
+-Built in higher order functions
+
+-Return generators - these are iterables that do not run calculation function or operation on the elements to generate a new iterable until needed.  (so that if you have one stored, but wind up not needing the result, then the operations will not run)
+
+***IOW, the calculations are deferred until you iterate through the returned generator and ask for the values in code, and after the operations are run the generator is exhausted.
+
+*If you want to run the operations again later, you need to wrap the returned generator in a list() to make it a list
+
+Ex: results = list(map(add, l1, l2))
+
+MAP:
+
+map(func, *iterables)
+  *iterables -> variable number of iterable objects
+  *func -> function that takes as many args as there are iterables
+  # RETURNS -> Iterator (generator) that calculates the function applied to each iterable passed in to map when the calculation is needed
+   Iterator stops when one of the iterables have been exhausted
+
+Ex:
+
+l1 = [1,2,3]
+l2 = [10,20,30, 40]
+
+def add(x,y):
+  return x + y
+
+map(add, l1, l2))
+
+#-> passes in index for each iteratable into the function arguments and returns an iterator conaining [11,22,33]
+*Note that the operation stops after the shortest iterable (l1) is exhausted)
+*Also note that the number of iterables matches number of args in the function
+
+With a lambda example:
+
+map(lambda x, y: x + y, l1, l2)
+
+---
+
+FILTER:
+
+-Takes a single function with a single argument
+-Takes a single iterable
+-returns iterator containing all elements which return Truthy in the function calculation
+
+Ex:
+
+# eliminate falsey values:
+
+l = [0,1,2,3,4] # 0 is falsey
+filter(None, l) # returns iterator of [1,2,3,4] since 0 is falsey
+
+# test elements for condition:
+
+def is_even(n):
+  return n % 2 == 0
+
+filter(is_even, l) # -> [0,2,4]
+
+----
+
+ZIP:
+
+-not a higher order function
+
+-takes multiple iterables and returns tuples containing the corresponding index values of each iterable
+
+*Will stop at shortest iterable passed in has been exhausted
+
+l1 = [1,2,3]
+l2 = ['a','b','c']
+l3 = [10,20,30]
+
+zip(l1, l2, l3) #-> [(1, 'a', 10), (2, 'b', 20), (3, 'c', 30)]
+
+Exsample with string iterable:
+
+l1 = [1,2,3]
+l2 = 'string'
+
+zip(l1, l2) #-> [(1, 's'), (2, 'r'), (3, 'i')]
+
+Example: return string values with their index position:
+
+my_range = range(100)
+my_string = 'abc'
+
+list(zip(my_range, my_string)) #-> [(0, 'a'), (1, 'b'), (3, 'c')]
+
+----
+
+=========================
+
+LIST COMPREHENSIONS:
+
+-Can be more expressive and easier to understand than using map and filter
+
+-NOTE: Unlike map/filter the calculations are run immediately on the iterable whether you iterate through them or not (a generator is not used or returned)
+
+-Similar to a for loop over each element in the iterable:
+
+Syntax:
+[<expression on x> for <varname> in <iterable>]
+
+-To return a generator object (make it a generator expression), wrap the statement in round parens instead of square brackets:
+
+Ex: 
+(<expression on x> for <varname> in <iterable>])
+ 
+
+Ex alternative to map:
+
+l = [1,2,3]
+
+[x**2 for x in l]
+# returns list of each el in l squared -> [1,4,9]
+
+*Very useful with zip for running operation on multiple elements in different lists:
+
+l1 = [1,2,3]
+l2 = [10,20,30]
+
+[x + y for x, y in zip(l1, l2)]
+
+# unpacks zipped tuples to run the expression on each value and add them returning a new iterable: [11,22,33]
+(this is an alternative to using map)
+
+--
+
+Alternative to filter:
+
+-add an if clause statement at the end of the list comprehension which will only run the expression on the iteratable element if the if case is true:
+
+[x for x in l if x > 0]
+
+# first expression x just returns the element
+  if it is greater than 0
+
+Example combining map and filter alternative (using both higher order functions) in a list comprehension instead (this is much easier to read than using filter and map together in one statement:
+
+[x**2 for x in range(10) if x**2 < 25]
+
+# this combines a map and filter operation in an easy to read list comprehension - filter results less than 25 and only run the mapping operation on x if that is the case
+

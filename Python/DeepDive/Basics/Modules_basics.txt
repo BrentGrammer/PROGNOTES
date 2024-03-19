@@ -1,0 +1,81 @@
+MODULES:
+
+-Unlike C, the import statement loads modules dynamically at runtime.
+-Modules are objects with properties and methods and are of the type ModuleType
+
+-A module can be thought of as a namespace - a dictionary that contains labels/symbols and what they correspond to.
+
+-Where does Python look for modules with the import statement?
+  sys.path #<-- this is a list of folder paths where Python will look for the module to load it into memory
+* keep in mind that the root of the project has a special meaning - everything inside that is a module of some kind (package or plain module), or som ancillary file such as .gitignore files, docker files, etc.
+
+Note: the filename of the module file becomes the module name
+
+---
+
+VIRTUAL ENVIRONMENTS:
+
+-A copy of python is made and installed into a different directory as a base root for it to run.  (you can see where by importing the sys module and checking sys.prefix)
+
+----
+
+SYS.PATH:
+
+-This is where python looks for modules when they are imported.  sys.path contains a list of paths python is aware of.
+
+-Modules that are imported are loaded into memory (at runtime) and stored on the locals() or globals() scope dictionaries as a key that has a value of the memory address of the loaded module code.  When you import the module to other files, the module is not loaded into memory again, Python simply looks at a reference to the mem addr of the loaded module.
+
+NOTE: python can look into zip files in the path (they must be included in the path) and get source code inside of them or even look into database code (not common)
+
+If you have a problem loading a module check the sys.path to make sure the path to the module folder is listed.
+
+Basic concept of impoty:
+* finders - like functions that search for modules/files - returns a module spec which has the name, loader, and origin of the module (i.e. fractions.__spec__)
+* loaders - load and compile python modules
+* importer - finders with loaders
+
+-The importer goes through various finders to get the module, then the finder tells python what loader to use to load it into memory and it is put in the cache and symbol for it is stored in the globals() variables for use.  It also executes the module code.
+
+
+STEPS OF IMPORT:
+
+1) Python checks sys.modules to see if the module has been loaded already and cached to find the memory reference and just uses that.
+
+2) If it's not cached, a new Modules object is created (types.ModuleType)
+3) The source code of the module file is loaded into memory 
+4) An entry is added to the sys.modules cache for the module (key is the name and the value is the memory address of the module loaded into memory).  
+5) key/symbol with reference is added to the global namespace(globals()) for use
+6) The source code of the module loaded into memory is compiled and executed
+
+*When a module is imported, python executes the module code
+
+NOTE:
+from math import sqrt
+
+**MISCONCEPTION: The entire module is still loaded when using from import syntax, not just the piece after `import`.
+This syntax only affects the symbols put in the namespace.
+-With packages, you can control what is imported however.
+
+Note:
+from math import *
+from othermod import *
+
+# above syntax will take all props/methods and add each symbol for them to the namespace (so you don't have to call the method off the module name object)
+
+# WARNING: If there are any methods in the mod that have the same symbol(name) then the symbol will be overwritten and collide with the other package's identically named property - this can cause bugs, so the above syntax is normally not used.
+
+---------------
+
+IMPORTLIB:
+
+math2 = importlib.import_module('math')
+
+-can be used to reload imports if necessary (by default import will not reload a module if it has already been loaded/imported previously)
+
+-NOTE: You do not want to do this in production, this is only for when you are developing and don't want to restart the program to load a module again etc.
+
+import importlib
+
+importlib.reload(module_name)
+
+

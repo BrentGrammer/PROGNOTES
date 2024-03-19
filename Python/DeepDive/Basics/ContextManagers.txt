@@ -1,0 +1,465 @@
+Context:
+
+allows you to open something (i.e. a file) and so something and do something on exit:
+  -enter() - do something on entering the context
+  -exit() - do something on exiting the context
+
+  common use case is with open (as in open a file) in conjunction with the `eith` statement
+
+The environment with accessible variables and objects.
+
+-Pattern for using context management:
+
+  Create an object
+  Do something with that object
+  Clean up the object after done using it (this happens automatically with managers)
+
+WITH:
+
+Syntax: 
+  with <context_obj: returns manager> as <optional obj_name>:
+    # block with access to obj_name
+
+*After unindenting from the with block, the context is cleaned up automatically
+
+--
+
+SCOPE AND WITH:
+
+IMPORTANT: with does not have it's own scope - it uses the scope of wherever it's running.
+  Any variables created in the with block will be accessible in the scope where it is running:
+
+Ex:
+with open('myfile.txt', 'w') as file:
+   	    file.writelines('this is a test')
+  	    row = next(file)
+
+NOTE: the `as` keyword assigns a var to whatever is returned from the __enter__() method in the context manager - this does not have to be used and by default returns None if nothing is returned from the context manager.  You can use a `with` statement without the `as` keyword just fine.
+	    
+
+print(row) # -> 'this is a test' - sees row in scope outside of with block because row was created in the with block using the scope with is called in.
+
+ALSO: the returned object used in the as statement is also available in scope:
+
+with MyContext() as obj:
+	...
+
+print(obj) # obj is still available in the scope the with was used in
+
+--
+
+Note: the opional obj name is not required and would be something returned by the context_obj - the context used also may not return anything
+
+Ex using open file:
+
+with open(file_name) as f:
+  #...
+
+-The context manager implements the context management protocol:
+
+  You can create your own context manager by implementing it:
+
+    __enter__() # -> setup of the context manager and optionally return an obj
+    __exit__ # -> tear down / cleanup
+
+with ContextManager() as obj:
+
+-the `with` keyword tells Python that the class you are using implements the Context Manager protocol (implements __enter__ and __exit__)
+-ContextManager is a class that is used to create an instance of a context manager
+-The as obj part tells python to call the __enter__ method of the context mgr class.  i.e. obj = ContextManager().__enter__()
+-When code leaves the block, .__exit__() is called
+
+-Catching Exceptions:
+  In the __exit__ method, return True (silence exception) or False (propogate the exception).
+  The __exit__ method needs to take 3 args: the exception type, exception value and exception trace for Python to use to propogate it.
+
+---------------------------------
+
+USE CASES:
+
+-All of these are based on the basic pattern Enter / Exit (calling __enter__ and __exit__)
+
+-Open / Close: opening and releasing/closing a file 
+-Lock / Release: Thread handling local and release threads
+-Change / Reset: operating with a configuration that you want to reset when done and change back to the original. i.e. change precision of a decimal object temporarily
+-Start / Stop:  timers
+
+----------------------------------
+
+CODE EXAMPLES:
+
+example without using a context (required to close the file manually in a finally block every time):
+
+NOTE: if encapsulating a try catch finally procedure in a function, the finally will run every time even if the function is returned and exited from before it:
+
+def my_func():
+  try:
+    file = open('myfile.txt', 'w')
+    a = 10/0
+  except ZeroDivisionError:
+    return
+  finally:
+    print('error')
+    file.close()
+
+NOTE: The finally will also run if you don't have an except block that catches an error!!
+
+--
+
+Example with context manager:
+
+with open('myfile.txt', 'w') as file:
+	print('is file closed?', file.closed) # file.closed gives you the status
+
+# now with finished and file is closed automatically:
+print('file closed?', file.closed)
+
+# file.closed = False when in with context
+# file.closed = True after context exits with out need to close manually.
+
+NOTE: The with context will still close the file even if you return out of it in a function:
+
+def test():
+	with open('myfile.txt', 'w') as file:
+   	    print('file is open')
+	    return
+	    print('this will not print and file but file is still automatically closed')
+
+-- Even if an error is thrown, the context manager will close the file:
+
+def test():
+	with open('myfile.txt', 'w') as file:
+   	    print('file is open')
+	    raise ValueError()
+
+# File is still closed even with an error being thrown in the context.
+
+--------------------------
+
+CREATING OWN CONTEXT MANAGER EXAMPLES:
+
+-the `with` statement enters a context and just needs an object that implements the enter and exit methods correctly
+
+to create your own implement the protocol:
+  -enter method: optionally returns an object placed in `as` with statement, can also return None or a tuple (consisting of multiple objects) as well
+  -exit method: returns True or False: any error that is thrown will be passed to the exit method and then the error can continue to be propogated or can be handled and stop propogation
+      - return True: the error will be silenced
+      - return False: Python will bubble up the error (i.e. you will see it being raised in the program), exit needs to be told type, traceback and value of the error to propogate
+
+Ex:
+
+# create a class to define your context manager:
+class MyContext:
+	def __init__(self):
+	    self.obj = None
+
+ 	#define enter method passinf in self:
+	__enter__(self):
+ 	   self.obj = 'the return object'
+	   return self.obj
+
+	#define exit method with required args: exception type, val, and traceback:
+	__exit__(self, exc_type, exc_value, exc_tb):
+	    # if there was an exception do something:
+	    if exc_type:
+	        print(f'error: {exc_type}, {exc_value}')
+            #in this case let exception bubble up:
+	    return False
+
+#Use your context manager:
+
+with MyContext() as obj:
+	 ...
+
+
+----------------------------
+
+COMMON BUG (returning a lazy iterator of a resource that has been closed):
+
+
+-You cannot return a lazy iterator to iterate over  from a with block!
+-If the resource to lazily iterate over has been closed, it is not available to evaluate in lazy iteration
+-Commonly occurs with files using context manager  
+
+Solution: 
+1) PREFERRED: use `yield from` to make the object useable from the `as` statement into a generator which will not exit the with context until iteration is complete
+2) Alternatively, make the returned iterator not lazy by converting it to a list: 
+   NOTE: disadvantage is the entire list has to be loaded into memory
+
+
+Ex problem:
+
+def read_data():
+    with open('file.csv') as f:
+        return csv.reader(f, delimiter=',', quotechar='"') # reader returns lazy iterator
+
+reader = read+data()
+
+for row in reader:
+    ...
+
+# results in ValueError because the the file is no longer open and cannot be looped over lazily
+
+SOLUTION 1 Ex:
+
+def read_data():
+    with open('file.csv') as f:
+        yield from csv.reader(f, delimiter=',', quotechar='"') # creates generator and does not exit block until iteration is complete
+
+SOLUTION 2 Ex:
+
+def read_data():
+    with open('file.csv') as f:
+        return list(csv.reader(f, delimiter=',', quotechar='"'))
+
+
+--------------------
+
+OTHER PROTOCOLS WITH CONTEXT MANAGER PROTOCOL:
+
+-A class can implement any other protocol alongside the context manager protocol - it can be a context manager and anything else.
+
+Ex implementing iterator protocol in a context manager:
+
+class DataIterator:
+    def __init__(self, fname):
+        self._fname = fname
+        self._f = None #init to none - will be set by context protocol enter method
+
+    def __iter__(self):
+        return self #implementing iterator protocol
+
+    def __next__(self):
+        row = next(self._f)
+
+    def __enter__(self):
+        self._f = open(self._fname)
+        return self # returning an iterator which is usable in the context with block
+
+    def __exit__(self, exc_type, exc_value, exc_tb):
+        # since the class is also an iterator (not just context man), check if the file is closed before closing
+        if not self._f.closed:
+            self._f.close()
+        return False # let any errors bubble up
+        
+
+data = dataIterator('file.csv')
+
+with data as rows:
+  for row in rows:
+     print(row)
+    
+===================
+
+OTHER USES:
+
+CHANGE/RESET Pattern:
+
+-Change the precision temporarily of a decimal
+-context is available with decimal library by calling decimal.getcontext()
+
+-can change the settings of the context - global context so affects everything after change
+      Ex changing precision: decimal.getcontext().prec = 4 #(default is 28) will return x.xxxx for decimal.Decimal(x)
+
+Ex using context to avoid having to set and reset precision manually:
+
+import decimal 
+
+# note lowercase name of class to emulate using a context mgr. function (like open() for ex)
+class precision:
+    # pass in replacement precision to use in context:
+    def __init__(self, prec):
+        self.prec = prec
+        self.current_prec = decimal.getcontext().prec
+
+    def __enter__(self):
+        decimal.getcontext().prec = self.prec
+        # returns None by default here since no return statement is needed
+
+    def __exit__(self, exc_type, exc_value, exc_tb):
+        decimal.getcontext().prec = self.current_prec #resetting precision here
+        return False # let error bubble up
+
+with precision(3):
+    print(decimal.Decimal(1) / decimal.Decimal(3)) # 1.333
+
+print(decimal.Decimal(1)) # 1.33333333333333333333333333333333 - precision has been reset to 28 default
+     
+       
+NOTE: decimal has a context manager built in:
+
+   # the local context manager built into decimal returns a context you can use to change precision etc.:
+with decimal.localcontext() as ctx:
+    ctx.prec = 3
+    print(decimal.Decimal(1) / decimal.Decimal(3)) # 1.333
+
+---
+
+START/STOP Pattern:
+
+-example is using a timer to measure the start and stop time of an operation:
+
+from time import perf_counter, sleep
+
+class Timer:
+    def __init__(self):
+        self.elapsed = 0
+
+    def __enter__(self):
+        self.start = perf_counter()
+        # return instance of class to be able to go back and read the start and stop vals after exiting context:
+        return self
+
+    def __exit__(self, exc_type,exc_value,exc_tb):
+        self.stop = perf_counter()
+        self.elapsed = self.stop - self.start
+        return False
+  
+with Timer() as timer:
+    sleep(1)
+
+print(timer.elapsed) # returns the time elapsed which is about 1 second due to the sleep run 
+
+---
+
+-Redirecting where STDOUT goes to (i.e. can redirect it to send data to a file instead of printing out in a console, etc.)
+
+import sys
+
+class OutTiFile:
+    # pass in file name to send STDOUT to
+    def __init__(self, fname):     
+        self.f_name = fname
+        # store default stdout
+        self._current_stdout = sys.stdout
+
+    def __enter__(self):
+        # open file in write mode:
+        self._file = open(self._fname, 'w')
+        # change stdout:
+        sys.stdout = self._file
+
+    # reset stdout and close file it's sent to:
+    def __exit__(self, exc_type, exc_value, exc_tb):
+        sys.stdout = self._current_stdout
+        self._file.close()
+        return False
+
+with OutToFile('test.txt'):
+    print('Line 1', end='') # will print to the file instead of the default stdout
+
+with open('test.txt') as f:
+    print(f.readlines())
+
+# -> 'Line 1'
+
+------
+
+REENTRANT CONTEXT:
+
+-You can re-enter the same context manager inside a with block
+
+-example creating a list maker:
+
+class ListMaker:
+    def __init__(self, title, prefix='- ', indent=3):
+        self._title = title
+        self._prefix = prefix
+        self._indent = indent
+        self._current_indent = 0
+        print(title)
+
+    def __enter__(SELF):
+        self._current_indent += self._indent
+        return self
+
+    def __exit__(self, exc_type, exc_value, exc_tb):
+        # remove the indent on exit:
+        self._current_indent -= self._indent
+        return False
+
+    def print_item(self, arg):
+        s = ' ' * self._current_indent + self._prefix + str(arg)
+        print(s)
+
+with ListMaker('Items') as lm:
+    lm.print_item('Item 1')
+    # re-enter context mgr to indent further using the same instance:
+    with lm:
+        print('sub item a')
+        with lm:
+            print('******')
+    lm.print_item('Item 2')
+        print('sub item b')
+
+# prints:
+Items 
+   - Item 1
+      - sub item a
+         - ******
+etc.
+   
+    
+-------------------------------
+
+CONTEXT MANAGERS WITH GENERATORS:
+
+- One of the great things in python is to be able to go from a generator function to a context manager.
+- A generator operates similarly to a context manager (yielding the value on enter and clean in a finally block when next(mygen) is called)
+
+NOTE: Creating your own context manager class is not robust, and Python comes with decorators to handle exceptions etc. when using a generator in a context manager
+
+Example generator acting like a context manager:
+
+def open_file(fname, mode):
+    f = open(fname, mode)
+    try:
+        yield f
+    finally:
+      try:
+        f.close()
+      except StopIteration:
+        pass # silence the iter error from calling next the last time
+
+gen = open_file('t.txt', 'w')
+file = next(gen)
+# ...do work with file
+next(file) # -> closes the file resuming the generator finally block
+
+
+***Ex of class creating a generic ctx mgr using a generator:
+
+class GenContext:
+    def __init__(self, gen, *args, **kwargs):
+        # store the generator by generator passed in and pass along any args
+        self._gen = gen(*args, *kwargs)
+
+    # implement ctxt mger protocol:
+    def __enter__(self):
+        # on enter call the next() on the generator passed in to get to yield statment
+        # yield the obj desired to return in the ctx:
+        obj = next(self._gen)
+        return obj   
+
+    def __exit__(self, exc_type, exc_value, exc_tb):
+        try:
+            next(self._gen) #runs cleanup in generator function passed in
+        except StopIteration:
+            pass # silence the normal stop iteration from calling last next on the gen (i'ts not an error)
+        return False
+
+# Now use the class with a generator to make your context manager:
+
+with GenContext(open_file, 'test.txt', 'w') as f:
+    # do work with file returned 
+
+------------------
+
+CONTEXTMANAGER DECORATOR:
+
+-You can use a decorator directly on a generator function to turn it into a context manager cleanly.
+
+-Use the standard library contextlib module.  - use contextlib.contextmanager
+  -This lib handles complex error handling (i.e. propogating an error in the with block back into the generator context manager so it can handle it in the exit function.
+
+

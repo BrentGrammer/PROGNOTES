@@ -160,8 +160,12 @@ function compare(a, b) {
 
 ### BST Binary Search Tree
 
+- At any one node you have a link to a parent and a link to potentially two children.
 - Rule at every node: The left side (including all sub-children) is less than or equal to, the right side is greater than the node.
 - Algo for this is similar to Quick Sort (uses a pivot where everything on the left is less than and everything on the right is greater than)
+- It's possible to have duplicate nodes in some BSTs (B+ trees)
+- Searching a node in a BST is O(logn) (where n is the number of nodes in the tree)
+  - Or "it takes the height of the tree amount of searching to find a node"
 
 ### Find (Depth First)
 
@@ -236,3 +240,12 @@ function dfs(head, needle) {
   return search(head, needle);
 }
 ```
+
+## Binary Trees
+
+- You have either 0, 1, or 2 children.
+- Full Binary Tree: Every node has two children and all levels are filled in evenly completely.
+- Partial Complete Binary Tree: If you have one child missing at the bottom level
+- Complete Binary Tree: Every node has it's max children on it (except for leaves which will have none)
+  - Note this is different from a full tree which will have the levels all complete, but here we can have 2 children for one node with their parent sibling having no nodes.
+  - Also different from a partial complete (which actually has more nodes than a complete tree) because a partial complete tree parent sibling will have only one node instead of two.

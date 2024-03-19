@@ -1,0 +1,69 @@
+﻿https://www.instagram.com/p/BsWPHJEF7JW/
+BLOCKS:
+
+-based on indentation and start with a colon
+
+toplevelblock:
+  new block:
+    nested block
+
+top level block
+
+Syntax note: you can write lists on multiple lines and Python will not register a new block with indentation:
+List = [ value,
+         value,
+         value ]
+
+use \ to make Python ignore indentation to put other things o ndifferent lines
+
+
+-----------
+
+f-strings (Python 3.6)
+If you use an f-string, you just need to mention the identifiers in curly braces. Also, write �f� right before the string, but outside the quotes used.
+
+print(f"I just printed {x} pages to the printer {printer}")
+
+---------
+
+Multiline statements:
+
+Use a backward slash
+print("Hi\
+how are you?")
+You can also use it to distribute a statement without a string across lines.
+
+a\
+=\
+10
+print(a)
+
+
+b. Put the string in triple quotes
+print("""Hi
+       how are you?""")
+
+--------------
+
+Python Docstrings
+
+A docstring is a documentation string. Like a comment, this Python Syntax is used to explain code. But unlike comments, they are more specific. Also, they are retained at runtime. This way, the programmer can inspect them at runtime. Delimit a docstring using three double quotes. You may put it as a function�s first line to describe it.
+
+def func():
+  """
+    This function prints out a greeting
+  """
+  print(�Hi�)
+func()
+        
+>>> sayhi.__doc__ #prints the docstring
+
+Note: The interpreter is unable to get the docstring to a function if it isn�t the first thing in the python function.
+
+-------
+
+Multiline comments:
+
+"""This comment
+is spanned across
+multiple lines"""

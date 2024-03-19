@@ -1,0 +1,109 @@
+LAMBDAS:
+
+-Another way to create functions
+
+-Useful for passing as short inline anonymous functions
+
+-These are ANONYMOUS Functions
+
+-the expression is evaluated and returned when the lambda is called.
+
+-The entire lambda expression creates and returns a Function Object with the parameters listed and the expression as the body
+(When you actually call the lambda, the expression is evaluated and returned)
+
+-Lambdas can be assigned to variables or passed in as parameters.
+
+
+Main differences between lambdas and named functions:
+
+- there is no def and name for the function. It is anonymous
+
+-You can only have ONE Expression in the body of a lambda (no assignments etc. can be done) 
+lambda x: x = 5 # not allowed
+
+-The expression is automatically evaluated and returned where as in named functions you need to explicitly return something or None is returned
+
+-You cannot do annotations in lambdas
+
+NOTE: Lambdas are not closures
+
+----
+
+Syntax:
+
+-colon is required and delimits the end of the parameter list
+
+lambda [optional parameter list]: expression
+
+Ex:
+
+lambda x: x * 2
+
+lambda x, y: x + y
+
+Calling a lambda (assign to var and call):
+
+my_func = lambda x: x + 2
+
+my_func()
+
+Passing a lambda:
+
+def my_func(a, fn):
+  return fn(a)
+
+my_func(2, lambda x: x * 2)
+# returns 4
+
+-------------------
+
+LAMBDAS AND SORTING:
+
+-sorted(mylist) comes with python - returns a new list
+
+Example sorting case insensitive alphabetical order:
+
+*All characters have a code (i.e. an ASCII code) and capital characters have a lower number than their lower case equivalents - so they will be sorted first regardless of alphabetical order by default in sort functions.
+
+sorted takes a named argument `key` which can be set to a lambda to iterate through the list and sort the item based on the return value of the lambda function passed to the key.
+
+Ex:
+
+mylist = ['a', 'C', 'B', 'd']
+
+sorted(mylist, key=lambda char: char.upper()) 
+
+# -> ['a', 'B', 'C', 'd'] - all items converted to uppercase and sorted on that char code
+
+
+---
+
+
+Iterate through keys of dictionary sorted:
+
+my_dict = { 'abc': 1, 'ghi': 3, 'def': 2 }
+
+sorted(my_dict) 
+# -> returns the keys sorted: [ 'abc', 'def', 'ghi' ] (normally iterating over keys would does not gaurantee order)
+
+Sort a dictionary by value instead of by key:
+
+-Use key parameter to base the sort on the value:
+
+sorted(my_dict, key=lambda k: my_dict[k])
+# this also returns a list of keys of the dict, but sorted based on their value instead of the key
+
+-
+
+Sort a list of strings based on the last character:
+
+l = ['Adam', 'Bart', 'Xavier']
+
+sorted(l, key=lambda name: name[-1])
+
+Note: sorted uses Stable Sort - this will retain the order of items from the original list if their values are equal.
+
+
+
+
+

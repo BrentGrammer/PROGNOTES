@@ -1,0 +1,9 @@
+
+
+Methods of handling exceptions:
+
+1) Look before you leap
+ -Use an if statement to check if operation is possible and else to handle the error (ex. checking if an object is an iterable before iterating over it)
+
+2) Ask for Forgiveness Later:
+use a try except block (simply iterate over an object and if it fails go into except block)

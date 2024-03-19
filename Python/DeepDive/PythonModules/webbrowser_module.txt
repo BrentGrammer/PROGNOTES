@@ -1,0 +1,23 @@
+webbrowser module (part of the standard library with python)
+
+import webbrowser
+
+## open a web page (launches default browser):
+webbrowser.open('https://website.com')
+
+Example program to open google maps page with address args:
+# import sys as well to get command line arguments in sys.argv
+import webbrowser, sys, pyperclip
+
+# sys.argv = ['webscrape.py', 'arg1', 'arg2', etc.]
+
+# check if any command line arguments were entered (the length will be 1 if no args, and more than 1 if args passed):
+if len(sys.argv) > 1:
+  # join the list of args - slice it to get the index 1 to the end of the list (first index is program name call):
+  address = ' '.join(sys.argv[1:])
+else:
+  # no args, so assume user has text copied to clipboard
+  address = pyperclip.paste()
+
+# https://www.google.com/maps/place/Nob Hill Inn/
+webbrowser.open('https://www.google.com/maps/place/' + address)

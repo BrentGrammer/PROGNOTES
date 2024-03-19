@@ -1,0 +1,147 @@
+CLASSES:
+
+-declare with class keyword
+
+-the initialization is done with a __init__ method.  This initialization occurs after the object instance has been created.
+
+-The first arg to __init__ is required and is the object that was created and is called 'self'
+
+(Python makes the object instance available in the first parameter of methods as `self` by convention)
+**NOTE:  When instantiating a class, in the init method any params that are required start after self - self is builtin and ignored as a param that needs to be passed in on instantiation and is automatically read.
+
+Ex: __init__(self, param1)
+
+my_obj = My_Class(param1) <-- no need to pass in self, just the other params
+
+-The other args after that can be any params passed in.
+
+-You can overwrite how comparison operators behave on the object instances by defining methods with the following names and specifying the behavior that occurs when the corresponding operators are used in the code:
+
+__eq__ --> ==
+__lt__ --> <
+__gt__ --> >
+__le__ --> <=
+__ne__ --> !=
+
+class Rectangle: 
+  def __init__(self, width, height):
+    self.width = width
+    self.height = height
+
+  def area(self):
+    return self.width * self._height
+
+  def perimeter(self):
+    return 2 * self.width + self._height
+
+  # you can overwrite builtin methods with __methodName__:
+  def __str__(self):
+    return 'This is a string rep of the obj'
+
+  # you can define an equal compare function:
+  def __eq__(self, other):
+    # check if object passed in is of the same class:
+    if isinstance(other, Rectangle):
+      return self.width == other.width and self.height == other.height
+    else:
+      return False
+
+
+# create an instance by calling the classname and passing in any args
+
+r1 = Reactangle(10, 20)
+
+# you can set and overwrite values and monkey patch attributes:
+r1.width = 100  --> creates a width with 100 value
+r1._width --> accesses the private designated width property set to 10
+
+# you can call the intsance methods - self (the object instance) is implicitly passed into the method by Python and it is not needed to specify that arg:
+
+r1.area()
+
+# call the overwritten built in str method on the instance:
+
+str(r1)  # returns string rep of the obj defined instead of default memory address 
+
+# If you compare the object for equality with another object using == then python will use the function defined as __eq__ in the class if present:
+
+r1 == r2 ## will compare the objects based on values as specified in __eq__
+
+-------------
+
+CREATING GETTERS AND SETTERS:
+
+-Set instance properties to be private by preceeding the name with an underscore - note: there are no private properties in Python, this is just a convention to suggest to the user that this property should be left alone and not directly mutated.  
+
+
+class Rectangle:
+  def __init__(self, height, width):
+    self._height = height
+    self._width = width
+
+  def get_width(self):
+    return self._width
+
+  def set_width(self, width):
+    if width <= 0:
+      raise ValueError('Width must be positive')
+    else: 
+      self._width = width
+
+# get the width:
+r1.get_width()
+
+*** THIS IS NOT NECESSARY IN PYTHON USUALLY **
+
+-In python you can use decorators and define a method with the same name as the property which will function as a getter and setter - this allows for backward compatibility if getters and setters were not set up in the first place and allows for adding conditions and checks on the values passed in:
+
+Ex:
+
+
+class Rectangle:
+  def __init__(self, height, width):
+    self.height = height
+    self.width = width
+
+  @property
+  def width(self):
+    return self._width
+
+  @property
+  def height(self):
+    return self._height
+
+  @width.setter
+  def width(self, width):
+    if width <= 0:
+      raise ValueError('must be positive')
+    else: 
+      self._width = width
+
+  def set_width(self, width):
+    if width <= 0:
+      raise ValueError('Width must be positive')
+    else: 
+      self._width = width
+
+# Note how in the __init__ method the values are set using the setter method defined to get conditional validation build in - if this was not done, then a negative number could be used in the initialization and an error would not be raised
+
+
+# you can set the width property using the method defined with the property decorator which tells Python that the name of the function is a property on the class/object and so you can access and set private properties by just using the name:
+
+r1 = Rectangle(10, 20)
+r1.width  --> returns 10 even since this goes through the width method to get that prop
+
+# you can set a value by using the propname.setter decorator which modifies the method of the same name as the property and contains conditions or setting logic and is used when the assignment operator is used with the method name:
+
+r1.width = 100 --> sets _width in the instance object to 100 using the width method using the setter decorator
+
+
+
+
+
+
+    
+
+  
+    

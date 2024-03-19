@@ -75,11 +75,28 @@ class Phonebook:
   - `$ PYTHONPATH=src python -m pytest`
   - This adds the `src` folder (replace with folder containing your source code) to the path so the test can see and import it.
 
-## Pytest
+# Pytest
 
 - Install with pip
 
-### raising errors in tests:
+### Command Commands to run tests:
+
+- Show print statements for debugging: `pytest -s`
+  - run specific test: `pytest -k test_name`
+  - run tests in a file: `pytest -vv ./tests/test_financial_parsers.py`
+  - show full verbose test output: use `-vv` flag
+- Coverage: `coverage run -m pytest arg1 arg2 arg3`
+  - Omit tests from coverage report:
+    - create .coveragerc in root and put:
+    ```shell
+    [run]
+    omit =
+        # ignore all test cases in tests/
+        tests/*
+    ```
+  - Generate a report: `coverage html`
+
+## raising errors in tests:
 
 - use pytest.raises()
 
@@ -91,7 +108,7 @@ import pytest
         phonebook.lookup("Bob")
 ```
 
-### Pytest Fixtures
+## Pytest Fixtures
 
 - The test case indicates the resource it needs specified in its arguments list
 - Pytest looks for a function decorated with `pytest.fixture` and hooks it together at run time (a kind of dependency injection)
@@ -143,7 +160,7 @@ def phonebook(tmpdir): # tmpdir created temp directory for each test
 
 - `python -m pytest --fixtures`
 
-### Paramaterized Lists
+## Paramaterized Lists
 
 - For tests with multiple cases use the paramtrize annotation.
 
@@ -161,7 +178,7 @@ def test_is_consistent(phonebook, entry1,entry2,is_consistent):
   assert not phonebook.is_consistent() == is_consistent
 ```
 
-## Organizing tests in a large project
+# Organizing tests in a large project
 
 - Source code is stored in a `src` folder
 - Tests are stored in a `test` folder
@@ -189,7 +206,7 @@ markers =
   slow: Run tests that use sample data from file(deselect with'-m "not slow"')
 ```
 
-### Pytest Markers
+## Pytest Markers
 
 - Get a list of builtin markers with: `pytest --markers`
   - skip is built in for example: `@pytest.mark.skip("Comment on why this test is skipped")`
@@ -219,7 +236,7 @@ def test_print_fizzbuzz(capsys):
     assert captured_stdout == "1\n2\nFizz"
 ```
 
-## Test Doubles
+# Test Doubles
 
 ### Using a Stub
 
@@ -314,7 +331,7 @@ def test_get_score():
     assert scorer.get_score == 0
 ```
 
-## Coverage
+# Coverage
 
 - use the `coverage` package
 - `coverage run -m pytest`
@@ -330,7 +347,7 @@ def test_get_score():
 - Takes into account branches of if conditionals, etc.
   - if the true condition branch is tested, but not the false condition, then the line is marked as yellow or partially covered in test coverage reports. (yellow means covered but with only one outcome.)
 
-## Mutation Testing
+# Mutation Testing
 
 - Used to determine how good your tests are
 - Start with passing tests, deliberately insert bugs (make a mutant of the code)
@@ -446,7 +463,7 @@ def test_sales_forecasts(capsys):
 - The resulting design after applying these methods may be worse and refactoring will be needed.
   - Short term solution so you can get enough tests in place so you can begin refactoring and fix the design.
 
-## Monkey Patching
+# Monkey Patching
 
 - Meta programming: changing an attribute or piece of code at runtime, exchanging the code that was there when the program started with some other code.
 - Can be a useful strategy for inserting a test double for hard to test code.

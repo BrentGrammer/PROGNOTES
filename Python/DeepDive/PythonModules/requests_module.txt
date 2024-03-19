@@ -1,0 +1,53 @@
+Third party Module -
+
+DOCS: https://requests.readthedocs.io/en/master/
+
+
+*Used to download files from the web:
+
+$ pip install requests
+
+import requests
+
+requests.get('url address of file to download')
+
+# access response status code:
+res.status_code  ### Returns the status code, i.e. 200 as a number
+
+** use raise_for_status method on the response object which will raise an Exception if there was an error or do nothing
+if the download succeeded:
+
+res.raise_for_status()
+
+Ex:
+res = requests.get('https://thisfiledoesnotexist.com/badfile.txt')
+res.raise_for_status()
+## will raise an exception for the file not found with info(i.e. 404 error etc.)
+
+*if you don't want your program to crash on a bad response using this method, then wrap your call in a try except block to handle
+the bad request 
+
+---
+
+SAVING THE FILE:
+
+
+(In Python 3, the two modes produce different results. When you open a file in text mode, either with “r”, or by defaulting the 
+mode entirely, the data read from the file is implicitly decoded into Unicode, and you get str objects.
+If you open a file in binary mode, by supplying “rb” as the mode, then the data read from the file is bytes, with
+ no processing done on them.)
+
+ *You need to open the file in write-binary mode by passing 'wb' as second arg to open()
+
+Ex: 
+file = open(res, "wb")
+
+# You can iterate through chunks of the response file with iter_content() - each chunk is bytes data type and you can specify
+how many bytes each chunk contains (the example passes 100,000 bytes as a chunk size):
+
+for chunk in res.iter_content(100000):
+  file.write(chunk)
+  # will return the number of bytes written on each iteration
+file.close()
+
+

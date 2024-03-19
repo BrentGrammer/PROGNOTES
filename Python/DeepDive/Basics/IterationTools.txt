@@ -1,0 +1,532 @@
+ITERATION TOOLS:
+
+Builtin standard library tools:
+-iter() 
+-reverse()
+-next()
+-len()
+-slice()
+-zip()
+-filter() -- returns iterator and lazy loads (careful about exhaustion), equivalent achieved with a generator expression
+   Ex: (i for i in coll if predicate(i)) or  (i for i in coll if i) --> if there is no predicate function to use
+   -using None to return only truthy elements: filter(None, [0, 1,'',2,False]) # --> returns iterator that will return 1, 2
+
+-sorted()
+-enumerate()
+-min max sum  finds minimum/max/sum value of the iterable, taking into account all elements in the iterable
+-all()
+-any()  returns True if any element in iterable is truthy, False otherwise
+-map()  returns True if all elements in iterable are truthy
+-reduce() -in functools module
+
+--
+
+itertools module:
+
+-Useful functions to work with iterators and iterables
+-Almost every function returns a lazy iterator, not a collection or list etc. - careful about exhaustion
+-Very efficient methods for working with iterables
+
+methods available:
+- islice
+
+- dropwhile --> removes elements while a predicate is true until it's not and yields all remaining elements from that position on:
+   Ex: dropwhile(lambda x: x < 5, [1,2,5,3,4,2]) # --> yeilds 5,3,4,2
+
+- takewhile  --> yields elements until the predicate returns a falsy value: takewhile(lambda x: x < 5, [1,2,5,3]) # -> 1,2
+
+
+- compress --> associates truthiness between two arrays - see notes
+
+- filterfalse --> retains values where predicate evaluates to False (opposite of filter)
+  Ex: filterfalse(lambda x: x < 4, [1,2,10,4,10,10])  #--> will yeild 10, 10, 10 since those els are NOT less than 4
+      filterfalse(None, [0,'',22,3,4, False]) # --> yields falsey els: 0, '', False 
+
+- chain
+- tee 
+- starmap
+- accumulate
+- count
+- cycle
+- repeat
+- zip_longest
+- product 
+- permeutations
+- combinations_with_replacement
+
+--------------
+
+AGGREGATORS:
+
+- functions that iterate through an iterable and return a single value that 
+  usually takes into account(is aware of) every element in the iterable
+
+Ex: min(iterable) 
+# --> finds minimum value in the iterable, taking into account all elements in the iterable
+
+--
+
+Truth association review:
+all objects true except these are falsey:
+None
+filterfalse0 in any numeric type
+empty sequence (list tuple or string) Ex: [] = False, [None] = True (None is still an element inside the list)
+empty maps (dictionaries, sets, etc)
+custom objs with __bool__ or __len__ that returns False/0
+
+Predicate: A function that takes a single argument and returns True or False
+
+Ex: bool(obj) is a predicate (takes single value and returns boolean)
+
+--
+
+ANY/ALL methods:
+
+any(iterable) --> returns True if any element in iterable is truthy, False otherwise
+all(iterable) --> returns True if all elements in iterable are truthy
+
+-any and all are useful by applying a predicate to each element in the iterable.
+Predicate: A function that takes a single argument and returns True or False
+*Use a predicate when you want to create a custom condition on each element of the collection
+
+
+Ex: use all to find if all elements are true:
+l = [1,2,3,0]
+all(l) # returns False since 0 is False.
+
+Ex: use all() find out if all elements in a list are less than 10:
+
+l = [1,2,3,100]
+
+# create a suitable predicate:
+pred = lambda x: x < 10  # returns bool
+
+results = [pred(1), pred(2), pred(100)]
+# -> [True, True, False]
+
+all(results)  # --> False, one of the nums is greater than 10
+
+***Use map or generator expressions to generate the elements in the collection with test condition booleans
+*A better way to do this is use map() which applies the predicate passed in to every element
+
+Ex:
+
+lst = [1,2,3,4,100]
+prod_l = map(lambda x: x < 10, lst) # returns transformed iterable of bools based on custom condition
+all(prod_l) # returns False, 100 > 10
+
+*Can use a generator expression comprehension: 
+
+(fn(item) for item in iterable)
+# Advantage is that the generator will stop as soon as a False value is evaluated and break out of the iteration check
+#  If you need to iterate through the iterable more than once, then don't use a gen expression - the iterable will get exhausted
+
+Ex:
+isLessThan10 = lambda x: x < 10
+lst = [1,2,3,4,100]
+gen_lst = (isLessThan10(item) for item in lst)
+all(gen_lst) # returns False
+
+---
+
+Aggregating with min max and sum:
+
+# creating generator iteratable
+def squares(n):
+  for i in range(n):
+    yield i**2
+
+min(squares(5)) # returns 0, the min value in the collection of ints
+max(sqquares(5)) # returns 16, max int
+sum(squares(5))  # returns 38, sum of all ints
+
+*NOTE: be careful here because if you use a generator iterable, it will become exhausted.
+       You need to recreate it each time if you want to re iterate over it with another AGGREGATORS
+
+Ex:
+  sq = squares(5)
+  min(sq) # 0
+  max(sq) # valueError - reused generator was exhausted
+
+**Gotcha**:
+
+-An exhausted generator will have a truthy value even though it is empty.
+Ex: bool(sq) # returns True
+
+-Python checks the __bool__ and __len__ of objects to determine truthy or false valuation
+Ex:
+class Person:
+  def __len__(self):
+    return 0
+  def __bool__(self):
+    return False
+# since the length/bool is overwritten, this obj will be False
+**NOTE: the __bool__() is called first, if Python does not find the __bool__ method, it looks for
+the __len__ method.  
+If neither are found, the object is evaluated as True by default. 
+
+-You should implement the __len__ method in iterable classes to maintain consistent truthiness based on
+Python's system (empty collections are False)
+Ex:
+class Sqaures:
+  __init__(self, n):
+    self.n = n
+
+  __len__(self):
+    return self.n
+
+  ...
+
+sq = Squares(0)
+bool(sq) # returns False since the __len__ returns passed in 0.
+
+---
+
+Aggregating over a file:
+
+Ex:
+-Make sure all rows in a text file have a length of at least 3 chars
+
+with open(file.txt) as f:
+  result = all(map(lambda row: len(row) >= 3, f)) 
+  # f is an iterator returned by the context manager `with open`
+print(result)
+# --> True, all lines have at least 3 chars
+
+Ex using generator expression:
+result = all(len(row) >= 3 for row in f)
+# Note: you can leave out extra `()` since all just expects a iterator
+
+-----------------------
+
+COMPRESS:
+
+-Uses selectors and a collection to match truthiness between one and return the value if the mapped selector value is truthy
+- *Returns a lazy iterator - careful about exhausting it. 
+
+-A collection of selectors is associated with another data collection by index.  The data collection elements will be filtered which 
+line up with selector elements which are truthy.
+
+Ex:
+
+data = [1,2,3,4,5]
+selectors = [True, False, 0, 1]
+
+compress(data, selectors)
+# --> 1,4
+
+Since the selectors are shorter than the data, the last data element is associated with None
+
+
+----------------
+
+INFINITE ITERATORS:
+
+itertools.count -> returns lazy infinite iterator
+  - has a start and step (like range), but no stop
+  - start and step can be any numeric type, not only integers, can use floats and booleans for example
+
+Ex: count(10, 2) -> start and step -- 10,12,14,etc.
+    count(10.5, 0.1) -> 10.5,,10.6,10.7, etc...
+Can use takewhile to limit the results from infinite iterators:
+
+takewhile(lambda x: x < 10.8, count(10.5, 0.1) -> 10.5,10.6,10.7
+
+--
+
+CYCLE:
+
+itertools.cycle -> returns lazy infinite iterable
+-loop over finite iterable indefinitely
+
+Ex: cycle(['a', 'b', 'c']) -> 'a','b','c','a','b','c','a',etc...
+
+Note: Even if you pass an exhaustable iterator, cycle will produce an infinitely repeating iteration of it.
+
+
+Ex cycling over cards in a deck and putting them 
+hands = [list() for _ in range(4)]
+
+hands_cycle = cycle(hands)
+for card in card_deck():
+  # returns a list for each hand
+  next(hands_cycle).append(card)
+
+
+--
+
+REPEAT: 
+
+itertools.repeat -> returns lazy iterator
+
+- yields same value indefinitely
+
+ex: repeat('spam') -> 'spam','spam','spam','spam', etc....
+
+-Can specify a count to make it finite:
+Ex: repeat('spam', 3) -> 'spam,'spam',spam'
+
+CAVEAT: Items yielded by repeat are the same object - every object yielded is at the same memory address!  Not important for immutable types like strings.
+
+Ex:
+g = repeat([], 4)
+
+lst = list(g)
+[[],[],[],[]]
+
+lst[0].append('hi')
+# [['hi'],['hi'],['hi'],['hi']] --> all of the empty lists are the same object
+
+============
+
+CHAIN:
+
+-itertools.chain(*args)  
+
+- takes variable number of positional arguments, 
+- each argument must be an iterable
+- returns a lazy iterator
+
+-similar to sequence concatenation, but not the same - dealing with iterables (incl. iterators) instead of sequences.
+
+-chain is a lazy iterator itself - it will lazily iterate over the iterables passed in -  it evaluates lazily the first iterable passed to it, and then evaluate and iterate over the second iterable passed, etc.
+
+under the hood chain does this:
+
+for my_iter in (iter1,iter2,iter3):
+  yield from my_iter
+
+--
+
+# using chain to do the same thing:
+
+for item in chain(iter1,iter2,iter3):
+  print(item)
+
+CAREFUL: you must pass iterables you want chained at difference positions:
+
+Ex using chain incorrectly:
+l = [iter1,iter2,iter3]
+
+chain(l) # -> just returns l, and does not chain iter1 iter 2 and iter3, since l is at the first position in arguments list.
+
+
+WARNING: unpacking is eager and not lazy:
+
+chain(*l) #->this iterates entirely through l to unpack the iters.  You don't want this for performance reasons, you want the iters in l to be lazy loaded.
+
+SOLUTION:
+
+- use itertools.chain.from_iterable(it)
+
+-the .from_iterable helper lazily iterates over an iterator of iterables passed in. also iterates lazily over the nested iterables
+- useful for nested iterables when using chain
+
+------
+
+TEE:
+
+- itertools.tee(iterable, n)
+- returns independent lazy iterators in a tuple, NOT an iterator, and NOT an iterable in the tuples 
+
+- this means that the iterators returned are exhaustable
+
+- used to copy iterators
+- useful for iterating through the same iterator multiple times or in parallel
+
+
+Ex:
+
+tee(iterable, 10) 
+# -> (itercopy1, itercopy2, itercopy3, ... )
+***Returns tuple of copies of the iterator which are all different objects!
+
+CAUTION: A tuple of ITERATORS are returned, not the actual iterable
+l = [1,2,3,4]
+
+tee(l, 3)
+# DOES NOT return l 3 times, but a lazy iterator containing the elements of l, not the iterable list l.
+
+**tee returns iterators, not the iterable itself!!
+
+Ex:
+lst = [1,2,3,4]
+
+lists = tee(lst, 2) # list[0] is itertools._tee iterator object, NOT a list iterable!!
+
+list(list[0]) # does return the list [1,2,3,4], but it is now EXHAUSTED
+
+list(list[0]) # returns [] - it is exhausted from being iterated on above
+
+
+-------
+
+MAP
+
+-produces a lazy iterator, NOT an iterable (i.e. a list)
+
+-function used on items must have only one argument
+
+map(lambda x: x**2, [1,2,3,4]) # -> yields iterator of 1,4,9,16 NOT a list
+
+-Alternative syntax that does the same thing as map is a generator expression:
+
+maps = (fn(item) for item in iterable)
+
+i.e. (lambda x: x**2 for x in [1,2,3,4])
+
+
+STARMAP:
+
+-used to operate on nested iterators [[1,2],[3,4]]
+
+lst = [[1,2],[3,4]]
+starmap(operator.mul, lst) # -> 2,12 lazy iterator with results
+
+ACCUMULATE:
+
+itertools.accumulate(iterable, fn) -> returns lazy iterator
+
+-accumulate is similar to reduce, but it also returns the intermediate results during the operation instead of just the final reduced value (only takes intwo args instead of 3 like reduce as well - no initializer)
+
+-Note: order of arguments is not same as reduce.  the fn defaults to addition as the second positional argument.
+
+from itertools import accumulate
+
+lst = [1,2,3,4] 
+accumulate(lst, operator.mul) #-> yields intermediates until final: 1,2,6,24
+
+-----
+
+ZIP:
+
+-returns tuple of values at each index in each iterable passed to it.
+
+Ex:
+zip([1,2],[3,4,5]) # (1,3), (2,4) -->missing 5 since it stops at shortest ;ength
+
+ZIP LONGEST:
+
+itertools.zip_longest(*args, [fillValue=None]))
+
+-used if you want zip to work on the longest length iterable.
+-returns fill values (defaults to None) for indexes missing
+
+Ex:
+zip_longest
+
+itertools.zip_longest([1,2,3],[10,20],['a','b','c','d'])
+
+# --> (1,10,'a'), (2,20,'b'), (3, None,'c'), (None,None,'d')
+
+--------
+
+GROUPBY:
+
+itertools.groupby(data, [keyfunc])
+
+- takes an iterable in the first argument position
+- optional second param is a key function - defaults to uing data arg
+  function takes the item in iterable and returns a group key to group by
+
+- returns lazy iterator of groups - the key and the subgroup
+  A iterator containing tuples of groups: (key, subgroup)
+    -subgroup is an iterator containing the grouped items
+
+**NOTE: The group_by tool creates a new group every time a key in the iterable changes - so the iterables must be SORTED by the grouping key.
+
+iterable passed to groupby (tuples):
+(1,20,100)
+(2,20,201)
+(1,11,101)  
+# --> results in 3 groups! group of key 1, group with key 2, and group of key 1
+
+(1,20,100)
+(1,11,101)
+(1,12,102)
+
+(2,20,201)
+(2,21,201)
+
+(3,20,200)
+(3,31,301)
+(3,32,302)
+
+groups = groupby(iterable, lambda x: x[0]) 
+# group by the first key of each item in iterable
+
+# call next on the iterator returned to get the groups one by one:
+next(groups)
+
+# -> returns tuple with key and group iterator: (1, sub_iterator)
+# you can call next on the sub iterator to get elements in the group.
+
+NOTE: the subiterators all use the same original iterator, so if you don't call next on a sub iterator returned and go to the next group (i.e. next(groups)), then python will automatically iterate through the skipped sub iterator items to get the iterator pointer at the right spot to start iterating over items in the next group.
+
+=============================
+
+COMBINATRONICS:
+
+---
+
+CARTESIAN PRODUCT:
+
+itertools.product(*args) 
+  -variable num of args - all must be an iterable (could be an iterator)
+
+- Returns lazy Iterator - all of the possible combinations of the elements between multiple collections
+
+-Useful to avoid having to write nested loops to produce.
+
+Ex of 2 dimensional cartesian product:
+
+l1 = [1,2,3]
+l2 = ['a','b','c','d']
+
+product(l1, l2) 
+
+# --> yeilds tuples of all possible combinations of the elements between the lists
+#--> (1, 'a'),(1,'b'),(1,'c'),(1,'d'),(2,'a'),(2,'b'),....etc....
+
+Can also produce 3 dimensional products etc.:
+l1 = [1,2,3]
+l2 = ['a','b','c']
+l3 = [100,200,300]
+
+----
+
+PERMUTATIONS:
+
+itertools.permutations(iterable, r=None)
+
+-produces all possible permutations of a given iterable
+-can specify the length, maxed out at iterable length (r is size, r=None is length of iterable)
+
+** Elements in the iterable are considered all unique (based on position).  repeat values are preserved
+
+-------
+
+COMBINATIONS:
+
+itertools.combinations(iterable, r) 
+# r is the size of the combination
+# with no replacement version - see 2 types below.
+
+itertools.combinations_with_replacement(iterabnle, r)
+# see 2 types below
+
+-Unlike permutations, order of elements is not considered(you can sort them)
+
+-elements of an iterable are unique based on position, not their value (like permutations) - every element is unique even if repeated
+
+2 types of combinations (In Statistics):
+
+- without replacementcan be picked from set - once elements are picked they cannot be picked again.
+- with replacement - once an element has been picked from set it can be picked again.
+
+
+
+
+
+
+

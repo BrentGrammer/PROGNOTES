@@ -1,0 +1,81 @@
+DICTIONARIES:
+
+
+-Like a List, a collection of data.
+-Can use different types of indexes (keys can be strings, etc.),  not just ints.
+-The indexes are called keys and have values to make key/value pairs.
+
+***DICTIONARIES ARE MUTABLE - variables hold references to dictionaries like Lists and they are changed in place.
+
+-Like an object:
+
+spam = {
+  'quantity': 5,
+  'color': 'red'
+}
+
+spam['quantity']   # 5
+
+-Dictionaries are unordered (unlike Lists):
+
+cat = { 'color': 'red', 'quanity': 5 }
+cat == spam ## True -- you can compare dictionaries in Python and order of the values does not matter.
+
+-If a value does not exist in a dictionary and is accessed you get a KeyError exception.
+
+-You can check for keys using in or not in operators:
+  'color' in cat ## returns True
+
+  -Return keys, items, or values of a dictionary in a dict_* List like item (you need to pass it into list() to actually get
+   a List):
+
+  dict.keys()     # [key, key, key]
+  dict.values()   # [value, value, value]
+  dict.items()    # [(key, value), (key2, value2)]
+
+  list(dict.keys())  ## Generates an actual List of the keys.
+
+  -You can use the dict_list data in for loops:
+    for key in dict.keys():
+      print(key)
+
+  -Use multiple assignment to store key and value returned from items() in a for loop:
+    for k, v in dict.items():
+      print(k, v)
+  
+  -Use in or not in operators on dict methods:
+    'value' in dict.values()  ## Returns True or False
+
+------------
+
+GET METHOD:
+
+-Used to handle errors if a key is not found in a dictionary so that the program doesnt crash:
+
+dict.get(<key>, <fallback return value>)
+
+Ex: spam.get('age', 0)  ## will return 0 if age does not exist on the dictionary.
+    user.get('middleName', '')  ## returns blank string if middlename key is not on the dictionary
+
+SETDEFAULT:
+
+-use setdefault() on dictionaries to set a key if it is not already set to a value:
+
+spam.setdefault('age', 2)  ## will assign an age key the value of 2 if it is not on the dict. 
+
+
+--------------
+
+PRETTY PRINT DICTIONARIES:
+
+-Use the pprint standard library module to print a dictionary in a more readable format (sorted and in a column):
+
+import pprint
+
+pprint.pprint(dict)
+
+*You can use pformat() to turn the pretty printed list or dict into a string
+
+dictString = pprint.pformat(dict)
+
+print(dictString)  ## prints the formatted dict as a string

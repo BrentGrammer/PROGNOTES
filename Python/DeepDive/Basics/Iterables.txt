@@ -1,0 +1,717 @@
+ITERABLES:
+
+-A type that can be iterated over and conforms to Python's iteration protocol
+
+-Iterables: Collections that implement and allow iterators to iterate over them.
+-Iterator: An iterable that is exhaustable.
+
+-In order for an item to be iterable it has to implement the iterable (uses __iter__()) or sequence protocol (uses __getitem__())
+-If an object has neither __iter__ or __getitem__ method, then it is not an iterable.
+
+When Python performs an iteration:
+
+1) Python calls the iter() method on the object to iterate over
+2) If the object implements __iter__(), then it is called and an iterator is returned.
+  If the object does not implement the __iter__ method, then it doesn't necessarily fail.
+  -The iter() method will look for __iter__ and use it if it returns an iterator. 
+  -If the __iter__ method is not found then iter() will look for __getitem__ (i.e. as found on a sequence for example) and create an iterator object from it (which resets index to 0 etc.) and return that.
+
+To check if an object is iterable programmatically:
+
+try:
+  iter(obj)
+except:
+  ...not iterable, handle this
+else:
+  ...is an iterable, handle this
+
+----
+
+Note: Iterables implement the __iter()__ method, iterators implement the iter and __next__ method
+
+-Can check by using:
+'__next__' in dir(my_obj) 
+--or-- 
+iter(obj) is obj  #--> if True, then it's an iterator
+
+'__iter__' in dir(my_obj)   #--> if True, is an iterable
+
+Iterator: something that is used to get the next item to be iterated over (no index or concept of ordering is not required, i.e. with a Set).
+*Iterators are consumables (once iteration is done that iterator is disposed of and a new iterator is needed for another iteration)
+
+**An iterable returns a new iterator allowing for repeated iteration over a collection.
+  An iterable can be iterated over multiple times, while an iterator is exhausted after one iteration.
+  (See notes below about how for an iterable implementation, the collection object and iterator are separate)
+
+---
+
+Some Built in iterating operations in python:
+Note: all operations use lazy evaluation and are lazy iterating operations
+
+range() -> returns an iterable
+zip() -> returns an iterator (cannot iterate more than once)
+enumerate() -> returs an iterator
+open() -> returns an iterator
+dictionary.keys() 
+          .values()  } ->  all return iterables
+          .items()
+
+
+PACKED VALUES (synonymous with iterables):
+
+-Any group of values bundled together:
+i.e. Lists, Strings, Tuples, Dictionaryetc.
+
+---
+
+-CREATING AN ITERABLE:
+
+  -Must have a length, a get next item function, must throw some kind of exception if out of bounds (when iteration is done on last item)
+  -Enable use in a for loop
+  -allow for the restarting of an iteration over the same instance of an object
+
+  NOTE: Generator functions are a much more concise way to create iterators.
+
+Note: __next__ is a special method that can be overriden/defined.  Python's built in next() can be used on the object which will call that method.
+
+class Squares:
+  def __init__(self, length):
+    self.i = 0
+    self.length = length
+
+  def __next__(self):
+    if self.i >= self.length:
+      raise StopIteration
+    else:
+      result = self.i ** 2
+      self.i += 1
+      return result
+
+sq = Squares(5)
+while True:
+  try:
+    item = next(sq)
+  except StopIteration:  # the stop iteration will break the loop when last item                             reached
+    break
+
+--
+
+***Generators are a much more concise way to create iterators
+
+Example using a Generator function to create the iterator above in 3 lines:
+
+def squares(length):
+  for i in range(length):
+    yield i ** 2
+
+sq = squares(5)
+while True: 
+    try:
+      item = next(sq)
+    except StopIteration: 
+      break
+
+--------
+
+ITERATORS:
+
+-For custom iteratables, you need to implement the iterator protocol so Python knows it can operate on the object as an iterable.
+
+Iterator: An object that implements the iterator protocol
+
+**When an object is an iterator, Python can use it in for loops etc.
+
+-Note: Iterators become exhausted after being consumed - The iterator is a throw away object and useless after being consumed.
+Solution: Maintaining data of collection should be one object
+          Iterating over the data should be a separate object (throw away object)
+          The point is that the iterator is throw away, but the collection is not
+
+Iterator Protocol:
+ 2 methods:
+   __iter__ # -> returns class instance of the object itself
+   __next__ # -> must return elements until no more and raise a StopIteration
+
+In an Iterable, __iter__ returns a new iterator, while for an Iterator, __iter__ returns itself.
+
+
+class Squares:
+  def __init__(self, length):
+    self.i = 0
+    self.length = length
+
+  def __next__(self):
+    if self.i >= self.length:
+      raise StopIteration
+    else:
+      result = self.i ** 2
+      self.i += 1
+      return result
+
+  def __iter__(self):
+    return self
+
+Note on the __iter__ method:
+When using an iterator in a for loop for example, python first calls __iter__ before calling __next__ on the elements.
+ 
+Python uses the built in iter() function which calls the __iter__ method on the class.  Under the hood Python calls net on the created symbol which is being assigned to iter():
+
+sq = Squares(4)
+sq_iterator = iter(sq)
+whileTrue:
+  try:
+    item = next(sq_iterator)
+  except StopIteration:
+    break
+
+SEPARATING ITERATOR OBJECT FROM COLLECTION OF DATA:
+
+class Cities:
+  def __init__(self):
+    self._cites = ['Paris', 'Berlin', 'Rome', 'London']
+
+  def __len__(self):
+    return len(self._cities)
+
+
+class CityIterator:
+  def __init__(self, cities):
+    self._cities = cities
+    self._index = 0
+  
+  def __iter__(self):
+    return self
+
+  def __next__(self):
+    if self._index >= len(self._cities):
+      raise StopIteration
+    else:
+      item = self._cities[self._index]
+      self._index += 1
+      return item
+
+cities = Cities()
+
+city_iterator = CityIterator(cities)
+
+for city in cities_iterator:
+  print(city)
+
+**Now you just need to create a new instance of the iterator object to start iterating over the collection again, instead of having to create a new instance of the collection object, which could be expensive if the collection is large
+
+Solution to not have to new up the Iterator:
+-The collection object implements the Iterable protocol:
+  __iter__ # - method returns a new instance of the iterator object used to                iterate over the iterable
+
+class Cities:
+  def __init__(self):
+    self._cites = ['Paris', 'Berlin', 'Rome', 'London']
+
+  def __len__(self):
+    return len(self._cities)
+
+  def __iter__(self):
+    return CityIterator(self)
+
+In an iterable, __iter__ returns an iteratorn (usually a new instance)
+In an iterator, __iter__ returns itself
+Note: an iterator is an iterable
+
+Iterators are iterables that become exhausted when consumed
+Iterables never become exhausted
+
+Under the hood, in a for loop, Python is calling the iter() method which returns an instance of the iterator, so Python is not looping over the iterable, but the iterator returned by the iterable collection.
+
+------------
+
+LAZY ITERATORS:
+
+Lazy Evaluation: 
+-Properties may not be populated on object creation
+-Value of the property becomes known or is looked up when it is retrieved/requested (deferred evaluation)
+-After the value is retrieved, it is cached for an identical request
+
+
+***Lazy iteration using an iterator enables you to avoid loading the entire
+collection into memory before iterating.  The iterator's __next__ method allows for loading one element in a collection at a time into memory.
+
+
+
+class Actor:
+  def __init__(self, actor_id):
+    ...
+    self.movies = None
+
+  @property
+  def movies(self):
+    if self.movies is None:
+      self.movies = lookup_movies_in_db(self.actor_id)
+    return self.movies
+
+Example on an iterable:
+-Collection of forum Posts
+-Iterating over the collection lazily would mean looking up the post(s) in the database on each next() call.
+
+Since items are not computed until they are requested, you can create infinite iterables using lazy evaluation
+
+--
+
+Ex lazy loading a property on a circle class:
+
+- The area calculation is only run once per radius value
+- The area method checks if an area property is None and runs the calculation which sets the property to the result (like a cache)
+- The setter of the radius property resets radius to None if a radius is set which triggers the calculation to run on the area method
+
+class Circle:
+  def __init__(self, r):
+    self._radius = r;
+    self._area = None     # --> default is None to trigger calculation
+
+  # @property makes the function name a getter
+  @property
+  def radius(self):
+    return self._radius
+
+  @radius.setter
+  def radius(self, r):
+    self._radius = r
+    self._area = None    # --> reset to None to prevent area retrieving cache
+
+  @property
+  def area(self):
+    if self._area is None:
+      self._area = math.pi * (self.radius ** 2)
+    return self._area
+
+--
+
+Example of lazy loading on an interable:
+
+class Factorials:
+  def __init__(self, length):
+    self.length = length
+
+  def __iter__(self):
+    return self.FactIterator(self.length)
+
+  class FactIterator: 
+    def __init__(self, length):
+      self.length = length
+      self.i = 0
+
+    def __iter__(self):
+      return self
+
+    # The values of the collection are not generated until requested with next()
+    def __next__(self):
+      if self.i > self.length:
+        raise StopIteration
+      else:
+        result = math.factorial(self.i)
+        self.i += 1
+        return result
+
+
+---
+
+UNPACKING:
+
+-Similar to destructuring in JS:
+
+a, b, c = (1, 2, 3)
+# same as a = 1, b = 2, c = 3
+
+a, b, c = 'XYZ'
+# works on strings - a = X b = Y c = Z
+
+*** Can be used to swap variables easily:
+
+b, a = a, b
+#the right side is evaluated first (creates a tuple with memory addresses for values) and then the left side is assigned
+
+--
+
+UNPACKING SETS AND DISTIONARIES:
+
+**dicts and sets are unordered so you can't rely on the order of the values when unpacking!
+
+Iterating through dictionaries:
+
+for key in dict  --> loops through and assigns the key (not the value)
+
+*Dictionaries and Sets are unordered, so the returned keys and elements will not be in any order.
+
+--
+\
+NOTE: You can also declare variables this way:
+
+a, b = 1, 2
+
+Get values from a dictionary: 
+
+dict.values() # - returns an iterable values of the dictionary
+
+# can unpack:
+a, b, c = dict.values()
+
+# return a iterable of keys and values as tuples:
+dict.items()
+
+----
+
+list = [1,2,3,4,5,6]
+
+# parellel assignment/unpacking:
+a, b = list[0], list[1:] # uses slice
+# => a = 1, b = [2,3,4,5,6]
+
+--
+
+* operator:
+
+-similar to spread operator in ES7
+-only available in Python 3.5+
+- works with any iterable, not just sequences (i.e. sets and disctionaries - you cannot slice them since there is no index ordering.)
+- takes remaining elements in an array for unpacking assignment and returns them as a list:
+
+a, *b = list
+# a = 1, b = [2,3,4,5,6]
+
+a, *b = (1,2,3,4,5)
+# a = 1, b = [2,3,4,5] ++> Always unpacks into a list
+
+a, b, *c = [1,2,3,4,5]
+# a = 1, b = 2, c = [3,4,5]
+
+a, b, *c, d = [1,2,3,4,5]
+# a =1, b=2, c = [3,4], d = 5
+
+# use to spread:
+l1 = [1,2,3]
+l2 = [4,5,6]
+combined = [*l1, *l2]
+
+# useful on right side of assignment if you want to get a list of set items from multiple sets or multiple dictionary keys
+
+# Unpacking keys and values from dictionaries - use the ** operator:
+(Works just like the spread operator)
+
+merged dict = { **firstdict, **seconddict, **thirddict}
+## will result in merged object with all props of the passed in objects spread - duplicate keys will be overriden based on the order of the passed in objects).
+
+NESTED UNPACKING:
+
+-Use a tuple to unpack nested values
+
+list = [1,2,[3,4]]
+
+a, b, (c, d) = list
+# assigns a = 1, b = 2, c = 3, d = 4
+
+# example with a sequence instead of nested list:
+list = 1,2,'XYZ'
+
+a, b, (c, d, e) = list
+# assigns a = 1, b = 2, c = 'X', d = 'Y', e = 'Z'
+
+--
+
+Unpacking into different data structure:
+
+-You can unpack sets directly into a list
+
+a = {1,2,3}
+b = {4,5,6}
+
+converted = [*a, *b]
+# [1,2,3,4,5,6] - no need to explicitly convert to a list
+
+----
+
+Unpacking arguments with *args
+
+l = [10,20,30]
+
+def func(a, b, c):
+  # code
+
+func(*l) 
+
+# this unpacks the passed in array to the 3 positional args in the func
+
+
+------------
+
+SORTING ITERABLES:
+
+-Works the same way as sorting sequences since sorting works over any iterable
+
+sorted(iterable) -> returns the sorted list, etc.
+
+sorted(iterable, reverse=True) -> returns in reverse order of default sorting
+
+
+-------------
+
+ITERATING CALLABLES:
+
+-iter() can take a function/callable as a first arg and a second argument which is a sentinel value - the iterated call on the callable passed in will stop when this sentinel value is reached.
+
+Ex:
+
+# return a closure to keep count of i
+def counter():
+  i = 0
+
+  def inc():
+    nonlocal i  # --> done to point to and assign to an outer scoped variable
+    i += 1
+    return i
+  return inc
+    
+  
+cnt = counter()
+
+cnt_iter = iter(cnt, 5)  # will return an iterator that iterates and calls the callable up to the return value of 5 and stop
+
+for c in cnt_iter:
+  print(c)  # 1,2,3,4
+
+-The iter fn will return an iterator that will not go beyond the sentinel value.
+ Calling next(cnt_iter)  will raise a StopIteration exception 
+
+---------------
+
+DELEGATING ITERABLES:
+
+*This is useful if you find yourself defining iterable classes that happen to already be storing an existing iterable.  You can delegate the iteration to the iterator of that encased iterable (by calling iter() on it)
+
+-Often you do not need to write custom iterators and can just delegate that to an existing iterable
+
+*Useful if you might want to write custom iterators - ask if you really need to write a custom iterator, or just use one already available from an iterable. (most iterables in python are lazy iterables as well)
+
+
+- Return a iterator in a class's __iter__() function
+
+Person = namedtuple('Person', 'first last')
+
+class PersonNames:
+  def __init__(self, persons):
+    try:
+      self._persons = [
+        person.first.capitalize() + ' ' + person.last.capitalize() 
+        for person in persons
+      ]
+    catch(TypeError, AttributeError):
+      self._persons = [] 
+
+  
+persons = [Person('michael', 'palin'), Person('Eric', 'idle'), Person('john', 'cleese']
+
+person_names = PersonNames(persons)
+# person_names._persons ---> ['Michael Palin', 'Eric Idle', 'John Cleese']
+
+Note: You cannot iterate over person_names since it is not an iterable and you don't want to access a pseudo private variable (._persons)
+
+-You need to implement the iterable protocol in PersonNames to make instances of it iterable(implement the __iter__ method that returns an iterator on the object you want to iterate over - use the iter() function which takes an iterable and returns it's iterator):
+
+**Doing this delegates the responsibility of the iterator to the list in the class, since the list is an iterable (you don't need to create a separate iterator to return, since the list is an iterable that already has a built in iterator you can use by passing it to iter())
+
+
+class PersonNames:
+  def __init__(self, persons):
+    try:
+      self._persons = [
+        person.first.capitalize() + ' ' + person.last.capitalize() 
+        for person in persons
+      ]
+    catch(TypeError, AttributeError):
+      self._persons = [] 
+
+  __iter__():
+    return iter(self._persons)
+
+# Now an instance of PersonNames is an iterable which you can use iterable operations on.  It will return a new iterable every time.
+
+--------------
+
+REVERSED ITERATION:
+
+OVER SEQUENCE TYPES:
+
+-use reversed(seq)
+
+Ways to reverse iterate:
+
+ - use slice - this is wasteful since it creates a copy of the entire sequence
+  Ex: 
+    for item in seq[::-1]:
+      print(item)
+
+ - more efficient: use a for loop based on the length of the sequence and subtract 1 from i:
+   # downside is it's messy and less readable
+   Ex:
+     for i in range(len(seq)):
+       print(seq[len(seq) - i - 1]
+     
+     for i in range(len(seq) - 1, -1, -1):
+       print(seq[i])
+
+-
+
+**CORRECT WAY: 
+Use Python's reversed method which returns an iterator of the reversed sequence - cleaner and just as efficient as for loop approach:
+
+  -Keep in mind: you need the len and __getitem__ method available on the sequence
+   -Those should be implemented on sequence types implementing the sequence protocol anyways
+
+  Ex:
+    for item in reversed(seq):
+      print(item)
+
+Note: It is possible to override the __reversed__ method
+      -reversed() calls the __reverse__ method on the iterable, and that method
+       must return an iterator.
+
+When calling reversed:
+
+1) looks for __reversed__ method and returns that iterator
+2) if not found, looks for __getitem__ and __len__ and uses that to create the iterator returned
+3) throws exception if no methods found
+
+*For All Other Iterables not sequences, reversed will not work - you need to implement your own __reversed__ method on the iterable
+
+Ex:
+
+lst = [1,2,3,4]
+list(reversed(lst)) # [4,3,2,1]
+
+---
+
+Example creating lazy iterable and custom reverse iteration:
+  -implement the __iter__ method to return a custom made iterable
+  -implement __next__ and __iter__ methods on the cutsom iterator
+
+*You cannot just call reversed() on a custom iterable - you need to implement the __reversed__ method for reversed() to work on it.  The reversed python method looks for a __reversed__ method returning an iterator instead of the __iter__ method
+-Create an iterator that returns an iterator - pass in a reverse paramter defaulted to False in the custom Iterator constructor
+-Call custom iterator with reverse=True in __reversed__ method
+-Store the reverse flag in the custom iterator constructor
+
+_SUITS = ('Spades', 'Hearts', 'Diamonds', 'Clubs')
+_RANKS = tuple(range(2,11) + tuple('JQKA')
+# returns (2,3,4,5,6,7,8,9,10,'J','Q','K','A') the card numbers with ranks
+
+from collections import namedtuple
+
+Card = namedtuple('Card', 'rank suit')
+
+#NOTE: this example just uses the global
+class CardDeck:
+  def __init__(self):
+    self.length = len(_SUITS) * len(_RANKS) # 52 cards
+
+  def __len__(self):
+    return self.length
+
+  def __iter__(self):
+    return self.CardDeckIterator(self.length)
+
+  def __reversed__(self):
+     return self.CardDeckIterator(self.length, reverse=True)
+
+  class CardDeckIterator:
+    def __init__(self, length, reverse=False):
+      self.length = length
+      self.reverse = reverse
+      # keep track of the count
+      self.i = 0
+
+    #define iter method and return self (the iterator)
+    def __iter__(self):
+      return self
+
+    def __next__(self):
+      if (self.i >= self.length):
+        raise StopIteration
+      else:
+        if self.reverse:
+          index = self.length - 1 - self.i
+        else: 
+          # reverse is False, so just iterate normally
+          index = self.i
+
+        suit = _SUITS[self.i // len(_RANKS]
+        rank = _RANKS[self.i % len(_RANKS)]
+        self.i += 1
+        return Card(rank, suit)
+
+deck = reversed(CardDeck())
+for card in deck:
+  print(card)
+#prints in reverse order
+
+NOTE: reversed() works automatically for custom sequences (not for general iterables) as long as the __len__ method is implemented
+      -It returns an iterator that iterates over the seq in reverse, not a reversed seq
+
+       for num in reversed(myseq):
+          ...
+
+----------------
+
+PASSING ITERATATORS INTO FUNCTIONS:
+
+Warning: A function may need to iterate over an iterator to produce a value. This exhausts the iterator and it can no longer be used.
+
+Functions that are expecting an iterable to iterate over will exhaust the iterable if it is an iterator.
+
+Ex:
+l = my_iterator
+
+min(l) # loops through iterator to return the minimum value
+max(l) # raises a StopIteration since l is exhausted and max attempts to iterate over it to find the max value.
+
+-Careful when passing in an iterable(which is an iterator) to a function that needs to iterate over it twice - this will cause an exception.
+
+Ex:
+
+def list_data(csv):
+  for row in csv:
+    ...operation 1
+  for row in csv:
+    ...operation 2
+
+# The iterator csv is exhausted in the first loop, so the second operation will fail over an exhausted iterator
+
+**To protect against this, you need to check if the iterable passed into a function that takes an iterable is an iterator and raise an exception if it is.
+
+-Check if iter() returns the same object passed in (this means the object is an iterator which returns itself)
+-An alternative is to convert the passed in argument to a list (an iterable with a built in iterator).  The con is that you have to load a new list into memory.
+
+Ex:
+
+def list_data(csv):
+  if iter(csv) is csv:
+    raise ValueError('Data cannot be an iterator')
+    # or: csv = list(csv)
+
+  for row in csv:
+    ...operation 1
+  for row in csv:
+    ...operation 2
+
+# Now the function will throw an error if an iterator is passed in (or convert it to a list which does not get exhausted if using that approach)
+
+
+    
+      
+
+
+
+
+
+
+
+
+
+
+
+    

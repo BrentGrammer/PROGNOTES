@@ -1,0 +1,63 @@
+Logging:
+
+-Use the logging module from the standard library.
+
+-Don't use print() to log variables, etc. - they are very hard to remove after you are done with them.  the logging module
+allows you to disable logging printing easily.
+
+-use the basicConfig function and pass it a level keyword and format keyword. 
+-add a filename keyword and set it to a txt file to record all log messages to a text file.
+  ** This will not print the logging messages to console or screen, but just save them in the text file passed in (it will create it if it doesn't exist)
+-use the logging.debug() function to start logging and pass a message to go with the logging data returned.
+** To disable logging the debug info, call logging.disable(logging.CRITICAL)
+
+Example:
+
+import logging
+# setup config for logging:
+logging.basicConfig(filename='logs.txt', level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.disable(logging.CRITICAL)
+
+logging.debug('Start of program')
+
+def factorial(n):
+  logging.debug('start of factorial (%s)' % (n))
+  total = 1
+  # add 1 to include the last n
+  for i in range(1, n + 1):
+    logging.debug('i is %s, and total is %s' % (i, total))
+    total *= i
+  logging.debug('return value is %s' % (total))
+  return total
+
+print(factorial(5))
+
+logging.debug('end of program')
+
+## This will print out the debugging string passed in to check variable values.
+
+====================
+
+LOG LEVELS:
+
+-5 log levels:
+DEBUG     logging.debug       -- lowest
+INFO      logging.info
+WARNING   logging.warning
+ERROR     logging.error
+CRITICAL  logging.critical  -- highest
+
+# you can run operations on these levels to target certain types of logs (i.e. running logging.disable on logging.CRITICAL will 
+disable all messages, since it is the highest level and includes all of the lower levels.)
+
+*These levels are from least important to most important.  Ex: you can call logging.critical('This is a critical error') to make a log
+that records something that went wrong that causes the whole program to crash.
+
+==============
+
+DEBUGGER IN IDYLE:
+
+-Click on Debug in top menu and --> DEBUGGER
+-select all four options - stack local source and global.
+
+

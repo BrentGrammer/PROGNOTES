@@ -1,0 +1,20 @@
+
+
+-Strings that get compiled and can be used as documentation:
+  -They can be returned by calling the built in help function
+
+-can be used with Sphinx for documentation generation
+
+In Functions:
+
+-Can put a string in triple double quotes:
+
+def myFunc():
+  """This is a docstring in a function"""
+   ...code...
+
+help(myFunc)
+# returns name of function and the docstring provided
+
+These strings are stored in a __doc__ property on the object
+

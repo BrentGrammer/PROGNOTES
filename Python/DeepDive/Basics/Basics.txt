@@ -1,0 +1,319 @@
+
+Find python version being used:
+
+import sys 
+
+print(sys.version_info)
+
+--------------
+
+Python is a DYNAMICALLY TYPED language.  
+
+Java is Statically typed - the data type is associated with a variable declaration and any reassigment to the variable must be to a value of the same type.
+
+In Python, a variable can be reassigned a value of any type and there is no association of a strict data type with a variable that contrains what type can be assigned to it.
+
+------------
+
+DUNDER VARIABLES - variables that are set by Python for every program.
+
+--------------
+
+RUNNING PYTHON PROGRAMS OUTSIDE OF IDE:
+
+-First line in program script should be the Shebang line (this tells the OS what version of Python to use):
+
+Windows:
+#! python3
+
+OS10 and Linux:
+#! /usr/bin/env python3
+
+-Create a folder (maybe in user folder) to store Python scripts.
+
+-You can use the terminal to run the script from the folder created.  $ py.exe <folder dir>
+(or open Anaconda Prompt and run python <programname>.py in folder)
+If you're using Anaconda, py.exe will be named python.exe instead, so just replace py.exe with python.exe whenever that comes up in the course.
+
+Also, I had to add another Path Environment Variable containing the full address of the directory containing 
+the python.exe 
+(again, not py.exe if you're using Anaconda) file. For me, this was in C:\Users\YOURUSERNAME\Anaconda3
+
+Add a batch script file (*.bat) tp run the script and execute a pause.exe windows function.
+@python C:\Users\brent\OneDrive\Documents\Language_notes\Python\HelloWorld.py %*
+@pause
+
+The @ symbol tells computer not to display anything just run the line.
+The %* tells os to forward any command line args to the program.
+
+Name the .bat after the program name and put in same folder as python script.
+-run in terminal or run window (windows key R) - c:\<folderpath>\programname.bat
+
+If you write a program that does not need to show the terminal or command window - use @pythonw or @pyw in the
+first line of the batch script.
+(if that doesn't work:
+This answer on a ServerFault (a site like StackOverflow) site seems to work for me: http://serverfault.com/a/162402
+
+In summary: download the chp.exe program ("Create Hidden Process") and put it in a folder that is on your system 
+path. Now when you want to run your program or batch file, put "chp" in front of it. So instead of running "py 
+script.pyw" you now run "chp py script.pyw". Typing "chp" each time you run it is somewhat of an inconvenience 
+though. But if you set up your program as a Scheduled Task, using chp is a painless way to keep the blank window 
+from appearing.)
+
+ADD SCRIPTS FOLDER TO PATH:
+
+-Add scripts folder to path env variable in windows: 
+Go to control panel->system->advanced system settings->system variables - create new
+-add the folder to the path: C:\Users\brent\pythonScripts
+
+*You can now just type the name of the program anywhere and the batch file will be executed
+
+----
+
+ADDING COMMAND LINE ARGS:
+
+-The %* in the batch file will take command line args and pass them to the python script.
+These args can be accessed in the sys.argv prop in python script.
+import sys
+print(sys.argv) <-- array of strings, python script file, ...args
+
+
+
+-------------
+
+None value - special value that means empty or no value here - it is an actual object.
+
+All variables assigned None will share a reference to the same object in memory.
+
+None is useful to assign a placeholder to a variable that you do not want to hold a value initially but later you will reassign it.
+You can also use it to check if there are contents in the variable or if the contents are not present and it is still None.
+
+-----
+
+type() - pass in any data to it and it will return the type.
+
+-useful for debugging in the shell
+
+
+-----
+
+MULTIPLE ASSIGNMENT:
+
+x = ['blue', 'large']
+
+color, size = x
+
+# assigns color to first index and size to second index value
+
+or can use outside of lists:
+
+size, color, cost = 'large', 'blue', 55
+
+*Useful in swap assignment operations:
+
+a = 1
+b = 2
+
+b, a = a, b
+# values are now swapped
+
+--------
+
+Variables:
+
+*Vars are references to a memory address under the hood.
+Python keeps track of the ref count for a address:
+
+var = 10
+other = var -->the address at var now has a ref count of 2
+# other points to the same address as var and is not exactly equal to the value 10
+
+
+You can get the reference count of a address by using:
+ctypes.c_long.from_address(id(var)).value 
+using the ctypes module.
+Note: sys.getrefcount is not accurate since it adds a reference count by calling it - you can use it, just subtract one from the count to get the actual ref count
+
+*When the reference count for an address is 0, the Python memory manager will destroy the value object at the address and free the memory location for use.
+
+Circular References: when an object has an instance var that points to another obj which also has an instance var which points back at the first object.  If you have a var pointing to the first obj for example and then change or remove it's value, then you will have a memory leak because the circular reference will cause a remaining ref count of 1 to still be present on the instance vars addresses.
+
+The Python Garbage Collector looks for circular references and cleans them up so there is no memory leak in these instances
+Note: you can manipulate or turn on and off garabage collection with the gc standard library module. 
+Generally leave it on unless there is a very specific reason to turn it off.  You can also do garabage collection manually with it if it's turned off.
+*In lower versions of Python 3.4 sometimes the garbage collector would not work if there was a destructor __del__ in an object.- this is not an issue in later versions - use python 3.4 or above!
+
+declarations: No keyword necessary:
+
+x = 5 
+#x is declared storing a value of 5
+
+variables can be overwritten: x = 'new value'
+
+VARIABLE REASSIGNMENT:
+
+***Reassigning a variable to a different value creates a new object in memory and then makes the variable point to a new address which stores that new value.
+
+
+
+-----
+
+comparison operators:
+
+==  # there is no === in python
+!=
+
+in Python, variables exist by virtue of being used. You don't need to declare a variable first, so there are 
+no really empty variables in Python. Setting a variable to None is then not the same thing as 
+setting it to a default empty value; None is a value too, albeit one that is often used to signal emptyness.
+
+----------------------
+
+RANGES:
+
+range(n) <-- returns iterable range object of ints from 0 to one int to the left of n (useful in for loops)
+
+range(n, y) <-- returns range of ints from n to one int to left of y
+range(n, y, i) <--returns range of ints from n to one int left of y at the interval of i
+
+Mostly returns range of ints that are greater than the starting number:
+list((range(-3,-7)) <-- returns [] since -7 is less than -3
+
+list(range(7,1,-2)) <--returns [7,5,3]
+
+
+
+--------------------
+
+OBJECTS:
+
+-An object in memory has 2 parts:
+  - a type
+  - a state (the data)
+
+Changing data inside an object is called modifying it's internal state.
+
+Mutable: The internal state of an object can be changed, but the memory address does not change.
+
+Immutable: an object whose internal state cannot be changed (a new memory address bmust be assigned to hold a new replacement object)
+
+---
+
+IMMUTABLE DATA TYPES IN PYTHON:
+
+-Numbers (int, float, Booleans, etc)
+-Strings
+-Tuples - cannot add or replace els in the Tuple
+-Frozen Sets
+-User defined Classes can be immutable
+
+MUTABLE TYPES:
+
+-Lists - can add or replace els in a list
+-Sets
+-Dictionaries
+-User Defined Classes can also be mutable if you allow it on the class
+
+
+SHARED REFERENCES:
+
+In Python, if two variables are assigned to the same value, and the value is immutable, then a shared reference will be set up (both vars will point to the same memory address and a new object will not be created for the second var.
+
+Ex: a = 10, b = 10 ---> both a and b point to the same memory address
+
+NOTE: This does not always occur, so don't rely on this.
+
+
+If the values are identical and the type is mutable, then Python will create a separate object and point each variable to different addresses even though the values assigned are identical (there is no shared reference set up).
+
+Ex: a = [1,2,3], b = [1,2,3] ----> a and b point to separate memory addresses holding separate objects
+
+---
+
+ROUNDING: 
+
+-built in round() method - takes a number and the multiples of 10 to round to.
+Think of the second param as rounding to a certain number of digits after the decimal point.
+The second arg can also be negative (round to certain num of digits before the decimal point)
+Ex:
+
+
+round(x, n=0) # default is n=0
+
+round(x) # returns int
+ data type
+(If you specify n, then you get the same data type you put in(x)
+
+Ex:
+
+n=0 # rounding to closest multiple of one (10 to the power of -0)
+n=-1 # rounding to closest multiple of 10 (10 to the power of -1)
+n=-2 # rounding to closest multiple of 100
+n=-3 # ...1000 etc.
+
+n=1 # rounds to nearest multiple of 0.1
+n=3 # rounds to nearest multiple of 0.001
+
+Ex: round(18.2, -1) # returns 20 (closest multiple of 10)
+
+--
+
+Ties: 
+
+*The way Python rounds numbers in ties uses BANKERS ROUNDING:
+(this can seem to result in unexpected roundings if not understood)
+
+Rounding away from zero:
+-when number is equidistant from the multiple, it is rounded AWAY from zero (up for positive nums and down for negative nums)
+
+Banker's Rounding:
+-rounds to nearest value, but for ties to the nearest even least significant digit
+(least significant digit is the significant digit furthest to the right which is not 0.)
+
+Ex: round(1.25, 1) # rounds to 1.2 (not away from zero) - 2 is the nearest least significant digit that is even
+
+round(1.35, 1) # rounds to 1.4 (nearest event least significant digit)
+round(25, -1) # rounds to 20 (nearest even sign. digit is 2)
+round(15, -1) # rounds to 20 (nearest multiple of ten num with even least sign digit is 2)
+
+WHY USE BANKERS ROUNDING?
+
+-It is less biased than rounding ties away from zero.
+
+Ex: averaging 3 numbers and averaging the rounded value of each
+or if there are many transactions that have ties and are rounded - the rounding will always go up and the decimal dust adds up over time.
+This way, the rounding is less biased and "spread out" to prevent this from happening.
+
+-If you want to round away from zero manually:
+
+sign(x) * int(abs(x)+0.5)
+# sign returns 1 if pos number or -1 if negative num - abs returns the positive absolute version of the number (the positive number if negative for example, int truncates the number)
+
+-you can use builtin python method copysign(x,y) - returns magnitude (abs value) of x with the sign of y
+
+Python version:
+
+from math import fabs, copysign
+
+def round_up(x):
+  return copysign(1,x) * int(fabs(x) + 0.5)
+
+NOTE: you can define a method to use in place of round - but don't call it round to overwrite or monkeypatch the builtin method.
+
+Common convention is to proceed the name with an underscore:
+
+def _round(x):
+  from math import copysign
+  return int(x + 0.5 * copysign(1, x))
+
+
+
+
+
+
+
+
+
+
+
+
