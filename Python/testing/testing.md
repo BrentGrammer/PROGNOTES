@@ -79,7 +79,7 @@ class Phonebook:
 
 - Install with pip
 
-### Command Commands to run tests:
+### Commands to run tests:
 
 - Show print statements for debugging: `pytest -s`
   - run specific test: `pytest -k test_name`
