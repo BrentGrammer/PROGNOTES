@@ -4,11 +4,27 @@
 - Your router connects your private network to the ISP's network, which then connects to other networks on the internet.
 - The Router's Address is known as the "Default Gateway" address.
 
-### VPN (Virtual Private Network)
+## VPN (Virtual Private Network)
 
 - routers can connect geographically separate offices to form a single network. A pair of gateway routers can be used to create a secure virtual private network between the two separate locations.
   - the gateway routers connect each network to the internet, and the routers establish a secure tunnel between them.
   - Note that the size of the networks do not matter, a VPN is used to connect separate geographically located networks.
+
+### Site to Site VPN
+
+- Connections are from a router to a router or a firewall to a firewall
+  - uses the IPSec protocol
+- Different locations (different cities etc.) passing through a insecure network (the internet)
+  - traffic goes through encrypted tunnel
+
+### Remote Access VPN
+
+- Runs from a PC/phone/tablet user device to a router/firewall or VPN gateway.
+- Uses IPSec
+- Clientless(SSL/TLS)
+  - Allows user to go to a site via logging in through SSL/TLS to get access
+- Tunnel established from remote device to a firewall/VPN gateway
+  - Least priveiledge still used.
 
 ### Router Interfaces
 

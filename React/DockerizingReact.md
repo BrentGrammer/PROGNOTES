@@ -123,3 +123,8 @@ services:
 
 - `docker push yourdockeracct/imagename`
 - You can use this image to deploy
+
+# Dockerizing NextJS
+
+- Use a docker file provided by NextJS
+  - see [video](https://www.youtube.com/watch?v=BkHULo3w13k) at timestamp 1:35 for corrections to make to it.

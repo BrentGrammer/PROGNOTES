@@ -10,8 +10,13 @@
   - Can rate limit on Region
   - Can rate limit on requests to the system as a whole (no more than 10k requests per minute, etc.)
 
+### DDoS Attacks
+
 - DDoS attacks are more difficult to prevent (Distributed Denial of Service)
   - Tries to circumvent rate limiting by having a bunch of machines abuse service (it is hard to recognize/identify the machines are working together)
+- Good approach is to use Cloudflare tunnels to expose my docker apps without opening port 80 and 443. it is faster because you can skip the caddy part and safer because no ports are exposed to the public internet
+  - You definitely want to make sure to block all incoming traffic on port 443 and 80 except for cloudflare ips in a firewall like ufw on the backend server. If you dont do that, crawlers will be able to resolve your domain to your backend ip, leaking the ip, bypassing any cloudflare protection.
+  - Alternatives are AWS CloudFront with WAF and Shield (Standard), though one user did not have luck with this
 
 ### Tracking request info
 

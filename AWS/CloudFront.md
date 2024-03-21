@@ -4,6 +4,7 @@
 - Available globally not by region.
 - Improves perf and is cached at the edge to improve user experience
 - DDoS protection from distribution globally
+  - Note that some users did not have luck with this and just switched to using a VPS with Cloudflare or using cloudflare tunnels and got off of AWS
 - integrates with Shield and AWS Web Application Firewall
   - can use AWS WAF web access control lists (web ACLs) to help limit DDoS attacks
 - Client makes request to distant server (database) and the response is returned and cached at the edge location closest to them for future calls.

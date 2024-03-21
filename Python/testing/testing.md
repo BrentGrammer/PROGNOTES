@@ -541,3 +541,17 @@ def test_lookup_weather_not_sunny():
 
 - You'll need to update cassette files if they get out of date
 - Can hinder refactoring if you want to rename the test (the cassette file is named after the test)
+
+### To set vcr config globally:
+
+- It should be in conftest.py, pytest collects fixtures from conftest.py files (in most common cases)
+- see [docs](https://pypi.org/project/pytest-recording/)
+
+```python
+# place in conftest.py
+import pytest
+
+@pytest.fixture(scope='module', autouse=True)
+def vcr_config():
+  return {"record_mode": "once"}
+```

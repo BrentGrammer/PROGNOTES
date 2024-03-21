@@ -2,6 +2,7 @@
 - Overwhelm server with requests from many bots and deny service to normal users
 - AWS Shield Standard - provided protection by AWS enabled by default
 - AWS Shield Advanced: 24/7 Premium protection from DDoS
+  - Expensive - $3,000/mo
 - AWS WAF: Filter requests based on rules (Firewall)
 - CloudFront and Route53: Availability protection - combined with Shield provides attack mitigation at the Edge
 - Being ready to scale is a counter - leverage AWS Auto Scaling
