@@ -50,12 +50,18 @@
   - MongoDB is good choice for fast reads. Other NoSQL databases like Cassandra, Riak, and DynamoDB need read-repair during the reading stage and hence provide slower reads to write performance.
 - Flexible schema
 - Not highly relational data (no complex queries needed)
+- Better for high write frequency data access patterns
 
 ### SQL
 
 - Complex queries will be needed
 - Relational data
 - Strong schema requirements
+- Relational Database based on B+ trees usually
+  - Faster reads, slower writes
+- Smaller data size restrictions in cells
+- BLOB queries are inefficient
+- Comes with ACID gaurantees
 
 ## ElasticSearch
 

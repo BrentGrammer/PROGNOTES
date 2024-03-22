@@ -64,14 +64,3 @@ You could create indexes on these keys.
 
 - Can scale the write master db using Master-Master replication. i.e. multiple masters that replicate from one another.
 - Cons are synchronization knowing where most up to date data is. This is very complex and the ideal solution.
-
-### SHARDING:
-
-#### Partitioning:
-
-- Vertical Partitioning:
-  Split tables by columns into separate tables and put them on a separate database machine
-
-- Horizontal sharding:
-  split by s certain number of rows
-  ID % 3 (0,1,2) and put each group on a separate database

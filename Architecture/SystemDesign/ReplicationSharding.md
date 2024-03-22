@@ -19,10 +19,19 @@
 
 # Shards
 
-- When you have huge amounts of data and it is impractical to replicate it everywhere.
+- When you have huge amounts of data and it is impractical to replicate it everywhere/does not fit in one database.
 - Instead you can split up/partition the data - this is sharding.
   - Split up the database into a bunch of minidatabases called Shards.
 - Shards will usually live on separate machines (not be on the same machine)
+
+#### Partitioning:
+
+- Vertical Partitioning:
+  Split tables by columns into separate tables and put them on a separate database machine
+
+- Horizontal sharding:
+  split by s certain number of rows
+  ID % 3 (0,1,2) and put each group on a separate database
 
 ## Splitting the data
 
