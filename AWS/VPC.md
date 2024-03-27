@@ -1,5 +1,8 @@
 # VPC and Subnets
+
+- Regional service (Regionally resilient)
 - good [intro video](https://www.youtube.com/watch?v=bGDMeD6kOz0)
+- **Default VPC** - only ONE per region created by default. **Custom VPCs** can be many per region.
 - Virtual Private Cloud - private network to deploy resources
 - Linked to a specific region, but spans all availability zones in that region (subnets within the vpc only span one AZ - see below)
 - Each instance in a VPC can have a public (internet accessible) and private (only within VPC accessible) IP address. (you can also turn off public ip address)

@@ -31,7 +31,7 @@ function binarySearch(haystack, needle) {
   let high = haystack.length;
 
   do {
-    const midpoint = Math.floor(low + (high - low) / 2);
+    const midpoint = Math.floor(low + (high - low) / 2); // the distance between high and low then add the offset of the low (when low is not 0 we need this to bump the midpoint of distance into current range)
     const value = haystack[midpoint];
 
     if (value === needle) {
@@ -43,6 +43,34 @@ function binarySearch(haystack, needle) {
       low = midpoint + 1; // we want to drop the midpoint no need to look at it again.
     }
   } while (low < high); // note we do not want <= which would result in a off by one error since the high is not inclusive!
+}
+```
+
+```c#
+public class Solution {
+    public int Search(int[] nums, int target) {
+        int l = 0;
+        int r = nums.Length - 1;
+
+        while (l <= r) // need to include <= in case there is one element in list (otherwise we do not check the one element, for example [5] where target = 5 will ret -1)
+        {
+            int mid = (int)Math.Floor((double)(l + r) / 2);
+            if (nums[mid] == target)
+            {
+                return mid;
+            }
+            if (nums[mid] > target)
+            {
+                r = mid - 1; // you don't want to include mid since it already is not the target and is more than the target here, otherwise we get infinite loop
+            }
+            else
+            {
+                l = mid + 1; // the target must be any element AFTER the midpoint here, so update the left boundary to be 1 past the mid.
+            }
+        }
+
+        return -1;
+    }
 }
 ```
 
@@ -387,7 +415,7 @@ function sum(n) {
 - O(n^2) worst case runtime complexity
   - Quick sort does not always sort quickly depending on if the pivot is not in the middle etc.
   - If the list is reversed and the pivot is `1`
-  - Ideal case would be O(n*logn) (pivot is in the center)
+  - Ideal case would be O(n\*logn) (pivot is in the center)
   - NOT GOOD to use quick sort if you have sorted or almost sorted data (use insertion sort instead for ex.)
   - If data is random and not sorted, then quick sort is good
 - O(1) Memory space since it sorts array in place.

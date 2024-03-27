@@ -204,11 +204,12 @@ Examples:
 - Each producer and consumer potentially have a different schema they agree on.
 - A Schema Registry is used as a schema repository to store all the schemas in a centralized location.
 - Should create schema repositories and not embed them into applications.
-  - Create `.avsc` files containing the schema for each topic
+  - Create `.avsc` files containing the schema for each topic (i.e. in a `schemas/src/main/avro` folder)
+  - Use the name of the record and avsc extension: Ex: `Command.avsc`
   ```avro
   {
     "name": "TopicName",
-    "namespace": "com.some.name.space",
+    "namespace": "com.somedomain.avro.somenamespace",
     "type": "record",
     "fields": [
       {
@@ -223,6 +224,7 @@ Examples:
   - `type`: Usually "record" is a good complex type to use.
   - `fields`: composed of primitives (its possible to nest records)
   - You can generate schema classes or language files i.e. java classes with the tooling. You can use these to build messages for example with a builder pattern.
+- Create the schema by cd'ing into the schemas folder and running `mvn install` after creating the avsc file.
 
 ## Kafka Docker setup
 
@@ -234,3 +236,43 @@ Examples:
 - A broker is run in a schema-registry container and no longer in its own docker container.
 - The producer, for example becomes a `kafka-avro-console-producer` instead of the regular `kafka-console-producer`
 - a `value.schema` property needs to be specified and point to your avro schema for messages in that topic.
+
+## Schema Registry
+
+- Holds reference to schemas (with a numbered id)
+- Confluent library with license to use unless creating a competing SaaS product
+- Use KafkaAvroSerializer in the producer and KafkaAvroDeSerializer in the client.
+  - These are classes/packages maintained by Confluent
+  - Note: to use specific types and classes (get an error about `GenericData$Record cannot be cast...`) use the SPECIFIC_AVRO_URL_CONFIG property set to true (see [video](https://app.pluralsight.com/ilx/video-courses/577e5197-1135-4243-acf8-5784459c459c/6cff53d8-c901-4d2c-8598-905d14513f11/449d3be0-d100-4b8b-8416-726f5949b887) at timestamp 5:15)
+- Uses producer to persist schemas and consumer to retrieve them.
+  - The topic `__schemas` has the schemas
+
+### Communicate with Schema Registry via HTTP
+
+- `http://localhost:8081/subjects/`: see what schemas are registered.
+  - 2 subjects are created per topic, one for the key and one for the value
+  - default behavior of naming subjects are to add a suffix ("value"or "key") to the topic - i.e. `weather-topic-value`
+  - To create the subjects, you need to produce and consume one or more messages setup with the avro schema/serializer/deserializer
+  - Hitting this endpoint will show registered schema subjects (should have key and value per topic for example): (sr = schema registry)
+    ```json
+    [
+      "weather-sr-value",
+      "weather-sr-key",
+      "city-weather-sr-key",
+      "city-weather-sr-value"
+    ]
+    ```
+
+### Record Name Strategy
+
+- Naming the subject
+- topic Name Strategy: name of topic and add a suffix:
+  - {topicname}-key
+  - {topicname}-value
+  - This is the default subject name strategy
+  - unique Subject/Topic (unlike Record Name Strategy)
+  - Forces one record type per topic (handy when we want to produce the same data in a single topic)
+- Record Name Strategy: The name for the key and the value will be represented by the fully qualified schema name
+  - Ex: `com.pluralsight.avro.weather.city`
+- Topic Record Name Strategy: combines topic name with schema name to get a subject name.
+  - unique Subject/Topic (unlike Record Name Strategy)

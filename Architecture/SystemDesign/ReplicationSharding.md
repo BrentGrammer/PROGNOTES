@@ -17,6 +17,18 @@
   - This would mean that the clients in the distant region will not get the updates until the async replication is done.
 - This is only acceptable if it is not necessary to have all replicas up to date all the time (without allowing for a delay)
 
+### Relication patterns
+
+- Master-Slave (Active-Passive) - one leader for writes propagates changes to replicas
+- Master-Master (Active-Active): more than one server that handles writes to eliminate single point of failure and redundancy for the write server. Can load balance between multiple masters or just auto propagate queries to other masters and slaves.
+- Leaders/Masters are promoted when heartbeats stop (heartbeats are packets sent every period (1 second etc) between the machines to detect if they are up and running or have died.)
+
+### Sticky Sessions
+
+- Retain session information for users when you have replicated servers (session information will be on one machine/server and can't be spread out among multiple servers for the same user)
+- Use a Load Balancer to insert session information into a cookie
+  - Cookie contains some hash or integer representing which server the request should be sent to that has the user's session information on it (do not reveal internal addresses etc. in the cookie)
+
 # Shards
 
 - When you have huge amounts of data and it is impractical to replicate it everywhere/does not fit in one database.
