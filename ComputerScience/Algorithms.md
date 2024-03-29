@@ -484,6 +484,11 @@ export default function quicksort(arr: number[]) {
 - Heaps maintain a Weak Ordering (not perfectly ordered, but there is a rule at every point)
 - A heap is always COMPLETE - there are always a left and right node and not just one with the other side empty. There are no gaps.
 
+### Time Complexity
+
+- Insertion is O(log n)
+- Reading a value is O(1)
+
 ### Heap Condition
 
 - The rule about the ordering, i.e. if a MinHeap, every node below must be larger or equal to.
