@@ -276,3 +276,10 @@ Examples:
   - Ex: `com.pluralsight.avro.weather.city`
 - Topic Record Name Strategy: combines topic name with schema name to get a subject name.
   - unique Subject/Topic (unlike Record Name Strategy)
+
+### Confluent Wire Format
+
+- A serialized avro file using KafkaAvroSerializer has 5 extra bytes prefixing the data with metadata.
+  - A normal avro serialized file just has the data in bytes with no prefix
+- You need to handle this if using tools like Java Spark with Kafka Avro Serializer.
+- [video](https://app.pluralsight.com/ilx/video-courses/577e5197-1135-4243-acf8-5784459c459c/6cff53d8-c901-4d2c-8598-905d14513f11/0973956d-1a88-4211-9293-4953b9e26af9)

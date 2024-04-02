@@ -2,11 +2,12 @@
 
 - Regional service (Regionally resilient)
 - good [intro video](https://www.youtube.com/watch?v=bGDMeD6kOz0)
-- **Default VPC** - only ONE per region created by default. **Custom VPCs** can be many per region.
 - Virtual Private Cloud - private network to deploy resources
+- **Custom VPCs** can be many per region.
 - Linked to a specific region, but spans all availability zones in that region (subnets within the vpc only span one AZ - see below)
 - Each instance in a VPC can have a public (internet accessible) and private (only within VPC accessible) IP address. (you can also turn off public ip address)
 - **SUBNETS**: A partition of your VPC network associated with and corresponds to an Availability Zone
+  - Each subnet is set to an AZ on creation and cannot be changed later.
   - Ex: you can have a public subnet accessible by the internet and a private subnet that's not
     - Public: accessible by internet
       - Public example resources: EC2 instances and Load Balancer
@@ -30,6 +31,17 @@
   - NAT Gateway is AWS Managed
   - NAT Instances are self managed by you
   - Route from private subnet goes to NAT Gateway/Instance and that goes to the Internet Gateway
+
+### Default VPC** - only ONE per region allowed and created by default. 
+  - CIDR Range is preset for default VPC to 172.31.0.0/16
+  - Resiliency: One subnet is configured for every AZ in the region.
+  - The subnets cannot overlap with others:
+    - AZ 1: 172.31.0.0/20 -- 172.31.0.0 to 172.31.15.255
+    - AZ 2: 172.31.16.0/20 -- 172.31.16.0 to 172.31.31.255
+    - AZ 3: 172.31.32.0/20 -- 172.31.32.0 to 172.31.47.255
+    - The define the ranges for the subnets that can be used within the VPC.
+- Some services expect a default VPC to exist, so generally should leave it in place, but not use it for anything in production (structure and CIDR range cannot be change and is inflexible)
+- Best practice is NOT to use the default VPC directly
 
 # Security
 

@@ -42,6 +42,10 @@
 - Typically you create an index when you first define your Table.
 - Btree structure under the hood - fat tree that is shorter, so less steps to get to a value
 
+#### When not to use Indexing:
+
+Frequent Write Operations: Avoid excessive indexing if your database experiences frequent insert, update, or delete operations, as indexes can slow down these write operations and consume additional storage space. Indexes should not be used on the columns that are frequently manipulated.
+
 ## SQL vs. NOSQL
 
 ### NoSQL

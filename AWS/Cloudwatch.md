@@ -1,14 +1,40 @@
-# Cloudwatch Metrics
-- Provides metrics for every service in AWS
+# CloudWatch
+
+- 3 main parts/products:
+  - Metrics
+  - Events
+  - Logs
+
+## Cloudwatch Metrics
+
+- called "Datapoints" in AWS and are emitted over time
+  - All have timestamps and a value (the metric itself)
+- Provides metrics and operational data for every service in AWS
 - Metric: a variable to monitor such as CPU Utilization or NetworkIN, billing etc
   - Default is metrics for every 5 minutes
     - Optional every 1 minute (Detailed Monitoring) for additional cost
-  - All have timestamps
+  - Some metrics are automatically monitored by Cloudwatch
+- Can be used to monitor metrics or perform actions based on metrics
 - Can create Cloudwatch Dashboards to view all metrics at once
 - Used to determine things like scaling in and out (looking at CPU utlization or network in and out)
   - NOTE: For EC2 monitoring RAM is not an available metric
+- Cloudwatch can be accessed from anywhere (with permissions)
 
-  ## Example Metrics
+  - Can collect metrics from other cloud platforms or on prem environments with cloudwatch agents (installable)
+
+- Metrics can be from any resources and are not user or machine specific necessarily
+  - We use **Dimensions** which are name value pairs to separate things within a metric. (i.e. the EC2 instance ID and instance type sent as dimensions).
+    - Use dimensions to filter metrics for particular instances etc.
+
+### CloudWatch Namespaces
+
+- A namespace is like a container for monitoring data.
+  - A way to keep things organized and separated.
+- All AWS data goes into a AWS namespace: `AWS/{servicename}` i.s. AWS/EC2
+- You can make your own names (i.e. named after your app etc.) but cannot use the reserved AWS namespaces.
+
+### Example Metrics
+
 - EC2: CPU Utilization, Status Checks, Network (No RAM available)
 - EBS Voluimes: amount of Disk Read/Writes happening
 - S3 Buckets: Bucket Size Bytes, NumberOfObjects, AllRequests
@@ -16,20 +42,29 @@
 - Service Limits: how much you've beenusing a service API
 - You can make CUSTOM METRICS
 
-# Cloudwatch Alarms
-- Triggered notifications for any metric
+## Cloudwatch Events
+
+- Two features:
+  - If AWS service does something (terminated etc.), an event will be generated which can perform another action
+  - You can generate an event to do something at a certain time of day or week.
+
+## CloudWatch Alarms
+
+- Created and linked to a specific metric
+- Triggered notifications
 - Examples:
   - Auto Scaling: increase or decreast EC2 instances to desired count
   - stop or terminate reboot/recover on fail a EC2 instance
   - SNS: send a notification
   - **Set a billing alarm on CloudWatch Billing metric** (**only available in us-east-1**)
 - Can choose a period to evaluate whether to send an alarm
-- Alarm States: 
-  - OK (everything is green)
-  - INSUFFICIENT_DATA (can't figure out whether to send alarm)
-  - ALARM (sends alarm)
+- Alarm States:
+  - `OK` (everything is green)
+  - `INSUFFICIENT_DATA` (starts in this state until enough data gathered or can't figure out whether to send alarm)
+  - `ALARM` (sends alarm/sns notification/email etc.)
 
-# Cloudwatch Logs
+## Cloudwatch Logs
+
 - **Centralizes logs from your AWS resources**
 - Can collect logs from:
   - Elastic Beanstalk - from application
@@ -37,7 +72,7 @@
   - Lambda - function logs
   - CloudTrail based on filter
   - Cloudwatch log agents: Install an agent directly onto EC2 machines or on premise servers to get the logs into AWS
-    - On EC2 instances for ex., by default no logs from the instance will go to CloudWatch.  You need to runa agent on EC2 to push the log files you want
+    - On EC2 instances for ex., by default no logs from the instance will go to CloudWatch. You need to runa agent on EC2 to push the log files you want
     - Make sure the IAM permissions are set to allow the Cloudwatch agent
     - Hybrid agent - works on premise as well
   - Route53 - log DNS queries
@@ -45,10 +80,11 @@
 - Adjustable retention - 1 week, 30 days, year, infinitely etc.
 
 # Amazon EventBridge (formerly CloudWatch Events)
-- Use case: 
- - schedule cron jobs - scheduled scripts that run every hour on a lambda, etc.
-   - Can create a rule to run on a schedule (i.e. invoke lambda every hour)
- - React to a service doing something (send an alert, etc.)
+
+- Use case:
+- schedule cron jobs - scheduled scripts that run every hour on a lambda, etc.
+  - Can create a rule to run on a schedule (i.e. invoke lambda every hour)
+- React to a service doing something (send an alert, etc.)
 - Can use it to trigger lambda functions, SNS notifications, etc. from all sorts of source events from many different AWS services
 - Default Event Bus - events happening from within AWS or your schedules
 - You can also send events through a Partner Event Bus for events coming from external sources outside of AWS like DataDog or ZenDesk
@@ -57,11 +93,12 @@
 - Archive events (all/filter) sent to an event bus (indefinitely or periodically)
 - can replay archived events
 - You send an event and have a target
-    - Example of EventBridge use: invoke an event to run a lambda function every hour.  Targets can be different AWS services, in this case the target is lambda which will run on the scheduled hourly emitted event sent from EventBridge
-    -  EVENT PATTERN: Can also send an event whenever someone logs in to the AWS console for an account and target SNS target to send a notification whenever that happens for ex.
-    - use an EVENT PATTERN: Get notified whenever a EC2 instance gets terminated - get a SNS notification
+  - Example of EventBridge use: invoke an event to run a lambda function every hour. Targets can be different AWS services, in this case the target is lambda which will run on the scheduled hourly emitted event sent from EventBridge
+  - EVENT PATTERN: Can also send an event whenever someone logs in to the AWS console for an account and target SNS target to send a notification whenever that happens for ex.
+  - use an EVENT PATTERN: Get notified whenever a EC2 instance gets terminated - get a SNS notification
 
 # CloudTrail
+
 - Used to audit history of API/events calls made within your AWS account
 - Get history of calls/events made through - AWS console, SDK, CLI, AWS Services
 - Can pipe logs into Cloudwatch Logs or S3
@@ -76,7 +113,7 @@
     - needs to be enabled by creating a new trail and it costs money
     - Ex., S3 objkect level activity (GetObject, PutObject etc)
     - Lambda functions execution activity
-  - CloudTrail Insights events: 
+  - CloudTrail Insights events:
     - Helps you detect unusual activity in accounts
       - inaccurate resource provisioning
       - hitting service limits
@@ -85,4 +122,4 @@
     - have to enable it and it costs money
     - Analyzes activity to create a baseline and then monitors for abnormalities
     - Anomolies appear in CloudTrail console and can be sent to Amazon S3 and an EventBridge event can be automated (to send an email, notification etc)
-    - Retention is 90 days. To keep longer, send them to S3 bucket and analyze them with Athena service 
+    - Retention is 90 days. To keep longer, send them to S3 bucket and analyze them with Athena service

@@ -694,3 +694,25 @@ isNode(isWordBool):
 - You want to get to the point of the node FIRST and then in the post operation delete your way back up.
   - If you delete first, you lose the entire rest of the tree
 - This involves a post traversal operation
+
+## Dynamic Programming
+
+- One thing I realized about dynamic programming that made it a lot easier was realizing you're just building a map of function inputs to outputs based on previously found mappings. When learning it, I think it would have been more obvious if I had been shown an example problem where you just recursively jam everything into a hash map with the keys being the input of the function and the values being the output of the function. Instead, I had to try to wrap my head around "optimal substructure," "loop invariants," and clever array manipulations before I could even understand what was going on. Those are important, but I think it can be overwhelming at first and makes people lose sight of what the algorithm is actually doing. All the array stuff and loops are just optimizations.
+- For example, coin changer II can be solved like what's below in 14 lines and only 1 is doing heavy lifting. It's by no means the fastest way to solve it, but for understanding the essential parts of dynamic programming, I think it's more straightforward. All you have to for this problem is initialize your data structures, define your base cases, define what to do if you've seen the inputs before, then define what to do if you haven't seen the inputs before and store the result into the map of seen cases.
+
+```python
+class Solution(object):
+    def change(self, amount, coins):
+        return self.change_recursive(amount, sorted(coins), len(coins), {})
+
+    def change_recursive(self, amount, coins, coins_considered, solved):
+        inputs = (amount, coins_considered)
+        if amount == 0:
+            return 1
+        if amount < coins[0]:
+            return 0
+        if inputs in solved:
+            return solved[inputs]
+        solved[inputs] = sum(self.change_recursive(amount - coins[c], coins, c + 1, solved) for c in range(coins_considered))
+        return solved[inputs]
+```
