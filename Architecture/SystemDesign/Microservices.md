@@ -406,6 +406,7 @@
 ## Distributed Transactions
 
 - Two methods: 2 Phase Commit (or Retry/Cancel) and SAGA
+- For smaler transactions and strong consistency, 2PC is recommended. For large transactions across more services with more steps, saga is preferred.
 
 ### SAGA vs. 2PC:
 
