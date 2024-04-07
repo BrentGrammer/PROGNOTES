@@ -638,6 +638,7 @@ export default class MinHeap {
 ## Tries (pronounces "trees" as in Retreival Tree)
 
 - If not a priority queue, then probably is a trie
+- The top node is emtpy and you start looking for the first letter of a word from it.
 - called a Trie tree (try tree) or a prefix tree or digital tree
 - Used in things like Auto Complete (if you type an "a" what kind of results should be gotten back? etc.)
   - Can operate in O(1) time given the keys have a minimum/max length
@@ -645,6 +646,7 @@ export default class MinHeap {
 - or a caching mechanism problem that involves a path which can vary at points
   - example: we have a path we want to cache in some sort of graph: `videos/:id/title`
   - `id` in the path can vary, so we would check if videos exists, does :id exist, does the title exist at the end of the path and return the retrieved match.
+- [Good explanation and implementation](https://www.youtube.com/watch?v=oobqoCJlHA0)
 
 ### Runtime
 

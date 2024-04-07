@@ -85,7 +85,7 @@
 
 ### E-notices for billing
 
-- Go to `Billing Preferences` on the left side panel > enable PDF invoices delivered by email
+- Go to Billing and Cost Management > `Billing Preferences` on the left side panel > enable PDF invoices delivered by email
   - This will send cost breakdown to your email so you don't have to login to the aws account to see cost breakdowns. (you get a notice every month)
   - Also check Receive AWS Free Tier alerts to get noticed when run out of free trials
 

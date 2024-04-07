@@ -63,6 +63,13 @@
   - `INSUFFICIENT_DATA` (starts in this state until enough data gathered or can't figure out whether to send alarm)
   - `ALARM` (sends alarm/sns notification/email etc.)
 
+### Creating an Alarm
+- AWS Console > Cloudwatch > All Alarms on the left > Create Alarm > Select Metric
+- Example CPU for an EC2 instance:
+  - Click EC2
+  - Click Per Instance Metrics
+  - Find the instance you want to add monitoring to and the metric (i.e. CPUUtilization for ex.)
+
 ## Cloudwatch Logs
 
 - **Centralizes logs from your AWS resources**
@@ -123,3 +130,7 @@
     - Analyzes activity to create a baseline and then monitors for abnormalities
     - Anomolies appear in CloudTrail console and can be sent to Amazon S3 and an EventBridge event can be automated (to send an email, notification etc)
     - Retention is 90 days. To keep longer, send them to S3 bucket and analyze them with Athena service
+
+## Setting cloudwatch detailed monitoring on EC
+- When creating an EC2 instance, you can go to Advanced Settings > Detailed Cloudwatch Monitoring > enabled
+- NOTE: this comes with a cost and is not free.

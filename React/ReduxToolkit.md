@@ -1,10 +1,19 @@
 # Redux Toolkit
 
+- Repos with examples:
+
+  - [Task app](https://github.com/stevekinney/supertasker)
+  - [Jetsetter](https://github.com/stevekinney/jetsetter-rtk)
+
 - Store is made up of multiple slices
 - use the PayloadAction type to type action args in reducer fns whenever you are using a payload
 
+## Creating a Store
+
 ```javascript
 // store/store.js
+import { configureStore } from "@reduxjs/toolkit";
+
 // pass the .reducer of the slice to the store prop:
 export const store = configureStore({
   reducer: {
@@ -13,7 +22,7 @@ export const store = configureStore({
 });
 ```
 
-### Creating a slice
+## Creating a slice
 
 ```javascript
 // store/cart-slice.ts
@@ -32,9 +41,11 @@ type CartState = {
   items: CartItem[],
 };
 
+// usually it is recommended to make state an object even if you only need a list to start with - this offers flexibility in the future to add keys to the state.
 const initialState: CartState = {
   items: [],
 };
+
 export const cartSlice = createSlice({
   // give slice a name to uniquely identify it
   name: "cart",
@@ -46,7 +57,7 @@ export const cartSlice = createSlice({
       state,
       action: PayloadAction<{ id: string, title: string, price: number }> // this types the payload property
     ) {
-      const itemIndex = state.items.find(
+      const itemIndex = state.items.findIndex(
         (item) => item.id === action.payload.id
       );
       if (itemIndex > 0) {
@@ -56,8 +67,9 @@ export const cartSlice = createSlice({
         state.items.push({ ...action.payload, quantity: 1 });
       }
     },
-    removeFromCart(state, action: PayloadAction<string>) {
-      const itemIndex = state.items.find(
+    // NOTE: if you use the syntax as shown with Type['prop'], if that type every changes in a refactor you won't have to update this (as opposed to using PayloadAction<string> for example)
+    removeFromCart(state, action: PayloadAction<CartItem["id"]>) {
+      const itemIndex = state.items.findIndex(
         (item) => item.id === action.payload // payload is the id string
       );
       if (state.items[itemIndex].quantity === 1) {
@@ -69,22 +81,28 @@ export const cartSlice = createSlice({
   },
 });
 
-// export the action creators which you use to dispatch actions in the app:
+// export the actions which you use to dispatch actions in the app:
 export const { addToCart, removeFromCart } = cartSlice.actions;
+
+// optionally export the reducer to pass into store.js as cartReducer instead of cartSlice.reducer:
+export const cartReducer = cartSlice.reducer;
 ```
 
-### Add extra type info to useDispatch hook: hooks.ts to type dispatch for thunks:
+### Add extra type info to useDispatch hook: hooks.ts to type dispatch for thunks and typing state in useSelector():
 
 ```javascript
 // store/store.ts
 
 //...
+const store = configureStore({ ...yourreducers });
 // add more specific type information about our store to the default useDispatch and useSelector hooks
 
 export type AppDispatch = typeof store.dispatch; // adds more information on which type of actions can be dispatched
 // use the Return typescript helper utility to get the return value of getState() and use that type
 export type RootState = ReturnType<typeof store.getState>;
 ```
+
+### Recommended pattern for using selector and dispatch with typescript:
 
 ```javascript
 // store/hooks.ts
@@ -120,7 +138,7 @@ export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
     // use the custom typed version of useDispatch
     const dispatch = useAppDispatch();
 
-    const cartItems = useAppSelector((state) => state.cart.items)
+    const cartItems = useAppSelector((state) => state.cart.items);
 
     const handleClick = () => {
       dispatch(addToCart({ id: "123", title: "title", price: 1.0 }));
@@ -129,5 +147,76 @@ export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
   ```
 
 ### Async Thunks
+
 - [Example of real world app usage](https://github.com/replayio/devtools/blob/b9e0e68d667ef1b9c8017f2fa85b78a84831db2b/src/devtools/client/debugger/src/reducers/ast.ts)
 - Suggestion to use RTKQuery as default option for fetching data with thunks
+
+## Use Builder over Slice when creating a reducer
+
+- Gives you better typescript hints and recommended way
+- See [video](https://frontendmasters.com/courses/advanced-redux/create-reducer/) at timestamp 2:35
+
+```javascript
+// counter-reducer.ts
+
+// create action
+const increment = createAction("INCREMENT", (amount: number) => {
+  return {
+    payload: amount,
+  };
+});
+
+// first arg is initial state, second is the builder to add cases (i.e. in a switch statement for ex.)
+// state is a WriteableDraft which is a copy of state (you can mutate it directly and immer will resolve for you)
+export const counterReducer = createReducer({ count: 0 }, (builder) => {
+  // note that you do not need to provide a default case (unless for some custom reason) - builder automatically handles the default case if no action matched.
+
+  // pass in the action from actionCreater - auto typed etc.
+  builder.addCase(increment, (state, action) => {
+    // we don't return anything here, just change the state
+    state.count += action.payload;
+  });
+
+  // ... more builder.addCase()s ...
+});
+```
+
+### Redux toolkit comes with nanoid
+
+- You can use the builtin nanoid package to create ids if needed on the frontend:
+
+```javascript
+type DraftTask = Partial<Task>; // create partial so you can make a function to create a full built entity
+
+const createTask = (draftTask: DraftTask): Task => {
+  return { ...draftTask, id: nanoid() }; // import from redux toolkit
+};
+```
+
+## Unit testing
+
+- Everything is functions which makes it easy to test. Pass something in and expect an output.
+
+```javascript
+// tasks-slice.test.ts
+
+// we want to get the reducer and the actions
+import { tasksReducer, addTask, removeTask } from "./tasks-slice";
+
+describe("tasksSlice", () => {
+  // create initial state
+  const initialState = {
+    entities: [
+      createTask({ title: "Write tests" }),
+      createTask({ title: "Make them pass" }),
+    ],
+  };
+  it(`should add a task when the ${addTask}`, () => {
+    const task = createTask({ title: "Profit" }); // helper that you could define in the slice file in source code which you use in the reducer
+    const action = addTask(task);
+    const newState = tasksReducer(initialState, action);
+    // (the reducer unshifts the task in the reducer)
+    expect(newState.entities).toEqual([task, ...initialState.entities]);
+  });
+});
+```

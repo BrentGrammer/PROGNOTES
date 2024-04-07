@@ -402,3 +402,29 @@
   - ElasticSearch could be a store for logs and use Kibana to view them
   - Use Azure Application insights, AWS CloudWatch etc.
   - Can use the centralized place for logs to display dashboards and chart metrics
+
+## Distributed Transactions
+
+- Two methods: 2 Phase Commit (or Retry/Cancel) and SAGA
+
+### SAGA vs. 2PC:
+
+- From [SO post](https://stackoverflow.com/questions/48906817/2pc-vs-sagas-distributed-transactions)
+- Typically, 2PC is for immediate transactions.
+- Typically, Sagas are for long running transactions.
+- Use cases are obvious afterwards:
+  - 2PC can allow you to commit the whole transaction in a request or so, spanning this request across systems and networks. Assuming each participating system and network follows the protocol, you can commit or rollback the entire transaction seamlessly.
+  - Saga allows you split transaction into multiple steps, spanning long periods of times (not necessarily systems and networks).
+
+### Example Use Cases:
+
+- 2PC: Save Customer for every received Invoice request, while both are managed by 2 different systems.
+- Sagas: Book a flight itinerary consisting of several connecting flights, while each individual flight is operated by different airlines.
+
+#### Further considerations:
+
+- Saga is a domain modeling (i.e., technology-agnostic) concept, while 2PC is a technology-specific notion with some (maybe many) vendors implementing it. For an analogy, it's the same if we compare the domain events (bare objects) with message brokers (such as RabbitMQ for example).
+  2PC can be a good choice if you are anyway married to platforms that implement such a protocol. Not all do, and thus I call this a limitation. I see that people found an argument that Saga is more limiting because it's harder to implement, but that's like saying orange is juicier than apple is sweet. Two different things.
+  Consider the human factor too. Some people (developers, architects) are technology geeks. They call business logic or domain model a boilerplate code. I belong to another group of people who consider the domain model the most valuable piece of code. Such a preference also affects decisions between Saga and 2PC, as well as who likes what. I can't explain why you should prefer domain-driven thinking over technology-driven solutions because it won't fit on this page and you will abandon reading my answer. Please find more online, maybe through my writings.
+
+- 2PC prefers consistency, while Saga degrades it to "eventual consistency." If you have a situation where consistency is more important than availability (please read CAP), then maybe you do need a system transaction protocol like 2PC. Otherwise, I recommend going with business transactions such as Saga. Please read System Transactions vs Business Transactions e.g. in PEAA.
