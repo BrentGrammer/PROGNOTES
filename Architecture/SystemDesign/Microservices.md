@@ -403,7 +403,7 @@
   - Use Azure Application insights, AWS CloudWatch etc.
   - Can use the centralized place for logs to display dashboards and chart metrics
 
-## Distributed Transactions
+# Distributed Transactions
 
 - Two methods: 2 Phase Commit (or Retry/Cancel) and SAGA
 - For smaler transactions and strong consistency, 2PC is recommended. For large transactions across more services with more steps, saga is preferred.
