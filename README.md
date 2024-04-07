@@ -9,7 +9,7 @@
 - [GIT](./GIT/Git.md)
 - [Networking](./Networking/)
 - [Architecture](./Architecture/)
-  - [Component Design-Clean Coder series](./Architecture/ComponentDesign/)
+  - [Component Design](./Architecture/ComponentDesign/)
   - [Microservices](./Architecture/SystemDesign/Microservices.md)
 - [Clean Code](./CleanCode/)
 - [Cyber Security](./CyberSecurity/)
