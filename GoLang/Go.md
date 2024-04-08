@@ -1,6 +1,11 @@
 # GoLang
 
-Main syntax notes:
+- [Go Basics Video](https://www.youtube.com/watch?v=8uiZC0l4Ajw)
+### Project Structure:
+- See [example of how to structure go app](https://github.com/golang-standards/project-layout)
+
+
+### Main syntax notes:
 
 - typing syntax:
   - brackets BEFORE the type name for list types: `[]int`
@@ -16,9 +21,24 @@ Main syntax notes:
 - Lists (slices)
   - Appending to a list: `append(myList, item)`
 
+### Capitalizing methods means they are public!
+
+- If you capitalize the first letter of a function name in a package, it can be imported by other packages/modules
+- If you start it with a lowercase name, then it is private and cannot be imported outside the package.
+
+### Importing packages
+
+- Use fully qualified name for importing internal or local packages you created in the app:
+  - ex: `"github.com/BrentGrammer/goapi/api"`
+  - This was created when running go mod init: example: `go mod init github.com/BrentGrammer/goapi`
+
 ### Mod file
 
 - Dependencies and versions are listed in the `go.mod` file
+- `go init my-app` creates mod file
+- `go get {package-name}` installs a package
+- `go mod tidy` - [use to install standard packages imported in main.go](https://go.dev/ref/mod#go-mod-tidy)
+  - go mod tidy ensures that the go.mod file matches the source code in the module. It adds any missing module requirements necessary to build the current module’s packages and dependencies, and it removes requirements on modules that don’t provide any relevant packages. It also adds any missing entries to go.sum and removes unnecessary entries.
 
 ### Running a go program
 
@@ -513,6 +533,12 @@ canMakeIt(myEngine, 50) // can use gas or electric engine
 ## Pointers
 
 - A special type that stores a memory address
+- `*`
+  - When used with assignment represents and gets the memory address: `var p *int32 = new(int32 or *p = 10`
+  - When passed in as a parameter to a func, represents a pointer (mem addr)
+  - When not assigning or as a param, it is a dereferencing and accesses the value: `fmt.Println(*p)`
+- `&`
+  - Used to get the memory address for a pointer or variable: `p = &i`
 
 ### Creating a pointer - use \*
 
@@ -804,12 +830,13 @@ func main() {
     //retrieve the val from a channel:
     var i = <- c // pops the val from the channel i is now = 1
 
-    // we can't print or use anything here as a deadlock will occur. 
+    // we can't print or use anything here as a deadlock will occur.
     // Channels need to be used with goroutines (see below)
 }
 ```
 
 ### Using Channels with Goroutines
+
 ```go
 func main() {
     var c = make(chan int) // this is an unbuffered channel with one value
@@ -827,6 +854,7 @@ func process(c chan int) {
 ```
 
 ### using Channels in a loop
+
 - Use the range keyword
 - In the below example, for each iteration in the loop the value is added to a channel and printed at the same time/concurrently
   - goroutine called
@@ -837,6 +865,7 @@ func process(c chan int) {
   - ...repeat cycle... to end of loop
   - At the end of the process you need to CLOSE THE CHANNEL! otherwise a deadlock will occur.
     - After iterating through all vals, the main function will go back to the top of the loop to wait for another value. We need to close the channel to stop this.
+
 ```go
 func main() {
     var c = make(chan int)
@@ -851,17 +880,188 @@ func main() {
 }
 
 func process(c chan int) {
+    // Need to close the channel when done to notify other parts of the app using it
     // use defer to close channel right before the function exits
     defer close(c)
 
     for i:=0; i<5; i++ {
-        // add a value which allows main func to read from the channel and wait for the read to complete before continuing to next iteration 
+        // add a value which allows main func to read from the channel and wait for the read to complete before continuing to next iteration
         c <- i
     }
 }
 ```
 
 ### Using Buffer Channels (more than one val)
+
 - Channels with more than one value (as in a unbuffered channel)
-- 
-50:52
+- 51:20 timestamp has a more elaborate example of using channels
+
+```go
+import (
+    "fmt"
+    "time"
+)
+
+func main() {
+    var c = make(chan int, 5) // Can store multiple values - 5 ints in this channel
+    // with a regular channel the process function will stay active until the main is done working
+    // with buffered channels it can quickly add 5 values and immediately exit, it does not have to wait for the main func to pop out the value to make room for the next one.
+    // this allows the process function to add values
+
+    go process(c)
+
+    for i:= range c {
+        fmt.Println(i)
+        // do some work before printing the value
+        time.Sleep(time.Seconds+1)
+    }
+}
+
+func process(c chan int) {
+    defer close(c)
+
+    for i:=0; i<5; i++ {
+        c <- i
+    }
+}
+```
+
+## Generics
+
+```go
+// Specify a T type in square brackets after func name:
+func sumSlice[T int | float32 | float64](slice []T) T{ // returns type T (generic)
+    var sum T
+    for _,v := range slice{
+        sum += v
+    }
+    return sum
+}
+
+var slice = []float64{1,2,3}
+// now call it passing in a type for the generic
+sumSlice[float64](slice)
+```
+
+- Using the any type:
+
+```go
+func isEmpty[T any](slice []T) bool{
+    // makes sense using any since we want to check any type of slice
+    return len(slice) == 0
+}
+```
+
+### Unmarshalling JSON
+
+- Unmarshalling a JSON object will load it into a struct
+
+```go
+import (
+    "encoding/json"
+    "io/ioutil"
+)
+
+func loadJSON[T contactInfo | purchaseInfo](filePath string) []T {
+    // use ioutil to read a json file
+    data, _ = ioutil.ReadFile(filePath)
+
+    var loaded = []T{} // initialize empty slice of generic type
+
+    // use json from encoding/json package
+    // unmarshalling json will load it into a struct
+    json.Unmarshal(data, &loaded) // note we pass a reference to loaded instead of passing it in so we don't make another copy
+
+    return loaded
+}
+```
+
+#### Loading JSON to a Struct
+
+```json
+[
+  {
+    "name": "Alex",
+    "age": 29
+  },
+  {
+    "name": "Jason",
+    "age": 38
+  }
+]
+```
+
+```go
+type peopleInfo struct{
+    Name string
+    Age int
+}
+
+// pass generic type as peopleInfo so the func knows what type struct to load into
+var people []peopleInfo = loadJSON[peopleInfo]("./peopleinfo.json")
+
+[]peopleInfo{
+    {
+        Name: "Alex",
+        Age: 29
+    },
+    {
+        Name: "Jason",
+        Age: 38
+    }
+}
+```
+
+### Using generics to make a parent type
+
+- Make a car type that can have a gas or electric engine:
+
+```go
+type gasEngine struct{
+    gallons float32
+    mpg float32
+}
+
+type electricEngine struct{
+    kwh float32
+    mpkwh float32
+}
+
+// in car we can pass a generic of T which can be gas or electric engine
+type car [T gasEngine | electricEngine]struct{
+    carMake string
+    carModel string
+    engine T // generic for the engine
+}
+
+// pass in generic when making the car
+var gasCar = car[gasEngine]{
+    carMake: "Honda",
+    carModel: "Civic",
+    engine: gasEngine{
+        gallons: 12.5,
+        mpg: 40
+    }
+}
+```
+
+## Project Structure:
+
+- See [example of how to structure go app](https://github.com/golang-standards/project-layout)
+
+# Make an API
+
+### Initialize app
+
+- `go mod init github.com/yourname/appname`
+- `mkdir api` create api folder
+  - This is where parameters for specs and response types exist
+  - You should put your yaml spec file here
+- `mkdir cmd/api`
+  - contains the `main.go` file
+- `mkdir internal`
+  - contains most of the code for the api
+  - contains handlers in `internal/handlers/api.go`
+  - contains middleware in `internal/middleware`
+- create a `api.go` file in the `api` folder
+  - write the parameters and responses of endpoints
