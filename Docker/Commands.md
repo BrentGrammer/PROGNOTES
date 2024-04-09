@@ -31,6 +31,8 @@
 - docker volume prune
 - docker container prune
 - docker image prune
+- Kill/delete everything: `docker system prune -a --volumes`
+
 
 ## Shell into a container:
 
@@ -49,3 +51,5 @@
   - **docker-sompose run will build the container if it does not exist (unlike docker run command which requires a docker build first)**
   - Runs a single service part of a docker-compose.yaml file and passes in a command (optional)
   - Removes containers after they shut down automatically --rm
+
+we can use build and image together, docker compose will name the new image with the value of image option. but there's a side effect --> it always trying to "pull" the image first(which doesn't exists because it's a custom name), then print error

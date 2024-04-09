@@ -1,9 +1,11 @@
 # GoLang
 
 - [Go Basics Video](https://www.youtube.com/watch?v=8uiZC0l4Ajw)
-### Project Structure:
-- See [example of how to structure go app](https://github.com/golang-standards/project-layout)
+- [Go API - Basic Example](https://github.com/BrentGrammer/go-api)
 
+### Project Structure:
+
+- See [example of how to structure go app](https://github.com/golang-standards/project-layout)
 
 ### Main syntax notes:
 
@@ -11,6 +13,10 @@
   - brackets BEFORE the type name for list types: `[]int`
   - type comes after name: `var myVar int`
   - arrays declared with {} instead of []: `var slice = []int32{1,2,3}`
+- Variables
+  - use `var` or `const` keywords to declare followed by optional type: `var myString string = 'string'`
+    - Note: if you leave out the type then type is inferred.
+  - Use inference operator to infer type: `:=` - omit var keyword if using
 - loops
   - No parens around the condition: `for x == y {}`
   - use range keyword: `for i, v := range myList {}`
@@ -20,6 +26,8 @@
     - use `utf8.RuneCountInString(myStr)`
 - Lists (slices)
   - Appending to a list: `append(myList, item)`
+- Trailing commas required in structs:
+  - You cannot leave off a trailing comma on the last field definition for a struct literal for example. This will result in syntax errors.
 
 ### Capitalizing methods means they are public!
 
@@ -489,6 +497,7 @@ myEngine.milesLeft() // will calculate using current vals in myEngine
 ### Using Interfaces
 
 - Use interfaces to use structs more generically
+- Interfaces ONLY allow definition of methods, not properties/fields!
 
 ```go
 // Two types of engines, but we want to pass in a general engine type
@@ -1003,11 +1012,11 @@ var people []peopleInfo = loadJSON[peopleInfo]("./peopleinfo.json")
 []peopleInfo{
     {
         Name: "Alex",
-        Age: 29
+        Age: 29, // note the comma needed after last entry in structs
     },
     {
         Name: "Jason",
-        Age: 38
+        Age: 38,
     }
 }
 ```
@@ -1065,3 +1074,17 @@ var gasCar = car[gasEngine]{
   - contains middleware in `internal/middleware`
 - create a `api.go` file in the `api` folder
   - write the parameters and responses of endpoints
+
+### Grabbing URL params in request handler:
+
+- Use Gorilla package to decode them
+
+```go
+	var params = api.CoinBalanceParams{} // struct is defined in api/api.go and represents the url parameters for this request
+
+	// use gorilla package to decode
+	var decoder *schema.Decoder = schema.NewDecoder()
+	var error error
+    // this grabs and decodes the parameters from the url and set it to the values in the params struct
+	err = decoder.Decoder(&params,  r.URL.Query())
+```
