@@ -6,12 +6,20 @@
 
 ### Concurrency
 
+- GoLang uses the Fork-Join model for concurrency ([channels](./Channels.md) are used to join go routines back to a main func for example or communicate between concurrent go routines)
 - Concurrency != parallelization (Parallel execution is a form of concurrency)
 - Concurrency means multiple tasks in progress at the same time
 - Two ways to achieve Concurrency:
   - Jump back and forth between tasks (not more than one running simultaneously)
   - Parallel execution (more than one task running simulatneously - using cpu cores etc)
 - Using goroutines can achieve some level of parallel execution if you have multiple cpu cores.
+
+### Go Scheduler
+
+- Go Routines are managed by GoLang using the Go Scheduler
+- The scheduler will monitor go routines and control their execution
+  - When a blocking call such as an Http request is encountered, control will be released to another go routine to continue execution during the blocking call's work
+  - If not blocking call is encountered, the currently running go routine will continue to execute until the end and then be exited to return control to another go routine to start/continue it's execution
 
 ### Use the go keyword
 
