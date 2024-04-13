@@ -30,3 +30,30 @@
     // this grabs and decodes the parameters from the url and set it to the values in the params struct
 	err = decoder.Decoder(&params,  r.URL.Query())
 ```
+
+## net/http package
+
+### Basic Mux Server using the net/http package:
+
+```go
+import (
+  "fmt"
+  "net/http"
+)
+
+func main() {
+    // create a ServeMux server
+    mux := http.NewServeMux()
+    // create a handler with HandelFunc method
+    mux.HandleFunc("/", helloWorld)
+
+    err := http.ListenAndServe(":8080", mux)
+    if err != nil {
+        fmt.Println(err)
+    }
+}
+// this is the signature for a handler - needs the response writer and pointer to Request
+func helloWorld(w http.ResponseWriter, r *http.Request) {
+    fmt.Fprint(w, "Hello, World")
+}
+```

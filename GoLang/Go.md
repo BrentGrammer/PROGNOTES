@@ -2,6 +2,7 @@
 
 - [Go Basics Video](https://www.youtube.com/watch?v=8uiZC0l4Ajw)
 - [Go API - Basic Example](https://github.com/BrentGrammer/go-api)
+- See [How to Write Go Code](https://go.dev/doc/code)
 
 ## Sub topics:
 
@@ -40,12 +41,31 @@
   - use range keyword: `for i, v := range myList {}`
   - traditional for: `for i:=10; i<10; i++ {}`
 - Strings:
+  - Need to use double quotes `"` for strings
+  - Single quotes `'` are used for Runes (can only put one char in them 'a')
+  - Back ticks are for string literals: \``This will print \n the backslash with n`\`
   - Avoid using `len(str)` to get the length of a string (returns number of bytes)
     - use `utf8.RuneCountInString(myStr)`
 - Lists (slices)
   - Appending to a list: `append(myList, item)`
+- Maps
+  - use "comma ok" syntax to check the value:
+  ```go
+  // inline with if statement defining a var you can use for the check. Vars are scoped to the if block
+  if seconds, ok := timeZone[tz]; ok {
+    return seconds
+  }
+  log.Println("unknown tz:", tz)
+  ```
 - Trailing commas required in structs:
   - You cannot leave off a trailing comma on the last field definition for a struct literal for example. This will result in syntax errors.
+- Public exportable methods
+  - Use a capital letter to make functions importable in other packages: `MyPublicFunc()...` vs. `myPrivateFunc()...`
+
+### Importing
+
+- One of the heuristics to determine if it should look for a local package vs an external module package is the presence of dot in the import path. If the import starts with github.com, it is considered a module. ??
+- Prefix imports of local packages using the string you chose with `go mod init {thisstring}`: `github.com/myname/path/mylocalpackage`
 
 ### Mod file
 

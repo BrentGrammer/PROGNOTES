@@ -6,19 +6,7 @@ Regions: deploy apps and infrastructure
 Availability Zones: Made for multiple data centers
 Edge Locations (Points of Presence): for content delivery as close as possible to user
 
-# Route 53
-- Managed DNS
-- **Routing Policies**:
-  - Simple Routing Policy: simple routing has no health checks, simple call with a url string to get the ip address, for example (NOTE: all other policies have health checks)
-  - Weighted Routing Policy: set weights for different EC2 instances (like load balances) - set percentages. distributes traffic
-  - Latency Routing Policy: Sends back which server is closest to the user to minimize latency - used for users who are dispersed geographically
-  - Failover Routing Policy: Have a primary and failover instance - Route53 does a health check on the primary EC2 instance and if bad, reroutes to the failover instance
-- Example:
-  - A record created to tie a web url string to a IP address
-  - Client gets response from Route53 with the IP Addr and uses it to make a call to the server using it.
-- Cost: about 12 dollars a year for domain and 0.50 per month for hosted zone
-- can use Route53 geolocation routing policy to to block certain geographies.
-
+- [Route53](./Route53.md) is managed DNS
 
 - CloudFront is CDN
 

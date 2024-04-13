@@ -3,6 +3,8 @@
 ### Packages
 
 - Folder with a collection of .go files
+- Variables and code can be package scoped (variables declared at the package scope in one file are accessible in other files in the same package)
+- Convention is to have one main file for the package that matches the name of the package (other files in the same package can be named differently)
 
 ### Module:
 
