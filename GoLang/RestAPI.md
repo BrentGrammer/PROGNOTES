@@ -57,3 +57,14 @@ func helloWorld(w http.ResponseWriter, r *http.Request) {
     fmt.Fprint(w, "Hello, World")
 }
 ```
+
+## Working with JSON
+- using JSON allows us to conform to the Uniform Interface principle (data sent over the wire between systems should be a consistent format/interface i.e. JSON)
+- Use the `encoding/json` package
+- Marshal: Encoding to json - converts a struct into a JSON object that can be passed as a var to other functions for parsing or output.
+- UnMarshal: Decoding from json to a Go Struct
+
+### Marshaling vs. Encoding
+
+- Marhaling/Unmarshaling specifically refer to encoding and decoding from a specifically textual format (like JSON)
+- Encoding/Decoding is more general and refers to transforming data from/to textual or binary formats (i.e. protocol buffers).
