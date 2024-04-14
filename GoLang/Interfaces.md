@@ -3,6 +3,7 @@
 ### Using Interfaces
 
 - Use interfaces to use structs more generically
+    - The interface{} type in Go is a special type that can hold values of any type. Similar to "any" in TypeScript 
 - Interfaces ONLY allow definition of methods, not properties/fields!
 
 ```go

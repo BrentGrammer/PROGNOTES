@@ -3,6 +3,9 @@
 - [Go Basics Video](https://www.youtube.com/watch?v=8uiZC0l4Ajw)
 - [Go API - Basic Example](https://github.com/BrentGrammer/go-api)
 - See [How to Write Go Code](https://go.dev/doc/code)
+- Books:
+  - [Let's Go](https://lets-go.alexedwards.net/)
+  - [Let's Go Further Book](https://lets-go-further.alexedwards.net/#packages)
 
 ## Sub topics:
 
@@ -36,6 +39,8 @@
   - use `var` or `const` keywords to declare followed by optional type: `var myString string = 'string'`
     - Note: if you leave out the type then type is inferred.
   - Use inference operator to infer type: `:=` - omit var keyword if using
+  - Assignment: if the variable has not been declared first, you need to use the `:=` to assign it
+    - if the var has been declared already (`var myVar string`), then you can just use `=` to assign/mutate it.
 - loops
   - No parens around the condition: `for x == y {}`
   - use range keyword: `for i, v := range myList {}`
@@ -66,6 +71,7 @@
 
 - One of the heuristics to determine if it should look for a local package vs an external module package is the presence of dot in the import path. If the import starts with github.com, it is considered a module. ??
 - Prefix imports of local packages using the string you chose with `go mod init {thisstring}`: `github.com/myname/path/mylocalpackage`
+- see path to import internal packages from using `cat go.mod`
 
 ### Mod file
 

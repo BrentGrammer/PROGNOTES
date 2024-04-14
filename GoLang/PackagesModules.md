@@ -36,3 +36,4 @@
 - Use fully qualified name for importing internal or local packages you created in the app:
   - ex: `"github.com/BrentGrammer/goapi/api"`
   - This was created when running go mod init: example: `go mod init github.com/BrentGrammer/goapi`
+- see path to import internal packages from using `cat go.mod`

@@ -2,7 +2,8 @@
 
 - A special type that stores a memory address
 - `*`
-  - When used with assignment represents and gets the memory address: `var p *int32 = new(int32 or *p = 10`
+  - When used on the left side of assignment operator, represents and gets the memory address: `var p *int32 = new(int32)` or `*p = 10` (the value 10 is stored at the mem addr p points to)
+  - When used on the right side of the assignment operator, represents de-referencing a value: `var myVar string = *myStrPtr` (assigns the value at the myStrPtr mem addr to myVar)
   - When passed in as a parameter to a func, represents a pointer (mem addr)
   - When not assigning or as a param, it is a dereferencing and accesses the value: `fmt.Println(*p)`
 - `&`

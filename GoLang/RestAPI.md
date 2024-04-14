@@ -59,6 +59,7 @@ func helloWorld(w http.ResponseWriter, r *http.Request) {
 ```
 
 ## Working with JSON
+
 - using JSON allows us to conform to the Uniform Interface principle (data sent over the wire between systems should be a consistent format/interface i.e. JSON)
 - Use the `encoding/json` package
 - Marshal: Encoding to json - converts a struct into a JSON object that can be passed as a var to other functions for parsing or output.
@@ -68,3 +69,63 @@ func helloWorld(w http.ResponseWriter, r *http.Request) {
 
 - Marhaling/Unmarshaling specifically refer to encoding and decoding from a specifically textual format (like JSON)
 - Encoding/Decoding is more general and refers to transforming data from/to textual or binary formats (i.e. protocol buffers).
+
+### Example sending json response:
+
+```go
+func (app *application) healthcheck(w http.ResponseWriter, r *http.Request) {
+	if (r.Method != http.MethodGet) {
+		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
+	    return
+	}
+
+	data := map[string]string{
+		"status": "available",
+		"environment": app.config.env,
+		"version": version,
+	}
+
+	// convert the map to JSON with Marshal
+	js, err := json.Marshal(data)
+	if err != nil {
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	js = append(js, '\n') // just for formatting add a new line
+
+	// set headers
+	w.Header().Set("Content-Type", "application/json") // we need to do this for json since default header is set to plain text
+	// now write to the response
+	w.Write(js)
+}
+```
+
+### JSON tags
+
+- Used for converting the fields of a struct when Marshaling to JSON so that they conform to JSON standards (casing etc.)
+
+### Reading Request Body
+
+- use ioutil from the "io/ioutil" package
+
+```go
+import (
+	"io/ioutil"
+)
+
+//...
+
+// get the body of the request
+body, err := ioutil.ReadAll(r.Body)
+if err != nil {
+	http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+	return
+}
+// we want to convert the body of the request to a go struct, pass in mem addr of the input struct to mutate it
+err = json.Unmarshal(body, &input)
+if err != nil {
+	http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+	return
+}
+```

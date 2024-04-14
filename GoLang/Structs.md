@@ -6,6 +6,7 @@
 - Structs can hold mixed types by defining them in fields
 
 ```go
+// Declare a type with the `type` keyword NOT var!!!
 type gasEngine struct{
     mpg uint8
     gallons uint8 // 0 - 255
