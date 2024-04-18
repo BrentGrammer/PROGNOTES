@@ -196,11 +196,31 @@ function dfs(graph: AdjList, source: number, needle: number) {
 - Greedy algorithm
   - When you find a shortest path, it is the shortest path in the graph at that individual moment (this will update as you continue to iterate and find shorter paths)
 
+### Intuition
+
+pick the single source. pick the nearest neighbor to it with minHeap. if you don't go directly A->C but instead you go A->B->C, you have to update the cost
+
+#### EXAMPLE:
+
+pick (0,A) cause starting A so A is 0
+
+(10,B) and (2,C) neighbor of A. Add A to visitSet
+
+pick (2,C) with minHeap
+
+(5,B) neighbor of C. Add C to visitSet
+
+You do indirect A->B->C so (5,B) is actually (5+C,B) = (7,B)
+
+minHeap right now have (10,B) and (7,B).
+
+Pick (7,B)
+
 ### General algorithm
 
 #### SETUP
 
-- Use a previous array and fill it with -1sto initialize
+- Use a previous array and fill it with -1s to initialize
   - This is used to store where we came from (which node)
 - Optionally can use a seen array (initialize to all Falses)
   - Depending on data structure, you may not need a seen array

@@ -129,3 +129,8 @@ if err != nil {
 	return
 }
 ```
+
+## Routing
+
+- GET `/customers`: request for a single resource
+- GET `/customers/`: request the customers collection (with ending slash)

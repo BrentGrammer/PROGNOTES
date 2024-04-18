@@ -24,6 +24,7 @@
 - [Strings](./Strings.md)
 - [Structs](./Structs.md)
 - [Variables](./Variables.md)
+- [gRPC](./gRPC.md)
 
 ### Project Structure:
 
@@ -53,6 +54,7 @@
     - use `utf8.RuneCountInString(myStr)`
 - Lists (slices)
   - Appending to a list: `append(myList, item)`
+  - Spread operator comes after the variable: `mySlice...`
 - Maps
   - use "comma ok" syntax to check the value:
   ```go
