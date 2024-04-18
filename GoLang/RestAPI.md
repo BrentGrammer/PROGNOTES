@@ -134,3 +134,39 @@ if err != nil {
 
 - GET `/customers`: request for a single resource
 - GET `/customers/`: request the customers collection (with ending slash)
+
+### Getting the path from the request
+
+- `path := r.URL.Path`
+
+#### Getting params from the url
+
+- can use net/url package:
+
+```go
+package main
+
+import (
+	"fmt"
+	"net/url"
+)
+
+func main() {
+	// simplest method to get the query params:
+	u, _ := url.Parse("http://example.com?key=value&other=otherval")
+	q := u.Query() // q is a map of the query params
+	fmt.Println(q.Get("key"))
+
+    // alternative way:
+	urlStr := "https://example.com/?product=shirt&color=blue&newuser&size=m"
+	myUrl, _ := url.Parse(urlStr)
+	params, _ := url.ParseQuery(myUrl.RawQuery)
+	fmt.Println(params)
+
+	  
+	// example using ok comma pattern to check for a value in the params
+	if _, ok := params["product"]; ok {
+		fmt.Println("Product parameter exists")
+	}
+}
+```
