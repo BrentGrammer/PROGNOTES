@@ -430,7 +430,7 @@
 
 - 2PC prefers consistency, while Saga degrades it to "eventual consistency." If you have a situation where consistency is more important than availability (please read CAP), then maybe you do need a system transaction protocol like 2PC. Otherwise, I recommend going with business transactions such as Saga. Please read System Transactions vs Business Transactions e.g. in PEAA.
 
-# Microservices by Sam Newman
+# Building Microservices by Sam Newman
 
 ### When to use Microservices
 
@@ -457,7 +457,7 @@
 
 - exposing as little as possible and only what the client needs to accomplish its goal in the API interface.
 
-### Coupling:
+### Types of Coupling:
 
 - Common: shared database
 - Pass through: through multiple services in pipeline
