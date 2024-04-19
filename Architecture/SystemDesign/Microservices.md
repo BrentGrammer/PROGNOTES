@@ -429,3 +429,221 @@
   Consider the human factor too. Some people (developers, architects) call business logic or domain model a boilerplate code. another group of people who consider the domain model the most valuable piece of code. Such a preference also affects decisions between Saga and 2PC, as well as who likes what.
 
 - 2PC prefers consistency, while Saga degrades it to "eventual consistency." If you have a situation where consistency is more important than availability (please read CAP), then maybe you do need a system transaction protocol like 2PC. Otherwise, I recommend going with business transactions such as Saga. Please read System Transactions vs Business Transactions e.g. in PEAA.
+
+# Microservices by Sam Newman
+
+### When to use Microservices
+
+- Work best when you have a large number of developers enabling reduced delivery contention. The teams can work on parts of the system without interfering with each other.
+- Good for scaling.
+- Not appropriate for small n startups.
+
+## Main IDEA: Independent Deployability
+
+- The system is modular and organized with high cohesion based on business features and not grouped by technologies.
+- Application Layer, logic, data layer are bundled in vertical slices.
+
+### Distributed monolith:
+
+- Anti-pattern: different databases per service but highly coupled - cannot deploy independently.
+
+## Aspects of Microservices
+
+### Cohesion:
+
+- code that changes together stays together.
+
+### Information hiding:
+
+- exposing as little as possible and only what the client needs to accomplish its goal in the API interface.
+
+### Coupling:
+
+- Common: shared database
+- Pass through: through multiple services in pipeline
+- Content: external service reaches to internals and directly changes database
+
+### DDD Domain Driven Design
+
+- Ubiquitous language: business terms should match terms used in the code.
+- Implementing DDD and DDD distilled are good books on the topic
+
+### Pipes
+
+- Pipes should be dumb, endpoints smart. Keep complex and business logic in application code in the services, not pipes like API gateways etc.
+
+### API Gateways, Service Meshes and K8s
+
+- Service meshes can be better than api gateways esp if using kubernetes. Should contain common logic and not logic that is anyway service specific!
+- Danger with API gateways is leaking business logic or doing something to complicated with them.
+
+## Ways to handle breaking changes/making services robust to change
+
+- Tolerant readers: interfaces should not bind to every field received, readers should be flexible in what they handle and accept. ("Be conservative in what you do,but liberal in what you accept").
+
+- Expand and contract: expose multiple endpoints in the same service that serve different versions (add them/expand) and when all clients have moved over, remove the old versions of endpoint(contract).
+
+- Only add fields or things to schemas, do not remove.
+
+- Lock step deployment: avoid if possible but can work if same team handles both services.
+
+## Distributed transactions:
+
+- Try to avoid distributed transactions if possible.
+
+### 2 phase commit
+
+- can be used on short lived operations,but not advised generally as it requires locking rows and data.
+- Better alternative is not splitting the data that needs atomic transactions or using Sagas.
+
+### Shared Libraries
+
+- If using shared library the tradeoff is you have to be willing to have multiple versions available to maintain independent deployability.
+
+## Build Pipelines
+
+- in the Build pipeline, build artifacts ONCE and reuse them. Configuration should be separate. Ideally you want to build artifacts early, ie right after running fast tests for example.
+
+## Saga Pattern
+
+- Useful for Long Lived Transactions and possible alternative to 2PC
+- Break apart distributed transactions into parts that are individually atomic but not as a whole.
+- If there is a failure then you need to manually revert.
+  - Semantic rollback (not same as for a distributed transaction since the events were committed and did occur.)
+
+### Coordination of Sagas:
+
+- Orchestration: Central coordinator, easier to handle complexity. Single point of failure?
+- Choreography: listening to emitted events, requires internal state in services to know how to respond to specific events.
+
+### Multiple repos
+
+If you have to make changes to multiple repos or services then it means that the service boundaries need to be reconsidered.
+
+### Kubernetes
+
+- Kubernetes started by Google to try to make migrating containers away from AWS and cloud competitors easier.
+- Overkill if you only have a few microservices and small team
+
+### Progressive deployment
+
+- Studies showed that companies that released more often had lower failure rate.
+
+#### Blue green deployments
+
+- have both old n new versions up and slowly migrate people over
+
+### canary deployments
+
+- Start serving new version of service to a small number of users and check if errors in that first batch before moving other users over to it.
+
+## Testing:
+
+### Avoid e2e testing - use Consumer Driven Contracts
+
+- Try to minimize or eliminate e2e tests in microservices.
+- Replace them with **Consumer Driven Contracts** and contract testing
+  - a team writes tests on how they expect o downstream or called service to respond, then the other service runs those tests as well
+  - makes explicit the communication between teams
+
+## Observability
+
+- a property of a system which means if you can monitor it and understand what's going on based on its outputs and logs etc.
+- Monitoring is an action taken by team members and not the same as Observability (which is a property of a system)
+
+## Security:
+
+### Confused deputy problem:
+
+- Services downstream will trust an upstream service without requiring authorization to protect requests coming from it.
+- solution can be to use JWTs. Authentication is not enough, Authorization is needed and info on the jwt can help with this.
+
+### Credentials
+
+- Credentials need to be rotated regularly
+  - hashicorps vault can help with this as well as storing secrets that services can retrieve from it.
+  - There are tools to automate secret rotation.
+- Temporary API keys can be issued that expire quickly, i.e. in one hour.
+- Use Defense in Depth approaches and zero trust policies.
+- You can vary these measures to be more or less strict by service or action depending on what your threat model is. It's a spectrum not binary all in or not on security measures.
+- GitHub hook for detecting secrets before pushing to remote.
+
+### Patches
+
+- Automated detection of patch vulnerabilities using Snyk.
+
+## LOG AGGREGATION
+
+- **This is a must for microservices** and should be invested in up front with a tool (Splunk is expensive, might want other providers).
+
+## CAP theorem
+
+- Better to try for AP (availability partition tolerance) over CP (consistency partition tolerance) apps.
+- **Should prefer eventually consistent AP approaches as consistency is much harder to implement and more complex**.
+
+### Bulkhead strategy, look up.
+
+## Caching:
+
+- Cache control header let's server tell client what the TTL of a response is, and expires header can control a time based expiration time for data .
+- Golden rule: the more caching you do the higher chance of stale data. Caching should be a performance optimization and only done if needed.
+  E-tags are another approach.
+
+## Timeouts:
+
+- Timeouts should be used everywhere in microservices, and a default timeout system or service wide should be starting point, then adjust individual ops as necessary.
+- Look at average healthy response times to decide what the timeout should be.
+
+## Micro Frontend:
+
+- Parts of front end can be independently deployed and worked on by different teams.
+- 2 approaches
+  - widgets (same page parts)
+  - page based (separate pages are deployable independently)
+
+## Stream aligned teams
+
+- work on full or of an app and not b just frontend or backend etc. Mixed stack teams.
+
+### Conway's Law:
+
+- Any organization that designs a system (defined broadly) will produce a design whose structure is a copy of the organization's communication structure.
+
+## Architecture:
+
+- Architects are more like town planners.
+  - i.e. Designates zones where residential or industrial buildings can go.
+- The key is not over prescribing so that there is a frame, but within that frame there is flexibility so that the details can change in the future.
+
+## Governance
+
+- how things are done/procedures
+- Ideally use code Examples you can point to that are done correctly that are already in actual microservices.
+
+## Responses in Microservices
+
+- Need to distinguish between at least 3 response types:
+  - Ok response
+  - Error response (bad request)
+  - Error because the service is down
+
+## Miscellaneous
+
+- Helm: package manager (for containerized apps?)
+
+# Architecture The Hard Parts Book
+
+## Two ways of breaking into micro services:
+
+1. Tactical forking
+
+- split up parts of codebase to deal with among team and each deletes all the coffee not needed for that batch of code.
+
+2. Component decomposition.
+
+- works better with apps that are modularized well.
+
+## Elasticity vs Scalability:
+
+Elasticity is handling a burst of users when it occurs suddenly.
+Scalability is capability to handle a large number of concurrent requests.
