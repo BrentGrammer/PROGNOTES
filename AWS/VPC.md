@@ -33,7 +33,7 @@
   - Route from private subnet goes to NAT Gateway/Instance and that goes to the Internet Gateway
 
 ### Default VPC** - only ONE per region allowed and created by default. 
-  - CIDR Range is preset for default VPC to 172.31.0.0/16
+  - **default CIDR Range is preset for default VPC to 172.31.0.0/16**
   - Resiliency: One subnet is configured for every AZ in the region.
   - The subnets cannot overlap with others:
     - AZ 1: 172.31.0.0/20 -- 172.31.0.0 to 172.31.15.255

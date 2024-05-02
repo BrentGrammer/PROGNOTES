@@ -51,6 +51,7 @@
 
 - Can think of a Hosted Zone (DNS Zone) as a database where you store your dns records and contain your name servers
 - Hosted Zones can be public (The name servers are listed in the AWS public zone - accessible via public internet)
+  - Public zones house public services which anyone can connect to but permissions are required IAM etc.
 - Private Hosted Zones can be linked to VPCs
   - Use these to host sensitive DNS records that you don't want publically accessible
 - Hold DNS records (aka record sets)
@@ -77,6 +78,7 @@
 
 - Name Server Records that allow delegation to occur in DNS
 - These are registered in the tld company register (for .com, .org etc.) and point to name servers managed by other companies or teams
+  - Ex: a .org ns record delegates control to the .org registry
 - Inside the zone for the company that registered the name servers (i.e. your company) there are DNS records such as `www` which is how you can access those records as part of DNS
 
 ### A Records and AAAA Records

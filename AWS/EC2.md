@@ -1,5 +1,5 @@
 # Elastic Cloud Compute
-
+- IaaS - Infrastructure as a Service
 - Bootstrapping: running commands when a machine starts and boots up
   - Script is run ONCE on machine start
   - Bootstrapping script commands run with root user priveledges

@@ -15,6 +15,8 @@
 
 ### Access for usage
 
+- **Permissions**: Public Access, Owner Only, Specific AWS Accounts
+
 - Public AMIs - created by anyone
 - Owner AMIs - Only an owner can create from the AMI
 - Explicit Access - specify who can use the AMI

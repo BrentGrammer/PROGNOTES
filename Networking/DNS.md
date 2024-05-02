@@ -52,12 +52,13 @@
 - DNS servers learn ohw to reach the root servers by consulting a root hints file on the server:
   - Linux: `/etc/named.root`
 - Entries can be cached with a TTL (time to live in seconds)
+- In total, there are 13 main DNS root servers, each of which is named with the letters 'A' to 'M'. They all have a IPv4 address and most have an IPv6 address.
 
 ### Types of Records:
 
 - **SOA**: Start of Authority Identifies a zone
 - **NS**: Name Server Identifies a name server that is authoritative for the zone
-- **A**: Address Records - Maps a fully qualified domain name to an IP address. Ex: `www IN A 192.168.168.201` Note the host name is not fully qualified. DNS will provide the fully qualified name with the zone (which is usually indicated by the domain) added.
+- **A**: Address Records - Maps a fully qualified domain name (Host) to an IP address. Ex: `www IN A 192.168.168.201` Note the host name is not fully qualified. DNS will provide the fully qualified name with the zone (which is usually indicated by the domain) added.
 - **CNAME**: Canonical Name Creates an alias for a fully qualified domain name
   - The owner field in the CNAME record provides the name of
     the alias that you want to create. Then, the RDATA field provides the Canonical
@@ -71,7 +72,7 @@
     servers to use when several are available. The second is the fully qualified domain
     name of the mail server itself.
   - Ex: `lowewriter.com. IN MX 0 mail1.lowewriter.com.
- lowewriter.com. IN MX 10 mail2.lowewriter.com.`
+lowewriter.com. IN MX 10 mail2.lowewriter.com.`
   - The server name specified in the RDATA section should be an actual host name,
     not an alias created by a CNAME record. Although some mail servers can handle
     MX records that point to CNAMEs, not all can. As a result, you shouldn’t specify
@@ -82,12 +83,12 @@
 - **PTR**: Pointer Maps an IP address to a fully qualified domain name for reverse lookups. Usually appear in special reverse lookup zones.
   - Ex: `102.129.71.64.in-addr.arpa. IN PTR www.lowewriter.com.`
 
-
 ### Reverse Lookups
+
 - returns the fully qualified domain name for an IP Address (the opposite of a forward lookup)
-- Reverse lookups are possible because of a special domain called the in-addr.arpa 
-domain, which provides a separate fully qualified domain name for every possible 
-IP address on the Internet. To enable a reverse lookup for a particular IP address, 
-all you have to do is create a PTR record in a reverse lookup zone (a zone that is 
-authoritative for a portion of the in-addr.arpa domain). The PTR record maps 
-the in-addr.arpa domain name for the address to the host’s actual domain name.
+- Reverse lookups are possible because of a special domain called the in-addr.arpa
+  domain, which provides a separate fully qualified domain name for every possible
+  IP address on the Internet. To enable a reverse lookup for a particular IP address,
+  all you have to do is create a PTR record in a reverse lookup zone (a zone that is
+  authoritative for a portion of the in-addr.arpa domain). The PTR record maps
+  the in-addr.arpa domain name for the address to the host’s actual domain name.
