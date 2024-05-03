@@ -1,13 +1,30 @@
 # ColdFusion Basics
 
+ColdFusion (CFML) is an interpreted and dynamic ECMA Script like language that compiles to Java Bytecode directly, thus running in the Java Virtual Machine (JVM) and in almost every operating system.
+
 - [good intro](https://www.youtube.com/watch?v=3dKZ7KEHhAk)
+- [cffiddle](cffiddle.org) - fiddle playground for CFML online
+- [trycf](www.trycf.com) - allows you to run code against lucee online
+
+### Learning
+
+- [Good modern guide on CFML](https://modern-cfml.ortusbooks.com/)
+- [CFML In 100 Minutes](https://github.com/mhenke/CFML-in-100-minutes/wiki)
+- [2016 Introduction to ColdFusion](https://www.youtube.com/playlist?list=PL3iywAijqFoUD31CQBLsHvJn4WAonNA7r)
 
 ### Documentation
 
-- [cfdocs](https://cfdocs.org/)
+- [cfdocs](https://cfdocs.org/): Main reference for CFML
 - [official docs](https://helpx.adobe.com/coldfusion)
 - [LearnCFInAWeek](https://learncfinaweek.com)
 - [cfcasts](https://cfcasts.com) - good video tutorials
+- [cfcom forums, community list](https://www.carehart.org/cf411/#cfcommhelp)
+
+### Command Box setup
+
+- [setup](https://commandbox.ortusbooks.com/setup)
+- [in depth guide](https://commandbox.ortusbooks.com/getting-started-guide)
+- You can make the box.exe available in any Windows terminal by adding its location to the PATH system environment variable. See http://www.computerhope.com/issues/ch000549.htm
 
 ### Blogs
 
@@ -159,3 +176,14 @@ No longer maintained:
 ### Open Source
 
 - [Lucee](lucee.org) - open source ColdFusion engine
+
+## Testing
+
+- See [resrouce for list of tools](https://www.carehart.org/cf411/#testing)
+- [TestBox](https://testbox.ortusbooks.com/)
+  - next-generation testing framework for ColdFusion (CFML) that is based on BDD (Behavior Driven Development) for providing a clean, obvious syntax for writing tests. It contains a testing framework, runner, assertions, and expectations library and ships with a mocking and stubbing library.
+- `writeDump()` - useful for debugging complex values to the console.
+
+## VS Code packages
+
+- [Recommended extenstions](https://modern-cfml.ortusbooks.com/intro/history#vscode-packages)

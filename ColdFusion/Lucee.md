@@ -1,10 +1,11 @@
 # Lucee
 
 - open source CFML Engine
+- [Good presentations](https://www.carehart.org/presentations/)
 
 ### Hot reloading
 
--With the introduction of [mod_cfml](https://viviotech.github.io/mod_cfml/) for Tomcat these changes in the server.xml configuration file do not have to be made anymore, therefore restarting Tomcat is no longer necessary. The changes will be picked up automatically when the web server sends an unknown host to Tomcat with the corresponding root directory.
+- With the introduction of [mod_cfml](https://viviotech.github.io/mod_cfml/) for Tomcat these changes in the server.xml configuration file do not have to be made anymore, therefore restarting Tomcat is no longer necessary. The changes will be picked up automatically when the web server sends an unknown host to Tomcat with the corresponding root directory.
 
 ### Function reference
 
@@ -116,3 +117,111 @@ For example:
 ### Parallelism and Concurrency
 
 - see [Threads](https://docs.lucee.org/categories/thread.html) docs
+
+# Running a Lucee Server
+
+- Note not an installer for Lucee on Mac - use Command Box or alternative
+
+## Command Box
+
+- CLI tool to start a server - can run any version of CF or Lucee
+- Commandbox can be used in production (note: but, not with ColdFusion Standard License) to start the server.
+
+## Installing Lucee
+
+- Can install via a script or unattended mode install with variables and settings: see [video](https://www.youtube.com/watch?v=8tnd3RQZy0w) at timesamp 32:44
+
+### Extensions
+
+- [Modular extensions](https://docs.lucee.org/guides/extensions.html)
+
+## Administration
+
+- Can automate configuration of the admin configuration with a server.json file using commandbox (the "app" section)
+- Commandbox also has a `cfconfig` tool for this as well.
+- Using Lucee's [configuration application.cfc](https://docs.lucee.org/guides/cookbooks/configuration-administrator-cfc.html)
+- Get information on the server:
+
+```javascript
+// serverdump.cfm
+<cfdump var="#server.coldfusion#">
+```
+
+### Web Server
+
+- Use `wsconfig` (CF) or `mod_cfml` tool (Lucee) to point web connections to particular versions of the engine if needed.
+  - You can also use nginx, apache etc. pointed to the lucee server, or a load balancer which just forwards requests straight to the lucee server.
+
+## Containerization
+
+- Commandbox and Lucee have their own docker images for versions of Lucee/CF.
+  - note the environment varialbes for config will be different for each
+- hub.docker.com holds lucee images
+  - hub.docker.com/u/lucee
+    - github.com/lucee/lucee-dockerfiles
+  - Adobe: hub.docker.com/u/adobecoldfusion (also on AWS ECR, gallery.ecr.aws/adobe)
+    - Need a CF Enterprise licence to deploy images in production from adobe (8 containers)
+  - Commandbox: hub.docker.com/u/ortussolutions/commandbox
+    - commandbox.ortusbooks.com/deploying-commandbox/docker
+- See [comparing docker images for cf](https://cfcasts.com/series/itb-2022/videos/charlie-arehart-comparing-and-contrasting-docker-images-from-ortus-adobe-and-lucee)
+- [Another talk on docker](https://www.carehart.org/presentations/#cfdocker_gs)
+- [Docker with lucee demo](https://www.youtube.com/watch?v=uDRPTH1xq_8)
+- Map a volume to `/srv/www/webapps/ROOT`
+
+### Docker compose example
+
+```yaml
+version: "3"
+
+services:
+  lucee:
+    image: lucee/lucee:latest # or ortussolutions/commandbox:lucee5 etc.
+    volumes:
+      - ./app:/var/www # map where your cfm etc. files are on your machine to var/www on docker machine
+      # source: ./lucee-admin-password/password.txt # password on local machine
+      # target: /opt/lucee/server/lucee-server/context/password.txt # copy to password on machine
+    ports:
+      - "8888:8888"
+```
+
+- See [Slides from presentation](./Comparing%20and%20contrasting%20Docker%20images.pdf)
+- see [git repo](https://github.com/carehart/awesome-cf-compose/tree/master/cmdbox-lucee-latest) with basic docker compose examples
+
+### Commandbox images offer more flexibility and power if needed
+
+- Commandbox lucee image environment vars:
+  - `APP_DIR`: where should server look for code in the container
+  - `USER`: what user should the image run as
+  - `cfconfig_[engine setting]`: name a cfconfig setting if you want
+  - ...many more
+
+### Default directories
+
+- On lucee image, the default app dir is `/var/www`
+  - if nothing is copied or mounted there, then by default it will contain index.cfm, Application.cfc, degug.cfm, favicon.ico
+  - Need to set datasource and mappings etc. for admin to work.
+    - Can copy lucee config files into the container: /opt/lucee/web, /opt/lucee/server/lucee-server/context
+  - default port exposed is 8888
+  - access the admin: `/lucee/admin/server.cfm` or `/lucee/admin/web.cfm`
+  - Will use the password stored at `/opt/lucee/server/lucee-server/context`
+- on commandbox lucee image:
+  - /app folder is the default app dir
+  - index.cfm, commandBoxLogo300.png,403.html are there by default if nothing put in there.
+  - Need to set datasource and mappings etc. for admin to work.
+    - use cfconfig import, via env vars:
+      - BOX_SERVER_CFCONFIGFILE
+      - cfconfig\_[engine setting]
+  - default port exposed is 8080 and 8443
+  - You can expose the admin or not via seting cfconfig env var in this image:
+    - access the admin: `/lucee/admin/server.cfm` or `/lucee/admin/web.cfm`
+    - for setting the password use the adminPassword property in cfconfig to set it.
+
+## Serverless
+
+- not formally supported
+- Pete Freitag created [Fuseless](fuseless.org) for deploying Lucee on AWS Lambda.
+
+## WAR/EAR files
+
+- See [video](https://www.youtube.com/watch?v=8tnd3RQZy0w) at 53:59
+- Archive bundles (like zip files) packaging java based apps in a single file.

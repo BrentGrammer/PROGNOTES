@@ -47,3 +47,7 @@
   - k8s will take the desired state of the deployment and determine which Node and resources to allocate for the creation of the Pod(s) specified by the deployment
   - k8s uses the desired state specified in the Deployment object sent to automatically manage and control the Pods
 - Creates a pod with a container based on the image specified in the instructions (code) in the Deployment object. (an image needs to be specified)
+
+### Converting from docker to k8s
+
+- can use kompose.io to convert docker compose files to k8s pods
