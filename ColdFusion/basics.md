@@ -11,6 +11,7 @@ ColdFusion (CFML) is an interpreted and dynamic ECMA Script like language that c
 - [Good modern guide on CFML](https://modern-cfml.ortusbooks.com/)
 - [CFML In 100 Minutes](https://github.com/mhenke/CFML-in-100-minutes/wiki)
 - [2016 Introduction to ColdFusion](https://www.youtube.com/playlist?list=PL3iywAijqFoUD31CQBLsHvJn4WAonNA7r)
+- [Coding Standards/Best Practices - Ortus Solutions](https://github.com/Ortus-Solutions/coding-standards/blob/master/guides/coldfusion.md)
 
 ### Documentation
 
@@ -63,6 +64,25 @@ ColdFusion (CFML) is an interpreted and dynamic ECMA Script like language that c
 - Uses JIT compiling for CFML code, no need to pre-compile
 
 ## Syntax
+
+- [Variables](./Variables.md)
+
+### Types
+
+- Built on top of Java:
+
+```javascript
+a = "hello";
+writeOutput( a.getClass().getName() );
+```
+
+  - If you run the script above in the REPL tool, you will see the output as java.lang.String. Therefore, the variable is typed as a String and can call on any method that java.lang.String implements. You can try this for the many types in CFML, like structs, arrays, objects, etc.
+- [member functions](https://cfdocs.org/member) you can use on variables of different types (i.e. myArray.sort() or myArray.append())
+
+### Tag and Script
+
+- two syntax modes: Tags and Script mode
+- A component is a .cfc file (Cold Fusion Component)
 
 ### Common
 
@@ -183,6 +203,8 @@ No longer maintained:
 - [TestBox](https://testbox.ortusbooks.com/)
   - next-generation testing framework for ColdFusion (CFML) that is based on BDD (Behavior Driven Development) for providing a clean, obvious syntax for writing tests. It contains a testing framework, runner, assertions, and expectations library and ships with a mocking and stubbing library.
 - `writeDump()` - useful for debugging complex values to the console.
+  - Important: Adobe Engines have a very evil setting called Report Execution Times, make sure it is always turned OFF. If you use it with any application that leverages Components, it will slow down your application tremendously.
+- Debugging Templates: CFML Engines also allow you to turn on/off a debugging template that shows up at the bottom of requests when running in server mode. You can activate this debugging by logging in to the appropriate engine administrator and looking for the debugging section. Turn it on and debug like a champ.
 
 ## VS Code packages
 

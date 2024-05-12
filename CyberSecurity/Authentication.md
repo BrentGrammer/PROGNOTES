@@ -1,5 +1,7 @@
 # Auth
 
+- [OWASP Cheat Sheet Guide to Security](https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html)
+
 ## TOKENS
 
 ### JWT
