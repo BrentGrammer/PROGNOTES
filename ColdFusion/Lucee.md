@@ -70,6 +70,8 @@ Example:
 - `EQ` equals Returns true if operands are equal, e.g. "A" EQ "A" is true
 - `==` equals Returns true if operands are equal, e.g. "A" == "A" is true
 - `===` identical Returns true if operands are the same object in memory, false if they are not, (Note this is different than how JavaScript's === operator works. Lucee 6 === works like javascript, comparing type and value)
+  - Caution using this: see https://www.bennadel.com/blog/3775-exploring-the-triple-equals-operator-in-lucee-cfml-5-3-4-77.htm
+  - Only checks identity and not type (is this only for Lucee 5?)
 - `CONTAINS` contains Returns true if the left operand contains the right operand, e.g. "SMILES" CONTAINS "MILE" is true
 - `CT` contains Returns true if the left operand contains the right operand, e.g. "SMILES" CT "MILE" is true
   DOES NOT CONTAIN does not contain Returns true if the left operand does not contain the right operand, e.g. "SMILES" DOES NOT CONTAIN "RHUBARB" is true
