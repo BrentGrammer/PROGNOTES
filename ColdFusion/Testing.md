@@ -4,16 +4,20 @@
 - [Example test setup with CI/Github Actions](https://github.com/foundeo/cfml-ci-examples/blob/master/.github/workflows/release.yml)
   - Also see [Dockerfile](https://github.com/foundeo/cfml-ci-examples/blob/master/Dockerfile)
 - [CFCasts videos](https://cfcasts.com/browse?q=testbox)
-
-## TestBox
-
+- [VS Code has a Testbox extension](https://cfcasts.com/series/2022-vs-code-hint-tip-and-trick-of-the-week/videos/testbox-vscode-testbox-vscode-hint-tip-and-trick-of-the-week-32222-episode-140)
+- See [carehart.org for list of tools](https://www.carehart.org/cf411/#testing)
 - See resources in [video](https://www.youtube.com/watch?v=0bEfrWit_as) at 49:30
-- See [resrouce for list of tools](https://www.carehart.org/cf411/#testing)
-- [TestBox](https://testbox.ortusbooks.com/)
-  - next-generation testing framework for ColdFusion (CFML) that is based on BDD (Behavior Driven Development) for providing a clean, obvious syntax for writing tests. It contains a testing framework, runner, assertions, and expectations library and ships with a mocking and stubbing library.
+
+## Debugging/logging
+
 - `writeDump()` - useful for debugging complex values to the console.
   - Important: Adobe Engines have a very evil setting called Report Execution Times, make sure it is always turned OFF. If you use it with any application that leverages Components, it will slow down your application tremendously.
 - Debugging Templates: CFML Engines also allow you to turn on/off a debugging template that shows up at the bottom of requests when running in server mode. You can activate this debugging by logging in to the appropriate engine administrator and looking for the debugging section. Turn it on and debug like a champ.
+
+## TestBox
+
+- [TestBox](https://testbox.ortusbooks.com/)
+  - next-generation testing framework for ColdFusion (CFML). contains a testing framework, runner, assertions, and expectations library and ships with a mocking and stubbing library.
 
 ### Installation
 
@@ -25,11 +29,40 @@
 
 - gitignore the testbox directory.
   - don't have a node_modules folder in cfml and like in node
+- box.json:
+
+```json
+"dependencies": {
+  "testbox": "^2.1.1"
+},
+"installPaths":{
+  "testbox": "testbox" // the folder where installed dep goes - gitignore this directory!
+}
+```
+
+## Running Tests
+
+- Easiest way for older apps is to use the browser runner:
+  - `http://{domain}/testbox/tests/runner.cfm`
+    - testbox/tests is the default folder where tests are expected (can be changed)
+- [Sample XUnit style testing](https://cfcasts.com/series/itb-2020/videos/d2s7-ortus-testing-my-non-coldbox-site-with-testbox-nolan-erck/) at timestamp 18:00
+- **Tests run in parallel and not necessarily in order from top to bottom of file**
+
+### Specifying which directory to run
+
+- http://localhost/.../runner.cfm?reporter=json
+  - output in different format if needed
+- http://localhost/.../runner.cfm?directory=/MyTests/1
+  - specific nested folder - run tests there only
+- /http://localhost/.../runner.cfm?directory=/MyTests/
+  - run all tests nested in this folder
+- http://localhost/MyTests/LoginTests.cfc?method=runremote
+  - run a test file directly (without runner.cfc) by specifying runremote
 
 ### Example test
 
 ```javascript
-component extends="testbox.system.BaseSpec" {
+component displayName="Some descriptive name" extends="testbox.system.BaseSpec" {
 
 	/*********************************** LIFE CYCLE Methods ***********************************/
 
@@ -60,7 +93,7 @@ component extends="testbox.system.BaseSpec" {
 }
 
 // Non BDD - unit test style:
-component extends="testbox.system.BaseSpec" {
+component displayName="Some descriptive name" extends="testbox.system.BaseSpec" {
   // executes before all suites+specs in the run() method
 	function beforeAll(){
 	}
@@ -79,3 +112,29 @@ component extends="testbox.system.BaseSpec" {
   }
 }
 ```
+
+## Render and save output in tests
+
+- See [testing vid](https://cfcasts.com/series/itb-2020/videos/d2s7-ortus-testing-my-non-coldbox-site-with-testbox-nolan-erck/) at timestamp 41:40
+- use `cfsavecontent` tag and set the output to a `variable` you can reference to make assertions.
+
+```javascript
+<cfcomponent displayName="Test rendered output" extends="testbox.system.BaseSpec">
+
+  <cffunction name="testMyTagOutput">
+
+    <cfsavecontent variable="myRenderedOutput">
+      <cfmodule template="/views/MyView.cfm" />
+    </cfsavecontent>
+
+    <cfset $assert.isTrue( myRenderedOutput contains "something" ) />
+
+  </cffunction>
+
+</cfcomponent>
+
+```
+
+## Mockbox
+
+- see [video](https://cfcasts.com/series/itb-2020/videos/d2s7-ortus-testing-my-non-coldbox-site-with-testbox-nolan-erck/) at 38:30
