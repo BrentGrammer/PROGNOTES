@@ -3,6 +3,7 @@
 - [Example Project with Testing](https://github.com/coldbox-modules/cbq/tree/main/tests)
 - [Example test setup with CI/Github Actions](https://github.com/foundeo/cfml-ci-examples/blob/master/.github/workflows/release.yml)
   - Also see [Dockerfile](https://github.com/foundeo/cfml-ci-examples/blob/master/Dockerfile)
+- [CFCasts videos](https://cfcasts.com/browse?q=testbox)
 
 ## TestBox
 
