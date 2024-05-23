@@ -5,6 +5,7 @@ ColdFusion (CFML) is an interpreted and dynamic ECMA Script like language that c
 - [good intro](https://www.youtube.com/watch?v=3dKZ7KEHhAk)
 - [cffiddle](cffiddle.org) - fiddle playground for CFML online
 - [trycf](www.trycf.com) - allows you to run code against lucee online
+- [Check this vid for resources](https://www.youtube.com/watch?v=HUcrxyCZa4w)
 
 ### Learning
 
@@ -207,3 +208,193 @@ No longer maintained:
 
 - Coldbox Framework available as a lightweight Docker image (MiniBox)
 - or an AMI instance running on top of nginx or Tomcat.
+
+## Operators
+
+- `!===` - use 3 `=` just like in `===` to check for not equals with type strictly enforced
+- `contains` `does not contain` - includes/!includes equivalent
+- `?:` - null coalescing op. note that we have seen inconsistencies in both Adobe and Lucee engines regarding the implementation of this operator. I would avoid using it in Adobe 2018 as it is broken in several cases
+- `user?.getSalary()` - `?` can be used as a safe navigation operator. Here if salary doesn't exist on user, no error will be thrown(like the optional chain operator in typescript)
+- `var variableName = [ ...myArray ]` - spread operator works the same as in JS
+  - alternatively use append: `var variableName = [].append( myArray )`
+
+## Null/Emptiness
+
+- Engine might only have partial null support (empty value could be null or an empty string)
+- activating full-null support. You can do this in the admin or programmatically via the Application.cfc file, which can be used when building web applications. You can learn more about it here
+
+```javascript
+//Application.cfc
+component{
+    this.nullSupport = true;
+}
+```
+
+- Use the isNull() or isDefined() methods to evaluate for nothingness.
+  - recommend that you use isNull() as it expresses coherently its purpose. Since isDefined() can also evaluate expressions.
+
+```javascript
+r = getMaybeData();
+if (isNull(r)) {
+  // do something because r doesn't exist
+}
+
+if (isDefined("r")) {
+}
+```
+
+- setting null:
+
+```java
+//Lucee only function.
+r = nullValue()
+```
+
+- Note: functions without a return value return null.
+
+## Strings
+
+- [Strings in CFML](https://modern-cfml.ortusbooks.com/cfml-language/strings)
+
+- a new string object is always created when concatenating strings together. This is a warning that if you do many string concatenations, you will have to use a Java data type to accelerate the concatenations
+
+### not 0 indexed
+
+note that string and array positions in CFML start at 1 and not 0.
+
+```java
+name = "luis";
+writeoutput( name[ 1 ] ) // => will produce l
+```
+
+### Trimming
+
+- `Trim("Hello ")` or `"hello".trim()`
+
+### Get substring
+
+- `mid`: The mid function extracts a substring from a string. For instance, I could call `Mid("Welcome to CFML Jumpstart", 4, 12)` and it would give you back: come to CFML.
+
+### Concatenation
+
+- use `&` operator
+
+```java
+name = "Luis";
+a = "Hello " & name & " how are you today?";
+```
+
+- use `myvar.toString()` to cast to a string
+
+## JSON
+
+- use `serializeJSON()` or `.toJSON()`
+- NOTE: You need to wrap keys in single quotes to preserve casing!: By default CFML will convert the keys in a struct to uppercase in the result JSON document:
+
+```java
+person = { name = "Luis Majano", company = "Ortus Solutions", year = 2006};
+writeOutput( serializeJSON( person ) );
+
+// Will become
+{ "NAME" : "Luis Majano", "COMPANY" : "Ortus Solutions", "YEAR" : 2006 }
+If you want to preserve the key casing then wrap them in double/single quotes and define the case:
+
+
+person = {
+    'Name' = "Luis Majano",
+    'company' = "Ortus Solutions",
+    'year' = 2006
+};
+
+// Will become
+{ "Name" : "Luis Majano", "company" : "Ortus Solutions", "year" : 2006 }
+```
+
+#### Careful with auto casting when serializing JSON:
+
+Adobe ColdFusion may incorrectly serialize some strings if they can be automatically converted into other types, like numbers or booleans. One workaround is to use a CFC with cfproperty to specify types. A more formal workaround is to call setMetadata() as a member function on a struct to force a type:
+
+```java
+myStruct = { "zip"="00123" };
+myStruct.setMetadata( { "zip": "string" } );
+writeOutput( serializeJSON(myStruct) );
+```
+
+### Deserialize json
+
+- [See Deserializing JSON in CFML](https://modern-cfml.ortusbooks.com/cfml-language/json#deserializ)
+
+### Checking if a value is json
+
+CFML has a function to test if the incoming string is valid JSON (https://cfdocs.org/isjson) or not: `isJSON()`
+
+## Numbers
+
+- Integer or Float type (int or double in Java) (Adobe CF)
+- Lucee stores all numbers as Doubles
+- CFML will do the auto-casting for you when converting between integers and doubles.
+- [List of mathematical operators you can use with numbers](https://modern-cfml.ortusbooks.com/cfml-language/numbers#operators-and-functions)
+
+### Casting to number
+
+- cast with `toNumeric(myvar)`
+- The parseNumber() is also used to convert a string number into a numeral system (https://cfdocs.org/parsenumber)
+- Check numbers with `isNumeric(myvar)`
+
+### Currency/Money
+
+- If you are dealing with currency or tracking precision, please read about precisionEvaluate() to represent big numbers and precision results: https://cfdocs.org/precisionevaluate
+
+### USing the numeric type:
+
+```java
+numeric function add( numeric a, numeric b ){
+    return a + b;
+}
+```
+
+## Arrays
+
+- [Common array methods](https://modern-cfml.ortusbooks.com/cfml-language/arrays#common-methods)
+- searched the contents of the array using the member function findNoCase() , and it gave us the index position of the element in the array.
+
+  - `myArr.findNoCase("something");`
+
+### Creating Arrays (Lucee)
+
+- ArrayNew( dimension, type, synchronized:boolean )
+
+```java
+// array of strings
+stringArray = arraynew( 1, "String" )
+// array of numerics
+numericArray = arraynew( 1, "Numeric" )
+// array of User CFCs
+aUsers = arraynew( 1, "User" )
+```
+
+### for..in syntax (used for arrays)
+
+```java
+for( var thisMeal in meals ){
+ systemOutput( "I just had #thisMeal#" );
+}
+```
+
+### .each
+
+- Uses concurrency (use with caution)
+
+```java
+// arrayEach( array, callback, parallel:boolean, maxThreads:numeric );
+// each( collection, callback, parallel:boolean, maxThreads:numeric );
+
+myArray.each( function( item ){
+   myservice.process( item );
+}, true, 20 );
+```
+
+#### Caution: it is not performant and/or flexible. Under the hood, the engines use a single thread executor for each execution, do not allow you to deal with exceptions, and if an exception occurs in an element processor, good luck; you will never know about it. This approach can be verbose and error-prone
+
+- consider using the ColdBox Futures approach (usable in ANY framework or non-framework code). You can use it by installing ColdBox or WireBox into any CFML application and leveraging our async programming constructs, which behind the scenes, leverage the entire Java Concurrency and Completable Futures frameworks.
+  - see [docs](https://coldbox.ortusbooks.com/digging-deeper/promises-async-programming/parallel-computations)

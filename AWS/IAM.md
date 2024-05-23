@@ -68,7 +68,7 @@
 - **USEFUL FOR MOBILE APPLICATIONS** to scale with millions of users so you don't have to use IAM Users with 5000 limit - this is on the exam
 - Useful for cross account access. Can use roles to give access to a complete separate account. Multi account management and access becomes simple with Roles.
 
-#### Roles for services (Service-linked roles)
+### Roles for services (Service-linked roles)
 
 - IAM Role linked to a specific service
 - Comes with permissions that are predefined by the service
@@ -83,7 +83,25 @@
 
     - \*Without a ROLE you would have needed to hard code access keys in the lambda code for it to use for actions. Roles come with auto generated short term creds automatically.
 
-    Left off at 2:00 on https://learn.cantrill.io/courses/1101194/lectures/40570919
+- In the IAM policy, you need to use the `role/aws-service-role` and specify a specific resource name
+  - **You need to look up the specific service name for service linked roles and use that**. Format can differ and is case sensitive
+
+#### Role Separation (with PassRole)
+
+- You give one group an ability to create roles and another group the ability to use roles
+- To give someone the ability to take on a service-linked role (to use it, but not crate or manage it etc.), you need to allow them the `iam:PassRole` Action.
+
+```json
+{
+  "Effect": "Allow",
+  "Action": ["iam:ListRole", "iam:PassRole"],
+  "Resource": "arn:aws:iam::12345:role/my-role-for-xyz"
+}
+```
+
+- This allows this identity to pass a existing role into an AWS service
+  - allows the user to configure a service using a role that was already created by a member of the security team.
+  - This role that the user passes may have permissions that exceed those that they normally have without it.
 
 ## IAM Policies
 
@@ -222,3 +240,38 @@
 - There can be NO NESTING of groups (i.e. groups within groups)
 - **A IAM Group is NOT an Identity and cannot be referenced by ARN etc. as a Principal in a policy**
   - i.e. you can't reference a group in a IAM resource policy.
+
+## STS Security Token Service
+
+- Generates temporary credentials whenever the `sts:AssumeRole` operation is used.
+  - These credentials are used by the identity that assumes the role.
+- Similar to access keys: contain a public key and a secret access key.
+  - **The crucial difference is that these credentials expire and are no longer usable**
+- **These credentials are requested by another identity** such as another IAM user or an external identity such as google, facebook, twitter etc. (Web Identity Federation)
+
+### Trust Policy
+
+- A wall around the role which controls which group of identities can assume that role.
+  - Identities that want to assume the role must be in the trust policy
+
+### Assume role requests
+
+- The `sts:AssumeRole` calls must come from an identity - this could be a IAM user, AWS service, or external web identity
+- These calls are made via the STS service - when they're made, the Trust policy is checked, and also the permissions policy which is attached to the role.
+  - STS uses the permissions policy to generate the temporary creds.
+- The temprorary cresd are linked to the permissions policy on the role
+  - If the permissions policy changes, then the permissions the creds have access to change in real time
+
+### Credentials properties
+
+- AccessKeyId: unique ID for the credentials
+- Expiration: Date and time of expiration
+- SecretAccessKey: used to sign requests to services
+- SessionToken: unique token that must be included with all requests
+
+### Used by lots of architectures in AWS
+
+- AssumeRole
+- Switching accounts in the UI
+- cross account access using roles
+- Identity Federation

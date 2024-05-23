@@ -35,6 +35,8 @@ test(arr); // in ACF the passed array is not touched and still contains the valu
 
 ### Use Pass by Value manually if needed (to make a copy of the variable passed)
 
+All CFML arrays in Adobe ColdFusion are passed by values, while in Lucee, they are passed by reference. Please remember this when working with arrays and passing them to functions. There is also the passby=reference|value attribute to function arguments where you can decide whether to pass by reference or value.
+
 If you need Lucee to behave like ACF, you can use the cfargument attribute "passby" in order to pass a copy of the array to the function.
 
 Example:
@@ -54,30 +56,6 @@ Example:
 - `true`
 - `false`
 - `null`
-
-### Globals
-
-These scopes persist between requests, i.e. a value can be set during one request then retrieved in a subsequent one:
-
-- `application` Holds elements that relate to the application as a whole.
-- `client` Contains elements that persist indefinitely for this particular client (browser).
-- `cookie` Refers to the scope of the calling page when a custom tag or module is called
-- `server` Used to store data that is accessible from any application on a particular server.
-- `session` Holds data pertaining to the user's session.
-  cluster
-
-#### NOTE
-
-- Scopes are always invoked first, which means all scope names, e.g. variables, url, form, session, application... are effectively reserved words. Lucee resolves scopes before a variable with the same name, so they can't be referenced/reached.
-
-### Scoping
-
-- see [docs](https://docs.lucee.org/guides/developing-with-lucee-server/scope.html)
-- Order of scope chain:
-  - local
-  - queries
-  - variables
-    - Note - this is in queries scope and can be disabled if needed for performance in query code: This (slow) lookup can be disabled (for better performance) in the Lucee admin or via the Application.cfc setting this.searchResults = false;
 
 ### Directory Placeholders/globals
 
