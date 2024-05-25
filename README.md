@@ -20,6 +20,8 @@
 - [Kubernetes](./Kubernetes/)
 - [AWS](./AWS/)
 - [GoLang](./GoLang/)
+- Music Production
+  - [Cubase](./Cubase/)
 - [PYTHON](./Python/)
   - [Anaconda](./Python/Anaconda/Conda.md)
 - [REACT](./React/)

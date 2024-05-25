@@ -1,0 +1,165 @@
+1. Install vitejs
+
+npm install vite @vitejs/plugin-react-swc eslint eslint-plugin-react-hooks eslint-plugin-react-refresh --save-dev
+
+2. Uninstall react-scripts
+
+npm uninstall react-scripts
+
+3. Replace the existing "scripts" section in package.json with the following:
+
+  "scripts": {
+    "start": "vite",
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "preview": "vite preview"
+  },
+
+4. Create vite.config.ts in client root directory
+
+import {defineConfig} from 'vite';
+import react from '@vitejs/plugin-react-swc';
+
+export default defineConfig(() => {
+    return {
+        build: {
+            outDir: '../API/wwwroot'
+        },
+        server: {
+            port: 3000
+        },
+        plugins: [react()]
+    }
+})
+
+5.  Update the tsconfig.json to what we would get if we created a new vite project
+
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "useDefineForClassFields": true,
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+
+    /* Bundler mode */
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+
+    /* Linting */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true
+  },
+  "include": ["src"],
+  "references": [{ "path": "./tsconfig.node.json" }]
+}
+
+6. Create tsconfig.node.json in the client root folder
+
+{
+    "compilerOptions": {
+      "composite": true,
+      "skipLibCheck": true,
+      "module": "ESNext",
+      "moduleResolution": "bundler",
+      "allowSyntheticDefaultImports": true
+    },
+    "include": ["vite.config.ts"]
+ }
+
+7. Create .eslintrc.cjs
+
+module.exports = {
+  root: true,
+  env: { browser: true, es2020: true },
+  extends: [
+    // TODO: uncomment following 2 lines and update code to abide by modern linting rules
+    // 'eslint:recommended',
+    // 'plugin:@typescript-eslint/recommended',
+    'plugin:react-hooks/recommended',
+  ],
+  ignorePatterns: ['dist', '.eslintrc.cjs'],
+  parser: '@typescript-eslint/parser',
+  plugins: ['react-refresh'],
+  rules: {
+    'react-refresh/only-export-components': [
+      'off',
+      { allowConstantExport: true },
+    ],
+  },
+}
+
+  
+8.  Move the index.html out of the public folder and into the client root directory.   Remove any PUBLIC_URL references
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta
+      name="description"
+      content="Web site created using vite"
+    />
+    <title>React App</title>
+  </head>
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+    <script type='module' src='/src/main.tsx'></script>
+  </body>
+</html>
+
+9.  If you have .env.development or .env.production update these files so they use the vite environment variables:
+
+.env.development:
+
+VITE_API_URL=http://localhost:5000/api
+VITE_CHAT_URL=http://localhost:5000/chat
+
+.env.production
+
+VITE_API_URL=/api
+VITE_CHAT_URL=/chat
+
+10.  Create env.d.ts in the client/src directory
+
+/// <reference types="vite/client" />
+
+interface ImportMetaEnv {
+    readonly VITE_API_URL: string
+    readonly VITE_CHAT_URL: string
+    // more env variables...
+  }
+  
+  interface ImportMeta {
+    readonly env: ImportMetaEnv
+  }
+
+11.  Update the agent.ts to use these:
+
+axios.defaults.baseURL = import.meta.env.VITE_API_URL;
+
+axios.interceptors.response.use(async response => {
+    if (import.meta.env.DEV) await sleep(1000);
+    const pagination = response.headers['pagination'];
+
+12.  Update the commmentStore.ts
+
+.withUrl(import.meta.env.VITE_CHAT_URL + '?activityId=' + activityId, {
+
+13. Update index.tsx and remove 'reportWebVitals()'
+  
+14. In React 17 you no longer need to import react when writing JSX.  Any imports for 'React' can be removed from all files that have this.
+
+
+
+

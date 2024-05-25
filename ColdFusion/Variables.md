@@ -23,6 +23,10 @@ writeoutput("Welcome to CFML: #a#"); // use #
 echo("Welcometo CFML: #a#");
 ```
 
+### Always scope variables
+- Scope variables, otherwise they will be placed automatically and CFML will search a large number of scopes for them (could cause collisions, memory leaks or unexpected values to be found if the variable is defined elsewhere up the scope)
+  - use `var` or `local.{var}` in functions etc. to assign or reference them.
+
 ### Logging out variables for debugging
 
 - CFML offers one of the most used functions/tags ever: `<cfdump>`, writeDump() and `<cfabort>`, abort;. These are used to dump the entire contents of a variable to the browser, console, or even a file. You can then leverage the abort construct to abort the request and see the output of your dumped variables.

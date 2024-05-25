@@ -214,7 +214,8 @@ No longer maintained:
 - `!===` - use 3 `=` just like in `===` to check for not equals with type strictly enforced
 - `contains` `does not contain` - includes/!includes equivalent
 - `?:` - null coalescing op. note that we have seen inconsistencies in both Adobe and Lucee engines regarding the implementation of this operator. I would avoid using it in Adobe 2018 as it is broken in several cases
-- `user?.getSalary()` - `?` can be used as a safe navigation operator. Here if salary doesn't exist on user, no error will be thrown(like the optional chain operator in typescript)
+- `user?.getSalary()` - `?` can be used as a safe navigation operator. Here if salary doesn't exist on user, or user does not exist, no error will be thrown(like the optional chain operator in typescript). undefined will be returned instead.
+  - can combine with elvis operator for safe get ops: `result = var?.key?.otherKey ?: "";`
 - `var variableName = [ ...myArray ]` - spread operator works the same as in JS
   - alternatively use append: `var variableName = [].append( myArray )`
 
@@ -334,6 +335,11 @@ CFML has a function to test if the incoming string is valid JSON (https://cfdocs
 - Lucee stores all numbers as Doubles
 - CFML will do the auto-casting for you when converting between integers and doubles.
 - [List of mathematical operators you can use with numbers](https://modern-cfml.ortusbooks.com/cfml-language/numbers#operators-and-functions)
+
+### Truthy and Falsey
+
+- 0 is falsey, any other number (including negatives) are truthy.
+  - -1 is truthy etc.
 
 ### Casting to number
 
