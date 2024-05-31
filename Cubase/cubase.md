@@ -34,12 +34,15 @@
   - these will be added to your mixer and represent each midi track so you can control volume and mix etc.
 
 ## Optimizing RAM
+
 - Purge samples (i.e. in Kontakt)
 - Load instruments into a Rack instrument. See [vid](https://www.udemy.com/course/cubase-complete-course/learn/lecture/34818318#notes)
 - Can create individual instrument tracks, but you need to disable them to save ram.
 
 ## Adding Pitch Bend Wheel to Instrument
+
 - open your desired instrument patch in Kontakt and click on the little wrench icon in the top left corner of the instrument.
-- Once you’re there, move your cursor to the right until you find "Edit all Groups". Click on that. It’ll turn red. 
-- Now for the final step. Mosey on down to the "Source" menu and click the "Mod" button. You might see some stuff there already. Don’t pay it any mind. 
+- Once you’re there, move your cursor to the right until you find "Edit all Groups". Click on that. It’ll turn red.
+- Now for the final step. Mosey on down to the "Source" menu and click the "Mod" button. You might see some stuff there already. Don’t pay it any mind.
   - Move your cursor down to "add modulator ...". Under "External Sources", click on "pitch bend".
+- You should now have pitch bend working with the wheel for that instrument.
