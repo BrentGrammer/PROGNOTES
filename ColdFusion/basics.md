@@ -408,3 +408,7 @@ myArray.each( function( item ){
 ## Database Queries
 
 - [querying](./DatabaseQueries.md)
+
+## Includes
+
+- like a Mixin : In object-oriented programming languages, a mixin is a class that contains methods for use by other classes without having to be the parent class of those other classes; No inheritance needed.
