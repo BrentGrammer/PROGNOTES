@@ -59,16 +59,33 @@
 
 ## Service Control Policies (SCP)
 
-- Feature of AWS Organizations that lets you restrict what AWS Accounts in the Organization can do.
+- Feature of AWS Organizations that lets you restrict what AWS Accounts in the Organization can do. (Account permissions boundaries limiting users and services)
+  - JSON Policy documents that can be attached to the organization as a whole by attaching them to the root container, or they can be attached to one or more Organizational Units (OUs), or individual AWS Accounts.
+  - Do not grant any permissions, they are just a boundary that limits which permissions etc. and what is and is not allowed in the account, but do not handle permissions - you still need IAM policies for that.
+  - SCPs are inherited down the heirarchy (i.e. if they are attached to the root container of the org, then all accounts and OUs in the org inherit them.).
+    - **Exception**: The management account is NEVER affected by SCPs.
+    - Because Management Accounts cannot be restricted by SCPs, generally you should avoid using them for production for any AWS resources.
+    - Note that root users in accounts under an SCP are restricted indirectly.
 - Does not apply to master account and **applied at the OU or Account level**
 - White list or blacklist IAM actions
 - **Applied to all the Users and Roles, including Root, of the account**
   - If you restrict usage of EC2 on the account then even the Admin user cannot use EC2 for that account
 - Does NOT affect service-linked roles (enables other AWS services to integrate with AWS Organizations)
+- **SCPs override Account Policies and Permissions** (if anything is denied or not allowed in the SCP then it cannot be allowed in an Identity Policy in an account.)
+
+### Allow List vs. Deny List
+
 - By default SCPs do not allow anything - must have explicit allows
-- **Use Cases:**
-  - Restrict access to certain services for accounts
-  - Enforce PCI compliance by explicitly disabling services
+  - You can alternatively setup to allow everything and explicitly block some things.
+  - Deny List by default. Implicit Deny is enforced for everything. Which means Allow for everything and then implicitly deny (explained in a confusing way [here](https://learn.cantrill.io/courses/1101194/lectures/25362690))
+  - Deny Lists allow for everything to be allowed as new AWS services expand - low admin overhead.
+- Allow List: 2 part architecture - remove AWSFullAccessPolicy (which as in the Deny list above allows everything by default), so only explicit deny policies take effect.
+  - More secure, but more admin overhead. Recommended to use Deny List architecture over Allow List.
+
+### Use Cases:
+
+- Restrict access to certain services for accounts or certain regions.
+- Enforce PCI compliance by explicitly disabling services
 - Inheritance:
   - Typically you assign FullAWSAccess SCP to the root OU, and for example if you add a DenyAccessAthena SCP to the Root OU Master Account, it will inherit the FullAWSAccess SCP and still allow Athena!
   - SCP levels at the OU level takes precedence over SCPs at the Account levels.
