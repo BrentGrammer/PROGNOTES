@@ -1,5 +1,12 @@
 # CloudWatch
 
+- Public service in the AWS Public zone
+
+  - This means you can use it in VPCs or on premise environments, or other cloud platforms (with network connectivity and the right AWS Permissions)
+  - Store, Monitor and Access logging data
+  - For using outside AWS, Unified cloudwatch engine allows for any external sources to log data to Cloudwatch
+    - For using with AWS, services can have built in AWS Integration
+
 - 3 main parts/products:
   - Metrics
   - Events
@@ -7,6 +14,7 @@
 
 ## Cloudwatch Metrics
 
+- Metric Filters can look for specific metrics in logs
 - called "Datapoints" in AWS and are emitted over time
   - All have timestamps and a value (the metric itself)
 - Provides metrics and operational data for every service in AWS
@@ -64,6 +72,7 @@
   - `ALARM` (sends alarm/sns notification/email etc.)
 
 ### Creating an Alarm
+
 - AWS Console > Cloudwatch > All Alarms on the left > Create Alarm > Select Metric
 - Example CPU for an EC2 instance:
   - Click EC2
@@ -72,6 +81,7 @@
 
 ## Cloudwatch Logs
 
+- Regional service
 - **Centralizes logs from your AWS resources**
 - Can collect logs from:
   - Elastic Beanstalk - from application
@@ -85,6 +95,24 @@
   - Route53 - log DNS queries
 - Allows for real time monitoring
 - Adjustable retention - 1 week, 30 days, year, infinitely etc.
+
+### Log Streams
+
+- Store Log Events
+- A log stream is a sequence of events from the same source (i.e. an API, EC2, database etc.)
+  - For EC2 instances, each log stream represents one instance
+- Configuration settings are stored on the log group and apply to all log streams in that log group
+  - retention
+  - permissions
+- Metric Filters are defined in log groups
+  - constantly monitors log events in the streams in the group that satisfy certain patterns
+  - When a event that satisfies a metric filter criteria happens, the metric is incremented
+  - Metrics can be associated with alarms that notify admins or other systems
+
+### Log Groups
+
+- Containers for multiple log streams for the same type of logging
+  - I.e. a group of log streams for var/log events coming from different EC2 instances.
 
 # Amazon EventBridge (formerly CloudWatch Events)
 
@@ -106,7 +134,12 @@
 
 # CloudTrail
 
-- Used to audit history of API/events calls made within your AWS account
+left off at 0:55
+
+- Used to log and audit API/events calls or account activities made within your AWS account
+  - Stopping an instance, changing a security group, create or delete S3 buckets, etc. - logs almost everything you can do in an account
+  - These are called Cloudtrail Events
+  - includes logging actions taken by a user, role or service
 - Get history of calls/events made through - AWS console, SDK, CLI, AWS Services
 - Can pipe logs into Cloudwatch Logs or S3
 - Trails can be for all regions or region specific
@@ -132,5 +165,6 @@
     - Retention is 90 days. To keep longer, send them to S3 bucket and analyze them with Athena service
 
 ## Setting cloudwatch detailed monitoring on EC
+
 - When creating an EC2 instance, you can go to Advanced Settings > Detailed Cloudwatch Monitoring > enabled
 - NOTE: this comes with a cost and is not free.

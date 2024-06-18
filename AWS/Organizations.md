@@ -143,3 +143,22 @@ Purpose: You need a role to switch to from the general/management account to log
 - You can use the dropdown in the top right to "Switch Back" to the previous account and you'll see a role switch history as well.
 
 Role switching will grant temporary credentials by assuming the role created above and allow for logging into the account.
+
+### Creating Organizational Units
+- AWS Console > AWS Organizations
+- Select/check the Root container on the Organizations AWS Accounts page.
+- Select the Actions dropdown and under Organizational Units > Create New
+- Input a name for the UI, u.e. "PROD" or "DEV", then click Create organizational unit
+- Typically you'd have OUs for PROD and DEV and move accounts into the appropriate OU.
+### Structure of OUs:
+- Root
+  - PROD
+    - Prod accounts
+  - DEV
+    - Dev Accounts
+  - Management Account
+
+#### Moving Accounts into OUs
+- On the main accounts page in the Organization page, select the account you want to move > Actions dropdown > Move
+- Select the OU you want to move the act into and click Move.
+
