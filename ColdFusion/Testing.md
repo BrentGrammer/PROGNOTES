@@ -1,6 +1,7 @@
 # Testing and Debugging in CFML
 
 - [Example Project with Testing](https://github.com/coldbox-modules/cbq/tree/main/tests)
+- [Another example project with tests](https://github.com/ColdBox/coldbox-zero-to-hero/tree/v7.x)
 - [Example test setup with CI/Github Actions](https://github.com/foundeo/cfml-ci-examples/blob/master/.github/workflows/release.yml)
   - Also see [Dockerfile](https://github.com/foundeo/cfml-ci-examples/blob/master/Dockerfile)
 - [CFCasts videos](https://cfcasts.com/browse?q=testbox)
