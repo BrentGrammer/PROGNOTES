@@ -1,4 +1,4 @@
-# Refactoring Legacy Code
+# Modernizing Legacy Code
 
 - Tips including some from [Dan Card's talk on refactoring legacy applications](https://cfcasts.com/series/ortus-webinars-2022/videos/getting-started-with-the-legacy-migration-with-dan-card)
 - [Sandi Metz Refactoring talk at Railconf 2014](https://www.youtube.com/watch?v=8bZh5LMaSmE)
@@ -110,4 +110,12 @@ function run() {
   });
 }
 ```
+
 - [Project with tests](https://github.com/ColdBox/coldbox-zero-to-hero/tree/v7.x)
+
+## Bundlers
+
+- Parcel
+- Webpack
+- Vite
+- [EsBuild](https://esbuild.github.io/) - recommended as alternative to Vite for some apps.

@@ -48,6 +48,8 @@
     - testbox/tests is the default folder where tests are expected (can be changed)
 - [Sample XUnit style testing](https://cfcasts.com/series/itb-2020/videos/d2s7-ortus-testing-my-non-coldbox-site-with-testbox-nolan-erck/) at timestamp 18:00
 - **Tests run in parallel and not necessarily in order from top to bottom of file**
+- Command: `testbox run --noverbose`
+  - only shows failing tests and top level stats.
 
 ### Specifying which directory to run
 
@@ -139,3 +141,8 @@ component displayName="Some descriptive name" extends="testbox.system.BaseSpec" 
 ## Mockbox
 
 - see [video](https://cfcasts.com/series/itb-2020/videos/d2s7-ortus-testing-my-non-coldbox-site-with-testbox-nolan-erck/) at 38:30
+
+## Coverage
+
+- Requires Fusion Reactor (paid license)
+- Can turn code coverage off to make tests run faster in runner.cfm - set coverage param default="false"
