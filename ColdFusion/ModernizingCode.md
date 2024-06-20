@@ -117,6 +117,7 @@ function run() {
 
 - Parcel
   - See [video](https://frontendmasters.com/courses/web-development-v3/building-a-project-with-parcel/?w=parcel) adding parcel to a vanilla js project
+  - see also [this](https://frontendmasters.com/courses/archive/complete-react-v7/parcel/)
 - Webpack
 - Vite
 - [EsBuild](https://esbuild.github.io/) - recommended as alternative to Vite for some apps.
