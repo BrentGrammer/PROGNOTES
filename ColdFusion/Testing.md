@@ -116,6 +116,24 @@ component displayName="Some descriptive name" extends="testbox.system.BaseSpec" 
 }
 ```
 
+### Testing component compilation
+
+- For legacy apps, good to test that cfc (components) can be initialized and compiled correctly:
+  - see [video](https://cfcasts.com/series/cb-zero-to-hero/videos/creating-the-userservicecfc-tdd-style/) at timestamp 6:00
+
+```javascript
+function run() {
+  describe("My Service", function () {
+    it("can be created", function () {
+      // ensures no syntax or compilation errors - test cfcs like models, etc.
+      expect(myModel).toBeComponent();
+    });
+  });
+}
+```
+
+- [Project with tests](https://github.com/ColdBox/coldbox-zero-to-hero/tree/v7.x)
+
 ## Render and save output in tests
 
 - See [testing vid](https://cfcasts.com/series/itb-2020/videos/d2s7-ortus-testing-my-non-coldbox-site-with-testbox-nolan-erck/) at timestamp 41:40
