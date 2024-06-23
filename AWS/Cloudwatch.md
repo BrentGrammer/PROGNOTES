@@ -134,12 +134,57 @@
 
 # CloudTrail
 
-left off at 0:55
 
 - Used to log and audit API/events calls or account activities made within your AWS account
   - Stopping an instance, changing a security group, create or delete S3 buckets, etc. - logs almost everything you can do in an account
-  - These are called Cloudtrail Events
-  - includes logging actions taken by a user, role or service
+- **NOT REALTIME** - up to 15 minutes delay.
+
+### Cloudtrail Events
+
+- includes logging actions taken by a user, role or service
+- By default stores last 90 days of event history (available at no cost)
+  - Customizing history requires creating a **Trail**
+
+### Events
+
+- Management EVents: info about management ops, a.k.a. control plane operations
+  - Creating EC2 instance
+  - Terminating EC2 instance
+  - Creating a VPC etc.
+- Data Events: operations performed on a resource
+  - Objects uploaded or accessed in S3
+  - A lambda function is being invoked
+  - **By default, Cloudtrail only logs management events, data events are much higher volume**
+  - You need to explicitly set and enable logging Data Events when you create a Trail if you want them.
+- Insight Events
+
+### CloudTRail Trail
+
+- A unit of configuration within Cloudtrail
+- A way to provide configuration to Cloudtrail on how to operate
+- **A trail logs events for the region it is created in** Cloudtrail is a regional service
+- Can be set to one region or all regions. (Single or all region trail)
+
+  - All region trail can be thought of as a collection of trails in different region but is managed as one logical trail
+    - Advantage: if new regions are added by AWS, the all region trail will automatically log events from it
+
+### Global events for Global services
+
+- Can configure to log in region events or global events
+  - small number of services log global events - IAM, Cloudfront, STS, etc.
+  - Global services always log events to us-east-1 region.
+  - A trail needs to have global events enabled to log these events (as opposed to logging regional events)
+
+### Event log Storage
+
+- Can be stored in an S3 bucket - can be stored indefinitely as compressed JSON files - very small space taken.
+- Can integrate with Cloudwatch logs and store the event log data there.
+
+### Organizational Trail
+
+- Create from the management account of an organization
+- Logs events organization wide.
+
 - Get history of calls/events made through - AWS console, SDK, CLI, AWS Services
 - Can pipe logs into Cloudwatch Logs or S3
 - Trails can be for all regions or region specific

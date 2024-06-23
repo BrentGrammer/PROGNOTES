@@ -112,6 +112,8 @@ function run() {
 ```
 
 - [Project with tests](https://github.com/ColdBox/coldbox-zero-to-hero/tree/v7.x)
+- [Using Testbox with non-Coldbox legacy app](https://github.com/nolanerck/testbox-for-non-coldbox-cfml/tree/master)
+  - [See demo of testing legacy code here](https://youtu.be/0bEfrWit_as?t=2689)
 
 ## Bundlers
 
@@ -121,3 +123,13 @@ function run() {
 - Webpack
 - Vite
 - [EsBuild](https://esbuild.github.io/) - recommended as alternative to Vite for some apps.
+
+### Multi page app integration
+
+Vite uses rollup under the hood so you can set an input object with multiple entry point. it's build.rollup...
+https://vitejs.dev/config/build-options.html#build-rollupoptions
+https://rollupjs.org/configuration-options/#input
+
+those should do the trick, put the rollup config in the build config and you'll get multiple output js files
+
+if vite is just compiling all those js files together into dist files, it's probably already going to be in the order of imports so you can follow the order of the script tags with your imports then replace them all with one dist file per page
