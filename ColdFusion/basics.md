@@ -22,12 +22,6 @@ ColdFusion (CFML) is an interpreted and dynamic ECMA Script like language that c
 - [cfcasts](https://cfcasts.com) - good video tutorials
 - [cfcom forums, community list](https://www.carehart.org/cf411/#cfcommhelp)
 
-### Command Box setup
-
-- [setup](https://commandbox.ortusbooks.com/setup)
-- [in depth guide](https://commandbox.ortusbooks.com/getting-started-guide)
-- You can make the box.exe available in any Windows terminal by adding its location to the PATH system environment variable. See http://www.computerhope.com/issues/ch000549.htm
-
 ### Blogs
 
 - [Coldfusion Community Portal](https://coldfusion.adobe.com)
@@ -47,6 +41,10 @@ ColdFusion (CFML) is an interpreted and dynamic ECMA Script like language that c
 - [CFML Slack Channel](https://cfml.slack.com)
 - [Coldfusion Programmers Group Facebook](https://facebook.com/groups/CFprogrammers)
 - Online ColdFusion Meetup
+
+### CommandBox
+
+- See [Setup steps](./CommandBox.md)
 
 ### Jobs
 
