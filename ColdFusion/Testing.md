@@ -18,6 +18,7 @@
 
 - [Using Testbox with non-Coldbox legacy app](https://github.com/nolanerck/testbox-for-non-coldbox-cfml/tree/master)
   - [See demo of testing legacy code here](https://youtu.be/0bEfrWit_as?t=2689)
+  - [Testbox without Coldbox: CFCasts video 2020](https://cfcasts.com/series/itb-2020/videos/d2s7-ortus-testing-my-non-coldbox-site-with-testbox-nolan-erck)
 
 ## Debugging/logging
 
