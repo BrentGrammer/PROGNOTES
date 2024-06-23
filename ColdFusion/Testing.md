@@ -1,13 +1,23 @@
 # Testing and Debugging in CFML
 
-- [Example Project with Testing](https://github.com/coldbox-modules/cbq/tree/main/tests)
-- [Another example project with tests](https://github.com/ColdBox/coldbox-zero-to-hero/tree/v7.x)
-- [Example test setup with CI/Github Actions](https://github.com/foundeo/cfml-ci-examples/blob/master/.github/workflows/release.yml)
-  - Also see [Dockerfile](https://github.com/foundeo/cfml-ci-examples/blob/master/Dockerfile)
+## Resources/Documentation
+
 - [CFCasts videos](https://cfcasts.com/browse?q=testbox)
 - [VS Code has a Testbox extension](https://cfcasts.com/series/2022-vs-code-hint-tip-and-trick-of-the-week/videos/testbox-vscode-testbox-vscode-hint-tip-and-trick-of-the-week-32222-episode-140)
 - See [carehart.org for list of tools](https://www.carehart.org/cf411/#testing)
 - See resources in [video](https://www.youtube.com/watch?v=0bEfrWit_as) at 49:30
+
+## Example Repos with Tests
+
+- [Example Project with Testing](https://github.com/coldbox-modules/cbq/tree/main/tests)
+- [Another example project with tests](https://github.com/ColdBox/coldbox-zero-to-hero/tree/v7.x)
+- [Example test setup with CI/Github Actions](https://github.com/foundeo/cfml-ci-examples/blob/master/.github/workflows/release.yml)
+  - Also see [Dockerfile](https://github.com/foundeo/cfml-ci-examples/blob/master/Dockerfile)
+
+### Using Testbox without Coldbox:
+
+- [Using Testbox with non-Coldbox legacy app](https://github.com/nolanerck/testbox-for-non-coldbox-cfml/tree/master)
+  - [See demo of testing legacy code here](https://youtu.be/0bEfrWit_as?t=2689)
 
 ## Debugging/logging
 
