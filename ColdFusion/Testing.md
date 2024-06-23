@@ -39,8 +39,31 @@
 
 ### Missing HTML Runner error:
 
-- If you get an error about not being able to find system/runners/HTMLRunner.cfm, remove the testbox folder and reinstall with `box install`
+- If you get an error about not being able to find system/runners/HTMLRunner.cfm,
+  - check that the html runner file is present in testbox/system. If not, remove the testbox folder and reinstall with `box install`
   - You may need to kill docker containers running with bind mounds (volumes) running.
+- Add a testbox mapping to the Application.cfc in /tests:
+
+```java
+component {
+
+	this.name              = "A TestBox Runner Suite " & hash( getCurrentTemplatePath() );
+	// any other application.cfc stuff goes below:
+	this.sessionManagement = true;
+
+	// any mappings go here, we create one that points to the root called test.
+	this.mappings[ "/tests" ] = getDirectoryFromPath( getCurrentTemplatePath() );
+	this.mappings[ "/testbox" ] = "testbox"; // resolves /testbox not found error
+
+	// any orm definitions go here.
+
+	// request start
+	public boolean function onRequestStart( String targetPage ){
+		return true;
+	}
+
+}
+```
 
 ### Gitignore:
 
