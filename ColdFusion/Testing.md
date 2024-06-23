@@ -37,6 +37,11 @@
 - when you do box install textbox it'll create a box.json file which tracks dependancies and versions etc, which is how the box install knows what to go and grab
 - ask other developers to run box install after pulling the repo, which will get the latest and greatest packages (commandbox has a package manager similar to npm)
 
+### Missing HTML Runner error:
+
+- If you get an error about not being able to find system/runners/HTMLRunner.cfm, remove the testbox folder and reinstall with `box install`
+  - You may need to kill docker containers running with bind mounds (volumes) running.
+
 ### Gitignore:
 
 - gitignore the testbox directory.
