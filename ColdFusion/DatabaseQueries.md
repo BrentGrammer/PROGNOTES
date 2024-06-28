@@ -141,6 +141,13 @@ queryExecute(
 );
 ```
 
+### The Query structure
+
+- A query column is basically special in CF and isn't fully dereferenced like normal variables.
+  - For example, outside of a loop myQry.col references row 1. But if you're inside a query-based loop, it will be whatever row you're looping over.
+- Accessing with `[i]` syntax:
+  - myQry.col will use the logic above, but myQry.col[5] will immediately resolve a specific row in the query regardless of whether you're in a loop or not.
+
 ## Query of Queries
 
 - see https://modern-cfml.ortusbooks.com/cfml-language/queries#query-of-queries
