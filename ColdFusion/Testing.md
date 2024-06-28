@@ -203,3 +203,55 @@ function run() {
 
 - Requires Fusion Reactor (paid license)
 - Can turn code coverage off to make tests run faster in runner.cfm - set coverage param default="false"
+
+## Integration Testing
+
+### Tests that use the database
+
+- Recommended to use a separate test database.
+- [Wrap tests in Transactions using lifecycle annotations](https://testbox.ortusbooks.com/in-depth/life-cycle-methods/annotations)
+  - This will automatically rollback changes made in the test (even if the test fails)
+
+```java
+component extends="coldbox.system.testing.BaseTestCase"{
+// the annotation will run this method as if it were called in a aroundEach() lifecycle method
+    /**
+     * @aroundEach
+     */
+    function wrapInDBTransaction( spec, suite ){
+        transaction action="begin" {
+            try {
+                arguments.spec.body();
+            } catch (any e) {
+                rethrow;
+            } finally {
+                transaction action="rollback"
+            }
+        }
+     }
+}
+```
+
+```java
+// extend the test class you made above
+component extends="DBTestCase"{
+
+    function run() {
+        given( "I have a two posts", function(){
+            when( "I visit the home page", function(){
+                then( "There should be two posts on the page", function(){
+                    queryExecute( "INSERT INTO posts (body) VALUES ('Test Post One')" );
+                    queryExecute( "INSERT INTO posts (body) VALUES ('Test Post Two')" );
+
+                    var event = execute( event = "main.index", renderResults = true );
+
+                    var content = event.getCollection().cbox_rendered_content;
+
+                    expect(content).toMatch( "Test Post One" );
+                    expect(content).toMatch( "Test Post Two" );
+                });
+            });
+        });
+    }
+}
+```
