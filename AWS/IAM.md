@@ -33,6 +33,7 @@
 
 - Collections of related users.
   - i.e. a "Development team" group
+- Recommended security practice is to give users Identity permissions from the Group
 
 ### Roles
 

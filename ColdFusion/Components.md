@@ -20,7 +20,7 @@
   /**
   * Constructor
   */
-  function init( required name ){
+  public any function init( required name ){
    variables.name = arguments.name;
 
    return this;
@@ -37,12 +37,28 @@
 user = new User( name="luis" );
 // execute a function within it
 user.run();
+
+// using createObject() - need to call init to run the constructor!
+user = createObject("component", "User").init();
 ```
 
 - Note: the `new` keyword calls constructor (init) automatically, while The `createObject()` will not, you will have to call the constructor manually
+
   - use user = createObject( "component", "User" ).init();
 
-## Constuctor
+- Best practice is to always have an init() constructor in a component and always `return this;` even if you don't do anything in the component:
+
+```java
+component {
+  public any function init() {
+    return this;
+  }
+
+  // other code
+}
+```
+
+## Constructor
 
 - The init function in a component
 - You return `this` which is a reference to the instance of the class
@@ -50,7 +66,27 @@ user.run();
 ```java
 function init(){
  // prepare object state, cache data, start the engines
+
+ // typically you return this at the end of an init() constructor
  return this;
+}
+```
+
+### Pseudo Constructor
+
+- Any loose lines of code in the component will be run on object creation
+- Recommended to avoid pseudo constructors and put all that loose code in an init() constructor
+- **NOTE: You cannot alter properties in the pseudo constructor - you need to do this in the init() constructor!**
+
+```java
+component {
+  writeDump('runs on creation');
+
+  public function someMethod() {
+    // do something. just a method.
+  }
+
+  writeDump('another loose line run on object create');
 }
 ```
 
@@ -93,8 +129,25 @@ component{
 
 ## Scope in components
 
-- `variables` - private to component, all properties are placed here. `variables.myProp`
-- `this` - public and visible outside of component. contains public function references
+- `variables` - private to component, all properties are placed here. visible anywhere inside the component, but not outside the component.
+- `this` - public and visible outside of component. contains public function references.
+
+  ```java
+  obj = new Component("prop");
+  obj.prop = "new value"; // will not work if inside Component, you have variables.prop = arguments.prop;
+
+  // Component.cfc
+  component {
+    public function init(string prop) {
+      variables.prop = arguments.prop; // can't be set outside of component
+
+      this.prop = arguments.prop; // using `this` now enables visibility and setting of obj.prop outside of the component! (not best practice)
+    }
+  }
+  ```
+
+  - NOTE: It is not best practice to expose properties directly with `this` - you should use getters and setters instead to safely set properties on components.
+
 - `static` (Lucee only) - static scope methods or properties to the class and not the instance (just like static in Java)
 
 ## Attributes
@@ -120,11 +173,37 @@ component{
 }
 ```
 
-### Properties
+## Properties
 
 - properties are defaulted to null if a default is not provided.
 
-### Functions
+### Getters and Setters
+
+- Adding `accessors="true"` to a component will tell CFML to automatically create getters and setters for any property defined in the component
+
+```java
+component accessors="true" {
+  // acccessors=true will auto create getters and setters for any properties defined here:
+  property name="myProp";
+
+  public any function init() {
+    setMyProp("some initial value"); // auto created setter with accessors=true
+
+    return this;
+  }
+}
+```
+
+- You can also call getters and setters outside of the component with accessors=true:
+
+```java
+obj = new MyComponent();
+obj.setMyProp("new value"); // works
+```
+
+- Note: you can override the auto created getters and setters by defining the same named method in your component if needed.
+
+## Functions
 
 - By default all functions in a component are public
 - See [accessors for type and scope details](https://modern-cfml.ortusbooks.com/cfml-language/components/functions#function-access-types-and-scopes)
@@ -154,6 +233,7 @@ function boolean valueExists( required name ){
 ```
 
 ### Function Arguments
+
 ```java
 function sayHello( target ){
  return "Hi #target#! I'm #name#";
@@ -178,8 +258,10 @@ calculator.add( argumentCollection=values );
 ```
 
 ### Function scope
+
 - local - A struct that contains all the variables that are ONLY defined in the functions via the var keyword.
 - **var or local scope your variables**. Always plan for multi-threaded applications and make sure you var scope your variables. Why? Well, if you do not var scope a variable then your variable will end up in the implicit scope which is variables.
+
 ```java
 // Sum is not var scoped, so it will be placed in the variables scope, memory leak anyone?
 function hello(){
@@ -198,20 +280,22 @@ function hello( a, b ){
  return local.sum;
 }
 ```
+
 - Scope variables, otherwise they will be placed automatically and CFML will search a large number of scopes for them (could cause collisions, memory leaks or unexpected values to be found if the variable is defined elsewhere up the scope)
 
 ### Static methods and variables
+
 ```java
 // set them in the pseudo constructor using the static keyword:
 component MyFunkyCalculator{
-    
+
     // Static Constructor
     static {
         CACHE_KEY = "luis",
         multiplier = 4
     }
-    
-    
+
+
     public static function calculate( a ){
         return static.multiplier * a;
     };

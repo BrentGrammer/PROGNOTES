@@ -134,10 +134,19 @@
 
 # CloudTrail
 
-
 - Used to log and audit API/events calls or account activities made within your AWS account
   - Stopping an instance, changing a security group, create or delete S3 buckets, etc. - logs almost everything you can do in an account
 - **NOT REALTIME** - up to 15 minutes delay.
+
+### Pricing
+
+- 90 days history enabled by default is free
+- 1 copy of management events free in every region
+  - Configure one trail in each region for every AWS account for free
+  - Any additional trails are charged $2 per 100k events.
+- Logging data events comes at a charge regardless of number - not free.
+  - 10 cents per 100k events.
+- NOTE: you are charged for storing events in S3 beyond the free tier.
 
 ### Cloudtrail Events
 
@@ -213,3 +222,52 @@
 
 - When creating an EC2 instance, you can go to Advanced Settings > Detailed Cloudwatch Monitoring > enabled
 - NOTE: this comes with a cost and is not free.
+
+## Setup Cloudtrail For an organization
+
+- [Video demo](https://learn.cantrill.io/courses/1101194/lectures/25527525)
+- Need to be logged into the management account for an organization
+  - You can set up individual trails locally inside an AWS account, but it is more efficient to use the management account for an org.
+- Go to the Cloudtrail console in AWS Console > hamburger menu on left > `Trails`
+- click `Create Trail`
+- Enter a name: example - `Animals4LifeORG`
+  - Note: when you create a trail, it will create one for every region in your AWS account
+  - If logged into the management account of an organization, you have the option to tick select for all regions in all accounts in the org.
+  - Select option to create a new S3 bucket if you want or use an existing bucket for the trail
+    - Name the bucket unique - example: `cloudtrail-animals4life-{some random number}`
+- If making a CloudTrail for production, check the SSE-KMS encryption option.
+- Log File Validation option: adds additional security to allow you to determine if any of the log files were tampered with.
+  - useful for account level audits
+  - Enable for production usage.
+- SNS notification delivery option: useful in production or if you need to integrate with external AWS tools/systems.
+- Cloudwatch Logs: useful for event driven logging for triggers
+  - can leave the name of the log group name if you want or customize it.
+  - Need to give CloudTrail permissions via an IAM role to use the CloudWatch Logs service and enter data into it.
+- Click Next at the bottom of the page.
+- Choose the types of events to log (management events only by default). Careful of charges for Data Events.
+- Leave defaults for rest of selections and click next
+- Click Create
+
+### Viewing CloudTrail Logs
+
+- Wait 10-15 minutes for first log entries to appear.
+
+- Open the link to the S3 bucket and you should see a folder structure created
+
+  - CloudTrail-Digest/
+  - CloudTrail/
+  - Dig into the folders to see the logs (i.e. in CloudTrail/)
+  - Click on `Open` button after clicking the file link
+    - Depending on the browser you may need to download and decompress the log .gz file.
+
+- For Cloudwatch go to it in AWS Console > Logs on the left > Log Groups
+  - You should see the log group for cloud trail in the list.
+  - The CloudWatch Streams are named as: `{Org ID}_{Account Number}_CloudTrail_{Region}`
+  - The acct number can be compared with the ARN for the log group details: `arn:aws:logs:us-east-1:{acct number}:log-group:aws-cloudtrail-logs-{acct number}-ce376cd8:*` - can use this to pull logs for a specific account by it's number
+- NOTE: Event History in CloudTrail service in AWS console on the left always has the last 90 days of events even if you don't have cloudtrail enabled.
+  - Creating a trail allows you to get the events into an S3 Bucket/CloudWatch Logs
+
+### To stop logging (to prevent S3 charges - probably small)
+
+- Go to CloudTrail in AWS Console > Trails on the left > Click on trail > Stop Logging button.
+- Probably will be a small charge per month (few cents or more) for org trails logging management events only.
