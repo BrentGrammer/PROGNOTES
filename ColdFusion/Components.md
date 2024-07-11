@@ -289,6 +289,10 @@ function hello( a, b ){
 // set them in the pseudo constructor using the static keyword:
 component MyFunkyCalculator{
 
+    public any function init() {
+        return this;
+    }
+
     // Static Constructor
     static {
         CACHE_KEY = "luis",
@@ -296,10 +300,10 @@ component MyFunkyCalculator{
     }
 
 
-    public static function calculate( a ){
+    static public numeric function calculate( a ){
         return static.multiplier * a;
     };
-    public static function getGlobalCacheKey(){
+    static public string function getGlobalCacheKey(){
         return static.CACHE_KEY;
     }
 
@@ -307,6 +311,7 @@ component MyFunkyCalculator{
 
 // accessing static vars from a class
 // Refer to the CFC by path, then use the :: and call a function or variable
+// no need to new up or init the component
 MyFunkyCalculator::CACHE_KEY;
-MyFunkyCalculator::calculateValues( 1 );
+MyFunkyCalculator::calculate( 1 );
 ```
