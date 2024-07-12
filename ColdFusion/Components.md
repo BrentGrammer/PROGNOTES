@@ -315,3 +315,35 @@ component MyFunkyCalculator{
 MyFunkyCalculator::CACHE_KEY;
 MyFunkyCalculator::calculate( 1 );
 ```
+
+## Inheritance
+
+- Components that extend/inherit from other components do not need to duplicate accessors or properties or constructors - they will get the same ones from the component they extend:
+
+```java
+// Base class component
+component accessors="true" {
+
+  property name="someProp";
+
+  public init(string arg) {
+    setSomeProp(arguments.arg);
+    return this;
+  }
+
+  public function baseMethod() {
+    // do something
+  }
+
+}
+
+// component that extends base class gets all of its properties, accessor functionality and constructor without having to duplicate
+// note no need to add accessors="true" to get auto getters and setters for properties - it is inherited.
+component extends="BaseComponent" {
+  property name="specificToThisClass"
+
+  public function specificToThisClassFunc() {
+    // do something specific in here
+  }
+}
+```
