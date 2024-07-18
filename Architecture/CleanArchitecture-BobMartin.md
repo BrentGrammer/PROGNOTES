@@ -19,11 +19,13 @@ This is only possible if your is testable and made up of components you can in t
 ### Paradigms (3) of programming
 
 - Structured - if then else replaces goto, discipline on control flow
-- Object oriented - discipline of indirect transfer of control
+- Object oriented Programming (OOP) - discipline of indirect transfer of control
 - Functional - discipline of assignment (immutability)
 
-### OOP
+### Object Oriented Programming (OOP)
 
+- OO is about message passing, where the sender has no intimate knowledge of the receiver; and the receiver has no knowledge at all about the sender. Control flows from sender to receiver, but source code dependencies point the opposite direction. This allows the relationships between modules to be controlled by the designers and architects, and not dictated by the flow of control.
+  - For example if Module 1 calls Module 2 then the relationship could be M1->M2, or it could be M1<-M2.  It is OO that allows that arrow to be turned around.  It is the architects and designers who determine which direction is better for their purposes.
 - **OO design is the ability through the use of polymorphism to gain absolute control over every source code dependency in the system**
   - Allows for _plugin architecture_ where modules with high level policies are independent of modules with low level details
   - Low level details are relegated to plugin modules that can be deployed and maintained independently from high level policy modules
@@ -32,6 +34,7 @@ This is only possible if your is testable and made up of components you can in t
 - Nygard 1966 moved the function call stack frame to the heap and invented OO design
 - Encapsulation: a line can be drawn around data/functions, outside of that line the data is hidden and only some functions are known (public)
 - Inheritance: The redeclaration of variables and functions within a given scope
+- OO principles aim for cleaner code by managing the couplings between modules; ensuring that high level policies retain independent of lower level details.
 
 ### Polymorphism:
 

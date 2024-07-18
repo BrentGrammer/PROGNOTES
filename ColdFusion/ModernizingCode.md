@@ -94,9 +94,18 @@
 
 - [Hyper](https://hyper.ortusbooks.com/)
 
-## Add Tests
+## Add TestBox
 
-- Use TestBox
+### Installation
+
+- Install commandbox if needed
+- `box install testbox`
+  - creates box.json
+- gitignore `testbox` directory generated
+- `box testbox generate harness` to generate scaffold for test runner
+
+### Usage
+
 - For legacy apps, good to test that cfc (components) can be initialized and compiled correctly:
   - see [video](https://cfcasts.com/series/cb-zero-to-hero/videos/creating-the-userservicecfc-tdd-style/) at timestamp 6:00
 
@@ -126,6 +135,8 @@ function run() {
 
 ### Multi page app integration
 
+- See [repo](https://github.com/BrentGrammer/ModernizeJSApp) with examples of how to add vite or parcel to existing multi page vanilla js app.
+
 Vite uses rollup under the hood so you can set an input object with multiple entry point. it's build.rollup...
 https://vitejs.dev/config/build-options.html#build-rollupoptions
 https://rollupjs.org/configuration-options/#input
@@ -133,3 +144,30 @@ https://rollupjs.org/configuration-options/#input
 those should do the trick, put the rollup config in the build config and you'll get multiple output js files
 
 if vite is just compiling all those js files together into dist files, it's probably already going to be in the order of imports so you can follow the order of the script tags with your imports then replace them all with one dist file per page
+
+## Adding Vitest
+
+### ES Modules
+
+- `import` and `export` syntax is now widely supported natively without the need for adding a bundler.
+- use the `.mjs` extension on your files. This helps flag to various tooling (NodeJS, web servers, etc.) that this file uses ECMAScript Modules (ESM) syntax. With this, no module bundlers are needed when serving to a browser, as ESM Imports are now well-supported
+  - see [article](https://pyodide-components.readthedocs.io/en/latest/vitest.html)
+  - [In depth guide to ESM](https://gils-blog.tayar.org/posts/using-jsm-esm-in-nodejs-a-practical-guide-part-1/)
+- You can name your test files simply with `.test.js`
+  - These files are only executed in a node.js runtime environment and use it's native import/export module capability
+
+### script defer
+
+- why no “document.addEventListener” for DOMContentLoaded? As it turns out, in browsers, you can load with `<script defer>` and get the same effect.
+
+### Example test
+
+```javascript
+import { expect, test } from "vitest";
+import { myFunc } from "../src/myfunc.mjs";
+
+test("myFunc works", async () => {
+  const someDep = await someDep();
+  expect(myFunc(someDep)).to.equal("something");
+});
+```
