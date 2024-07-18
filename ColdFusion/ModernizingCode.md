@@ -135,7 +135,7 @@ function run() {
 
 ### Multi page app integration
 
-- See [repo](https://github.com/BrentGrammer/ModernizeJSApp) with examples of how to add vite or parcel to existing multi page vanilla js app.
+- See [REPO](https://github.com/BrentGrammer/ModernizeJSApp) with examples of how to add vite or parcel to existing multi page vanilla js app.
 
 Vite uses rollup under the hood so you can set an input object with multiple entry point. it's build.rollup...
 https://vitejs.dev/config/build-options.html#build-rollupoptions
