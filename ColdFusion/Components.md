@@ -13,7 +13,7 @@
  */
  component accessors="true"{ // accessors=true auto-creates getters and setters
 
-  property name="name";
+  property name="name" type="string";
 
   property name="age" type="numeric";
 
@@ -184,7 +184,7 @@ component{
 ```java
 component accessors="true" {
   // acccessors=true will auto create getters and setters for any properties defined here:
-  property name="myProp";
+  property name="myProp" type="string";
 
   public any function init() {
     setMyProp("some initial value"); // auto created setter with accessors=true
@@ -324,7 +324,7 @@ MyFunkyCalculator::calculate( 1 );
 // Base class component
 component accessors="true" {
 
-  property name="someProp";
+  property name="someProp" type="string";
 
   public init(string arg) {
     setSomeProp(arguments.arg);
@@ -340,10 +340,11 @@ component accessors="true" {
 // component that extends base class gets all of its properties, accessor functionality and constructor without having to duplicate
 // note no need to add accessors="true" to get auto getters and setters for properties - it is inherited.
 component extends="BaseComponent" {
-  property name="specificToThisClass"
+  property name="specificToThisClass" type="string";
 
   public function specificToThisClassFunc() {
     // do something specific in here
+    var specific = getSpecificToThisClass();
   }
 }
 ```
