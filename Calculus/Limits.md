@@ -7,7 +7,9 @@
 ### Notation
 
 $$\lim_{x \to a^-} f(x) = L$$
+
 $$\lim_{x \to a^+} f(x) = L$$
+
 - The limit as `x` goes to `a` of the function `f(x)` is `L`
 - The plus and minus sign after `a` indicate which direction the limit is being computed for (left or right side on the slope)
   - `+` means approaching from relatively positive values (on the right of the number line)
