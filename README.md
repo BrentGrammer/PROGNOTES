@@ -48,3 +48,4 @@
 - [GraphQL](./GraphQL/)
 - [SEO](./SEO/)
 - [Chaos Theory](./Chaos)
+- [Calculus](./Calculus/)
