@@ -1,4 +1,5 @@
 # Lambda
+
 - **Pricing is based on number of calls and duration**
   - Pay per request and compute time
     - 20 cents per 1 million requests after that
@@ -14,8 +15,8 @@
 - Lambda scales with the load automatically
 - By default console will create a role with Cloudwatch logs permissions so you can view logs for the lambda.
 
-
 ## Common use cases
+
 - Create a CRON Job serverless
   - i.e. from a Cloudwatch Event
 - Create thumbnails for images uploaded to S3

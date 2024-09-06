@@ -159,6 +159,8 @@
 - If there are multiple policies involved for an action (a user policy, a group policy that the user belongs to, and a resource policy for example), then all statements are evaluated and if there is any explicit DENY in any of them - that wins.
   - Same priority rules listed above apply across all statements and policies.
 
+  **Resource Policy**: (a policy that is attached to a resource instead of an IAM identity)
+
 ### Only Root user has access by default
 
 - All Identities are denied access to all resources by default except the account root user.
