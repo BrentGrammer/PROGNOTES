@@ -20,7 +20,7 @@
 - [Cyber Security](./CyberSecurity/)
   - [Authentication](./CyberSecurity/Authentication.md)
 - [Design Patterns](./DesignPatterns/)
-  - [Strategy Pattern](./DesignPatterns/CleanCoders-Strategy.md)
+  - [Strategy/Template Pattern](./DesignPatterns/CleanCoders-Strategy.md)
   - [Factory Pattern](./DesignPatterns/Factory.md)
 - [Docker](./Docker/)
 - [GIT](./GIT/Git.md)
