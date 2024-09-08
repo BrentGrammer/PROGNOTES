@@ -27,6 +27,8 @@
 - [Music Production](./Cubase/)
   - [Cubase](./Cubase/)
 - [Networking](./Networking/)
+- [NPM](./npm.md)
+  - (npm ci, publishing a npm package, npm commands)
 - [PYTHON](./Python/)
   - [Anaconda](./Python/Anaconda/Conda.md)
 - [REACT](./React/)

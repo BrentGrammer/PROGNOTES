@@ -19,3 +19,7 @@
   - Make sure main is up to date and pulled
   - will revert package-lock.json to what is on main branch
   - commit this new change to restore the lock file
+
+## Publishing a npm package
+
+- See [Frontend Masters video with Erick Wendel](https://frontendmasters.com/workshops/fullstack-vanilla-js/): lecture/part 8
