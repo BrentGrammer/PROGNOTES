@@ -2,7 +2,7 @@
 
 Based on examples from the book, [Head First Design Patterns](https://a.co/d/gc0p5dK)
 
-### Why use a Factory Pattern?
+## Why use a Factory Pattern?
 
 - encapsulates object creation, i.e. the building of objects of different types
   - One of the main ideas is to move the `new()` instantiation of objects and encapsulate that since the new keyword makes a concrete class.
@@ -10,6 +10,37 @@ Based on examples from the book, [Head First Design Patterns](https://a.co/d/gc0
 - it's only responsibility and job is to build objects
 - **provides one place to update what types of objects your clients consume**
   - Multiple clients needing to handle various types of objects should not have if/else or any logic for building the different types in their logic. You would then have to update that logic every time you need to handle new types of products etc. as requirements change.
+
+### The problem
+
+- Clients know too much about concrete classes.
+- Numerous clients produce different types of related products or objects
+- If a new type of product or object is introduced or changed, everywhere those products are used and all the clients that need to know about them have to be updated
+
+```java
+Pizza orderPizza(String type) {
+    Pizza pizza;
+
+    // We're calling new here to instantiate concrete classes.
+    // This is bad practice as we should depend on abstractions and not concrete implementation. It prevents this code from being closed to modification.
+    // It varies as new pizza types are added or removed from the store.
+    if (type.equals("cheese")) {
+        pizza = new CheesePizza();
+    } else if (type.equals("greek")) {
+        pizza = new GreekPizza();
+    } else if (type.equals("pepperoni")) {
+        pizza = new PepperoniPizza();
+    }
+
+    // This part of the code will not vary and remain stable - we should extract the part above that varies above and encapsulate it into a Factory
+    pizza.prepare();
+    pizza.bake();
+    pizza.cut();
+    pizza.box();
+
+    return pizza;
+}
+```
 
 ## Implementation
 
@@ -36,6 +67,7 @@ public class PizzaStore {
         Pizza pizza;
 
         // Do not instantiate concrete classes with new Pizza() etc. here. Instead we use the factory to create/get a pizza based on type and encapsulate the building logic in the factory class
+          // This is where the original if else concrete pizza creation based on type was. We replace that with a Factory that encapsulates creating those objects.
         pizza = factory.createPizza(type);
 
         // ***The pizzas produced by the factory conform to an interface!
