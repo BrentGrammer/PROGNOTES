@@ -199,7 +199,7 @@ Note above that there are parrallel class heirarchies at play. The creator class
 ```java
 // Create an abstract factory, i.e. an interface that all derived factories will implement:
 public interface PizzaIngredientFactory {
-
+    // Note how we are dealing with a collection or family of grouped or related products/objects here
     public Dough createDough();
     public Sauce createSauce();
     public Cheese createCheese();
