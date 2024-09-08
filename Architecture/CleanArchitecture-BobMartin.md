@@ -58,6 +58,7 @@ This is only possible if your is testable and made up of components you can in t
     - The interface functions as a kind of "pointer" to the actual function, so the functionality is polymorphic (the function being pointed to can change and take other forms)
       - The address pointed to in the interface can change as needed and as it is implemented by modules
   - Note: the source code dependency (the inheritance relationship) between the mid level function and the interface, points from the mid level function to the interface, in other words in the opposite direction of the flow of control (against the direction of the higher level to the lower level)
+- Both high level and low level components should depend on abstractions, not concrete implementations (Head First Design Patterns)
 
 ### Interfaces
 
