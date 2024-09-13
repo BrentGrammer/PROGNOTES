@@ -18,6 +18,8 @@ Based on examples from the book, [Head First Design Patterns](https://a.co/d/gc0
 - If a new type of product or object is introduced or changed, everywhere those products are used and all the clients that need to know about them have to be updated
 
 ```java
+// THE PROBLEM:
+
 Pizza orderPizza(String type) {
     Pizza pizza;
 
@@ -388,3 +390,27 @@ public class PizzaStoreExample {
 - Requires larger interface since dealing with a family of objects
 - If you need to extend the family of objects, you need to update the interface in the abstract factory type and in all of the subclasses...
 - use whenever you have families of products you need to create and you want to make sure your clients create products that belong together.
+
+### When to Use the Factory Pattern vs. Strategy
+- The Factory pattern relies on producing different concrete instantiations based on a type.
+  - If you know the objects are going to have different subtypes that require different behavior, then you can use a Factory to produce the concrete subtype for you based on what type is passed in.
+```java
+  public class NYPizzaStore extends PizzaStore {
+
+    Pizza createPizza(String item) {
+        // based on type of pizza, return concrete impl
+        if (item.equals("cheese")) {
+            return new NYStyleCheesePizza();
+        } else if (item.equals("veggie")) {
+            return new NYStyleVeggiePizza();
+        } else if (item.equals("clam")) {
+            return new NYStyleClamPizza();
+        } else if (item.equals("pepperoni")) {
+            return new NYStylePepperoniPizza();
+        } else return null;
+    }
+}
+```
+- The Strategy Pattern allows you to swap different implementations of a top level type of object.
+  - The sub types are all of the same general type, but their implementation can vary quite a bit.
+  - Instead of producing a concrete implementation of the high level type, a concrete implementation is passed in
