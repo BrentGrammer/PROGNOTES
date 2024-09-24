@@ -26,3 +26,6 @@ a.makeSound(); // program against the interface, could be any animal at runtime
 - Use HAS-a relationships instead of IS-a relationships between objects and classes.
   - Objects can have a certain behavior injected instead of inheriting it from a super class, for example.
     - see [Strategy Pattern](./CleanCoders-Strategy.md)
+
+- Do NOT create and use an object in the same place.
+  - Create the object outside of where it's used and pass the instance in as a dependency to where it is used to retain flexibility
