@@ -7,7 +7,7 @@
 ### Main goal of Trigonometry
 
 - The main part of Trigonometry is characterizing the Angle of the Adjacent and the Hypotenuse (see [video](https://www.udemy.com/course/pycalc1_x/learn/lecture/33947210#notes) at timestamp 1:46)
-- `Theta` - the angle of the Hypotenuse and the Adjacent of a Right Triangle
+- `Theta` - the angle of the Hypotenuse and the Adjacent of a Right Triangle (or one of the non-right angles on the triangle)
 
 ## Labels of the Right Triangle:
 
