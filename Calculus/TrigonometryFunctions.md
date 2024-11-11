@@ -1,5 +1,7 @@
 # Trigonometry and Trig Functions
 
+-[Python Notebook](./trigonometry.ipynb)
+
 - Term is from the base words, 'Trigon' and 'Metry' (measurement) - "the measurement of a Trigon"
   - 'Trigon' - an old school term for a Triangle ('Tri' for three, 'gon' for shape, similar to 'hexagon' etc.)
   - Trogonometry specifically deals with RIGHT TRIANGLES (that have one 90 degree angle)
@@ -35,11 +37,14 @@
 
 ### Radians
 
-- A Radian is a measure of the Angle (in the lower corner of the triangle) around the Unit Circle
-- Radians are an alternative measure than degrees:
+- A Radian is a measure of the Angle in the lower corner of the triangle at the origin, coords 0,0 to the point on the Unit Circle
+- Radians are an alternative measure to degrees:
+  - 1 radian ≈ 57.3 degrees
+  - pi radians (1 radian * 3.14...) = 180 degrees
   - 360 degrees = $2\pi$ Radians = A full circle
   - 90 degrees = $\pi \over 2$ Radians
 - Goes from $0$ Radians to $2\pi$ Radians (for one full cycle around the Unit Circle)
+- NOTE: Radians increase as you go COUNTER-CLOCKWISE around the unit circle (starting from the right most point on the circle at $0$ or $2\pi$ (360 deg)
 
 ### The Unit Circle
 
@@ -48,14 +53,15 @@
   - The distance from any point on the circle to the origin (0,0 coordinate on a plane graph) is exactly 1
 - Goes from 0 radians to $2\pi$ (for one full cycle around the Unit Circle)
   - see [video](https://www.udemy.com/course/pycalc1_x/learn/lecture/33947210#notes) at timestamp 3:15 for visual
-  - Sometimes expressed as `-pi` to `+pi` to show a deviation from 0 radians
+  - Sometimes expressed as `-pi` to `+pi` to show a deviation from 0 radians (??)
 
 ### Translating Cosin and Sin to Wave Format (via the Unit Circle)
 
 - Cosin and Sin to Wave form: takes into account the **Unit Circle** (has a radius of 1)
   - See [video](https://www.udemy.com/course/pycalc1_x/learn/lecture/33947210#notes) at timestamp 3:47
 - Take the top point of the right triagle and move it along the Unit Circle circumference/perimeter: the Adjacent bottom horizontal length of the triangle side increases and decreases along the x axis as the triangle is stretched transformed as the top point is moved around the unit circle
-  - **The length of the Adjacent (the bottom horizontal line of the triangle) is the Cosin**
+  - **The length of the Adjacent (the bottom horizontal line of the triangle), or projection onto the x-axis is the Cosin**
+  - **The projection onto the y-axis is the Sin**
   - The value is positive when the line (Adjacent) goes to the right on the X of the plane and negative when it goes to the left of origin
 - The upper and lower bound of the Wave graph Y-Axis is 1 and -1 (full length of Adjacent to the right, and full length of Adjacent to the left on the plane)
   - The Cosin/Adjacent crosses through the origin (0) as the upper point of the triangle is moved around the Unit Circle
