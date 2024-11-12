@@ -1,5 +1,7 @@
 # Continuous and Discontinuous Functions
 
+- [python notebook](./discontinuousfunctions.ipynb)
+
 - Continuous: You can trace the plot of a function without lifting your finger off the plot
 - Discontinuous: There is a break in the plot of a function
   - Note, subdomains (part or piece of the function outputs) can be continuous, but the whole is broken up
@@ -15,6 +17,7 @@
 
 - The function blows up to infinity or minus infinity at a certain point (and can come up from negative infinity)
   - The Trig function Tangent is an example of this kind of discontinuity since it blows up to infinity
+- The discontinuities (empty spaces between the continuous domains that go to or from infinity off the plot) are also called **Singularities**
 
 ### Removable discontinuity
 
@@ -23,8 +26,15 @@
   - Example function with a removable discontinuity when x = 2, the output is 0/0 (does not exist):
     $$f(x) = {{x^2 - 2x} \over {x^2 - 4}}$$
 
+### Oscillating Discontinuity
+
+- The function oscillates continually to infinity or infinitely close to some specific number
+Example:
+$$f(x) = \sin({1\over{x-1}})$$
+$$D : -1 \leq x \leq 2$$
+
 ## Definition of Continuity
 
 1. $f(a)$ is defined
-1. $\displaystyle\lim_{x \to a} f(x)$ exists (limit of f(x) as you approach a exists)
+1. $\displaystyle\lim_{x \to a} f(x)$ exists (output when the limit of f(x) as you approach a exists)
 1. $\displaystyle\lim_{x \to a} f(x) = f(a)$
