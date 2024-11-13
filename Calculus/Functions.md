@@ -200,40 +200,81 @@ $$exp(x)$$
   - `n` as it is smaller, is only a rougher estimate of `e` - as `n` gets larger, the error between the output and the actual value of `e` gets smaller.
 
 ### Natural Log
-- Notation: $ln(x)$ 
+
+- Notation: $ln(x)$
 - If `x` is negative or `x` = 0, the natural log of `x` is undefined.
 - The natural log goes to $-\infty$ as `x` approaches 0
   - you can take the natural log of a negative number and it will return a complex number value.
 - The natural log of `x` goes to $\infty$ as `x` goes to $\infty$
-  - *Unike the natural exponent, as `x` gets larger and larger in the natural log, the output's rate of increase gets slower and slower
+  - \*Unike the natural exponent, as `x` gets larger and larger in the natural log, the output's rate of increase gets slower and slower
     - it always increases and never asymptotes, but goes up more and more slowly as x increases
 
 ### The natural log is an inverse of the natural exponent
+
 - One function negates or cancels out the other
-$$\ln(e^x) = x$$
-$$e^{\ln(x)}=x$$
+  $$\ln(e^x) = x$$
+  $$e^{\ln(x)}=x$$
 - When you embed one into the other, you just get back `x` whatever is in the exponent
 - The domain and range are different, though:
   - The domain of $\ln(e^x) = x$ is $D(x \in \R), R(y \in \R)$
-   - The Domain is the entirety of Real Numbers (all numbers from negative to positive can be an input)
-   - The Range is the same (all numbers from negatife infity to positive infinity can be the output)
+  - The Domain is the entirety of Real Numbers (all numbers from negative to positive can be an input)
+  - The Range is the same (all numbers from negatife infity to positive infinity can be the output)
 - The domain/range of $e^{\ln(x)} = x$ is $D(x > 0), R(y > 0)$
-   - The Domain is the entirety of Real Numbers (all numbers from negative to positive can be an input)
-   - The Range is the same (all numbers from negatife infity to positive infinity can be the output)
-   - the natural log function is defined only for values that are greater than 0
-     - The input as `e` can be negative, but the input `x` into the natural log function (in the exponent) cannot be negative
-     - The output is always going to be a positive number
+  - The Domain is the entirety of Real Numbers (all numbers from negative to positive can be an input)
+  - The Range is the same (all numbers from negatife infity to positive infinity can be the output)
+  - the natural log function is defined only for values that are greater than 0
+    - The input as `e` can be negative, but the input `x` into the natural log function (in the exponent) cannot be negative
+    - The output is always going to be a positive number
 - The Domain and Range of the inverse equations shown above are different, so that means that the natural log and natural exponential are inverses only within their specific domains.
 
-
 ### Notes on log functions
+
 - Logarithms are inverses of power functions (exponential functions)
-$$x = b^y$$
+  $$x = b^y$$
 
 $$y = log_b(x)$$
 
 $$b > 0$$
+
 - log inverts an exponential or is what is defined in the exponent of a function
 - When you set the base `b` to be the natural to be the natural exponent `e`, then you get what is the Natural Logarithm
   - i.e. Given $x = e^y$, then $y = log_e(x)$
   - or conventially: $\ln (e^x) $
+
+# Intermediate Value Theorem
+
+A function that is continuous in [a,b] has all values between $f(a)$ and $f(b)$ are present at least once in that function
+
+### Definition of the Intermediate Value Theorem
+
+- For any output number on the y-axis between two points - $f(a)$ and $f(b) on the y-axis$ - there is a corresponding x-axis coordinate (number) that produces that output which is between points/numbers $a$ and $b$ on the x-axis.
+- **Interval**: the range of two points on the x-axis we are considering, notated in brackets, i.e. $[ 2,4 ]$
+  - Can also be thought of as a subdomain for particular problems ( a range of inputs )
+- The function must be continuous for the interval for the theorem to hold
+
+### Example
+
+- $x^2$: Any number between 4 and 16 on the y-axis has a corresponding x-axis value between 2 and 4
+  - i.e. for the y-axis 9, the value to produce $f(x)$ where $x = 0$ must be between 2 and 4 on the x-axis (it is 3)
+
+### Exceptions to the theorem - Discontinuities
+
+- Any function with a discontinuity can break the Intermediate Value Theorem
+  - A Piecewise function can violate this rule by having a jump discontinuity, or any discontinuity
+- **The function must be continuous within the specified interval**
+
+### Use cases
+
+- Useful for finding whether a polynomial equation has a certain set of solutions
+  - (i.e. determining the roots - the solutions to $x$ when you set the equation to 0)
+  - $0 = x^4 + x + .4$ - the values of x are the roots of the equation
+- Applying the Intermediate Value Theorem:
+  - If we can find a value of $x$ that makes the equation equal a negative number, and some other value of $x$ that makes the equation equal a positive number, than it must be the case that there is at least one value of $x$ which makes the equation equal to 0
+    - 0 is in between (an intermediate value) between any negative and any positive number
+
+#### Example:
+
+- This equation has real-valued Roots and we can set $x$ to a value to get 0
+  $$f(x) x^4 + x + .4$$
+- This equation has **no real-valued Roots** or solutions for $x$ to produce 0
+  $$f(x) = x^4 + x + .5$$
