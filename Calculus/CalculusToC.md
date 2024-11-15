@@ -1,0 +1,15 @@
+# Calculus Table of Contents
+
+- [Functions](./Functions.md)
+- [Composite Functions](./CompositeFunctions.md)
+- [Continuous Functions and Discontinuities](./ContinuousFunctions.md)
+- [Function Symmetry](./FunctionSymmetry.md)
+- [Inverse Functions](./InverseFunctions.md)
+- [Law of Exponents](./LawOfExponentsNaturalLog.md)
+  - [notebook 1](./LawOfExponents.ipynb)
+  - [notebook 2](./naturallogExponent.ipynb)
+- [Limits](./Limits.md)
+- [Piecewise Functions](./PiecewiseFunctions.md)
+- [Polynomial Functions](./PolynomialFunctions.ipynb)
+- [Trigonometry](./TrigonometryFunctions.md)
+- [Zeno's Paradox](./zenosparadox.ipynb)
