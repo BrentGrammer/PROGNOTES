@@ -6,10 +6,12 @@
 ## Sketching Function Shapes
 
 ### Being familiar with function shapes
+
 [video](https://www.udemy.com/course/pycalc1_x/learn/lecture/33947256) at timestamp 2:44 for overview of some common function shapes
 
 - Linear functions like $y=x$ - straight line
 - Polynomial functions with even orders: $y = x^2$ - U shaped line
+  - **The long run behavior of a polynomial is driven by the highest power - look at the term with the highest power in the equation for a shortcut to interpreting the rough shape.**
 - Polynomials with odd orders: $y = x^3$ - S shaped line
 - Trig functions (Sine and Cosine) - Wave
 - Tangent (Trig) function - Blows up to +Infinity and comes up from -Infinity
@@ -21,7 +23,7 @@
 - Natural Exponent function $e^x$ : not steep and gradual incline at the beginning and gets very steep as trajectory continues
 - [More Shapes](https://www.udemy.com/course/pycalc1_x/learn/lecture/33947292) at timestamp 3:48
   - $f(x) = e^{-x}$ : looks similar to $1/x$, but it does not blow up to infinity as $x$ approaches 0, instead it blows up to higher output as $x$ goes to/approaches negative infinity, **the negative x in the exponent makes the number exponentially higher to the negative side**
-  - 
+  -
 
 ### Understand the Domain of the Function
 
