@@ -1,6 +1,7 @@
 # Calculus Table of Contents
 
 - [Functions](./Functions.md)
+- [Function Shapes](./FunctionShapes.md)
 - [Composite Functions](./CompositeFunctions.md)
 - [Continuous Functions and Discontinuities](./ContinuousFunctions.md)
 - [Function Symmetry](./FunctionSymmetry.md)

@@ -1,6 +1,7 @@
 # Function Shapes
 
 - See [video](https://www.udemy.com/course/pycalc1_x/learn/lecture/33947256) at timestamp 2:44 for overview of some common function shapes
+- [Python Notebook](./functionshapes.ipynb)
 
 ## Sketching Function Shapes
 

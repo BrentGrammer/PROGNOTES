@@ -2,6 +2,8 @@
 
 - [Python Notebook](./piecewisefunctions.ipynb)
 
+- A function with different parts that each have their own rule and operate on their own specified domain (input range)
+
 - Applications in applied math and deep learning
 
 ## What is a Piecewise Function
