@@ -6,6 +6,7 @@
 ## Sketching Function Shapes
 
 ### Being familiar with function shapes
+[video](https://www.udemy.com/course/pycalc1_x/learn/lecture/33947256) at timestamp 2:44 for overview of some common function shapes
 
 - Linear functions like $y=x$ - straight line
 - Polynomial functions with even orders: $y = x^2$ - U shaped line
@@ -16,7 +17,11 @@
 - $y = 1/x^3$ : two more square edged L-shaped lines diagonally across from each other with discontinuity at 0
 - $y = 1/x^2$ : Even exponents in the denominator will always be positive and blow up to positive Infinity on both sides of the x-axis = 0 tick.
 - Logarithmic functions like $y = \ln(x)$ and $y = \sqrt{x}$ have similar properties of the shape (steeper curve and the beginning that gets less steep towards the end)
+  - Key difference from $\sqrt{x}$ is that the log of a number less than 1 is negative and goes down to -Infinity for $ln$ shapes.
 - Natural Exponent function $e^x$ : not steep and gradual incline at the beginning and gets very steep as trajectory continues
+- [More Shapes](https://www.udemy.com/course/pycalc1_x/learn/lecture/33947292) at timestamp 3:48
+  - $f(x) = e^{-x}$ : looks similar to $1/x$, but it does not blow up to infinity as $x$ approaches 0, instead it blows up to higher output as $x$ goes to/approaches negative infinity, **the negative x in the exponent makes the number exponentially higher to the negative side**
+  - 
 
 ### Understand the Domain of the Function
 

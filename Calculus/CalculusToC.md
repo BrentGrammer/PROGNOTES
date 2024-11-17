@@ -14,3 +14,7 @@
 - [Polynomial Functions](./PolynomialFunctions.ipynb)
 - [Trigonometry](./TrigonometryFunctions.md)
 - [Zeno's Paradox](./zenosparadox.ipynb)
+
+## Attributions
+
+- Recommended: [Mike X Cohen's Calculus on Udemy](https://www.udemy.com/course/pycalc1_x/)
