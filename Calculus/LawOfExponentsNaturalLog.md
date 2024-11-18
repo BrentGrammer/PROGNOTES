@@ -6,19 +6,18 @@ These are 6 very important principles used frequently in proving differentiation
 
 ## Rules of Exponents:
 
-$x^a \times x^b = x^{a+b}$ <br>
+1. (If the base is the same, the exponents are added together if the two terms are multiplied)
+   $$x^a \times x^b = x^{a+b}$$
 
-- (If the base is the same, the exponents are added together if the two terms are multiplied)
+2. Similar to above exept that when we divide, we subtract the exponents from the same base term instead of adding with multiplication
+   $${x^a \over x^b} = x^{a-b}$$
 
-${x^a \over x^b} = x^{a-b}$ <br>
-
-- Similar to above exept that when we divide, we subtract the exponents from the same base term instead of adding with multiplication
-- Note this rule as well which is related: $x^{-b} = {1 \over {x^b}}$
-
-$(x^a)^b = x^{ab}$ <br>
+2a. Note this rule as well which is related: $$x^{-b} = {1 \over {x^b}}$$
 
 - NOTE: this rule does not always apply - it is true only when the two numbers are positive
   - If x is negative or b is negative, then the rule does not hold
+
+3. $$(x^a)^b = x^{ab}$$
 
 ### Natural Log rules
 
@@ -26,6 +25,6 @@ $(x^a)^b = x^{ab}$ <br>
 
 - Note: $\ln$ = Natural Logarithm
 
-$\ln(a \times b) = \ln(a) + \ln(b)$ <br>
-$\ln(a^b) = b \ln(a)$ <br>
-$\ln({a \over b}) = \ln(a) - \ln(b)$
+4. $$\ln(a \times b) = \ln(a) + \ln(b)$$
+5. $$\ln(a^b) = b \ln(a)$$
+6. $$\ln({a \over b}) = \ln(a) - \ln(b)$$

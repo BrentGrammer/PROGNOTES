@@ -1,6 +1,7 @@
 # Calculus Table of Contents
 
 - [Functions](./Functions.md)
+  - [Plotting Functions Python Notebook](./plotAFunction.ipynb)
 - [Function Shapes](./FunctionShapes.md)
 - [Composite Functions](./CompositeFunctions.md)
 - [Continuous Functions and Discontinuities](./ContinuousFunctions.md)

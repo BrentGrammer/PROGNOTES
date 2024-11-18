@@ -1,5 +1,7 @@
 # Limits
 
+- [Python Notebook on Limits](./limits.ipynb)
+
 - The behavior or value/output of a function as it gets closer and closer to, or approaches, a point with out actually reaching that given value
   - Ex: As $x$ approaches 2, the function output $y$ approaches 7 (The limit of some function $f(x)$ as $x$ approaches 2 is 7)
   - see [Zeno's paradox](./zenosparadox.ipynb)

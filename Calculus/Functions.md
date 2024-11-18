@@ -10,6 +10,8 @@ $$y = f(x)$$
 
 ### Graphing functions
 
+- See [Python Notebook](./plotAFunction.ipynb)
+
 - Typically you have the independent variable on the x-axis and the dependent variable on the y-axis
 - **You cannot have more than one value of y for each value of x**
   - You can have multiple x values with the same y value, but not vice versa
@@ -184,12 +186,13 @@ $$exp(x)$$
   - Always Positive
   - cannot actually equal 0 for any value of x (can only get arbitrarily close to 0)
 - e^0 = 1
-- e^1 = 2.718...
+- e^1 = 2.718... (Euler's Number - an important constant in Math)
 - if `x` = any positive number, the output is greater than 1
 - if `x` is negative, any output is less than 1 and greater than 0
 - As `x` gets larger, $e^x$ blows up to infinity and increases very rapidly
   - The derivative of $e^x$ is $e^x$
   - This is a unique property that the derivative of the function is the function itself!
+- $e = \lim_{n \to \infty}(1 + \frac{1}{n})^n$ - as $n$ approaches infinity, the output of this function approaches $e$, or Euler's Number (2.718...)
 
 ### Calculating `e`
 
