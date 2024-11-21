@@ -1,16 +1,73 @@
 # CloudWatch
 
+- [Overview Video](https://learn.cantrill.io/courses/1101194/lectures/27914996)
+
 - Public service in the AWS Public zone
 
   - This means you can use it in VPCs or on premise environments, or other cloud platforms (with network connectivity and the right AWS Permissions)
+    - Usually accessed via internet gateway or interface endpoint (doesn't require a gateway to allow VPC services to publish into CloudWatch) within a VPC
+      - **Note - EC2: External visible metric data only. For anything inside the instance, you need to use a Cloudwatch Agent (for monitoring disk space, CPU, memory, Requests, Latency, Errors in the instance, etc.)**
+        - Once data is in CloudWatch, can be used to create alarms via SNS notifications, or a starting point to handling via EventBridge.
+    - Most services are integrated with Cloudwatch without any additional user configuration required
   - Store, Monitor and Access logging data
   - For using outside AWS, Unified cloudwatch engine allows for any external sources to log data to Cloudwatch
     - For using with AWS, services can have built in AWS Integration
+  - For Exam: **Anything that required internal observation of metrics requires an Agent**
 
-- 3 main parts/products:
+- ### 3 main parts/products:
   - Metrics
   - Events
   - Logs
+
+## Key Terms in CloudWatch
+
+### CloudWatch Namespace
+
+- A container within CloudWatch
+  - Note: AWS uses this concept for many services (i.e. for EC2, the namespace is `AWS/EC2`, lambda is `AWS/Lambda`, etc.)
+  - AWS Namespaces ALWAYS start with `AWS/`, while the namespaces you create will not start with that
+
+### Datapoints
+
+- Smallest component of Cloudwatch, individual points of data that are being monitored
+  - they have a value (i.e. 42, or 42% of CPU usage)
+  - have a timestamp to represent when the value was taken
+  - (optional) Unit of Measure, i.e. "percent"
+
+### CloudWatch Metrics
+
+- Time ordered set of Datapoints
+  - Ex: `CPUUtilization`, `NetworkIn`, `DiskWriteBytes`
+- Have a Metric Name and a Namespace: Ex: `AWS/EC2 CPUUtilization`
+  - This can get difficult with different EC2 instances, for example, so that's where Dimensions come in (see below)
+
+### CloudWatch Dimensions
+
+- A name/value pair that is provided to you when you add Datapoints into CloudWatch
+  - You provide: Value, Timestamp, Unit of Measure, Namespace, Metric Name, **0 or more Dimensions**
+- The purpose is to differentiate between instances of AWS Resources (i.e. EC2 instances)
+  - `Name=InstanceId, Value=i-11111111`
+- Allow for aggregation of data for a Metric. (i.e. for a single instance or for all instances across an AutoScaling group)
+
+### CloudWatch Resolutions
+
+- The minimum period specified you can get a metric value for
+- By default, the Standard Resolution is 60-second granularity
+  - Example: if you have a resolution of 60 seconds, a mteric that is taken when there is 42% CPU Uitilization would show that the instance had that utilization for the entire 60 seconds.
+- High resolutions have a higher monetary cost. (have 1-second resolution)
+  - Can retrieve high resolution metrics in periods of 1 second, 5 seconds, 10 seconds, 30 secs or any multiple of 60 seconds
+
+#### Data Retention
+
+- Any resolutions less than 60 seconds: Data is retained for only 3 hours
+- For 60 second resolution, data is retained for 15 days
+- 300 seconds (5 minutes): retained for 63 days
+- 3600 seconds: retained for 455 days
+- **As data ages, it is aggregated and stored for longer periods with less resolution**
+  - Ex: metrics stored at 1 second resolution will be stored for 3 hours at that resolution, then they will be stored for viewing at 60 second resolution for 15 days, 5 minute resolution for 63 days, and 3600 second resolution for 455 days
+
+Statistics: Aggregate over period of time (metric averages, minimum, maximum, etc.)
+Percentiles: Indicates the relative standing of a value in a dataset (95th pecentile = 95% of data is lower than that value and 5% of the data is higher) - helps to identify a normal value or range for a percentage of a dataset
 
 ## Cloudwatch Metrics
 
@@ -58,18 +115,26 @@
 
 ## CloudWatch Alarms
 
-- Created and linked to a specific metric
+- Created and linked to a specific metric over a specified time period
 - Triggered notifications
 - Examples:
   - Auto Scaling: increase or decreast EC2 instances to desired count
   - stop or terminate reboot/recover on fail a EC2 instance
   - SNS: send a notification
   - **Set a billing alarm on CloudWatch Billing metric** (**only available in us-east-1**)
-- Can choose a period to evaluate whether to send an alarm
-- Alarm States:
-  - `OK` (everything is green)
-  - `INSUFFICIENT_DATA` (starts in this state until enough data gathered or can't figure out whether to send alarm)
-  - `ALARM` (sends alarm/sns notification/email etc.)
+- Can choose a period to evaluate whether to send an alarm (i.e. 2 periods of 60 seconds)
+- Alarm Resolutions: on high resolution metrics can set for 10 seconds or 30 seconds.
+  - **The Metric Resolution determines the options of the Alarm Resolution you can select!**
+  - Regular Alarm: any multiple of 60 seconds for default resolution metrics
+- Specify: Period, Evaluation Period, Datapoints, Condition
+- Can get access to rich data using Cloudwatch Agents or on prem.
+  - Need to grant permissions for the agent to publish data into AWS
+
+### Alarm States
+
+- `OK` (everything is green)
+- `INSUFFICIENT_DATA` (starts in this state until enough data gathered or can't figure out whether to send alarm)
+- `ALARM` (sends alarm/sns notification/email etc.)
 
 ### Creating an Alarm
 
@@ -81,7 +146,8 @@
 
 ## Cloudwatch Logs
 
-- Regional service
+- Public, Regional service
+  - **Logs data across a fleet of resources**
 - **Centralizes logs from your AWS resources**
 - Can collect logs from:
   - Elastic Beanstalk - from application
