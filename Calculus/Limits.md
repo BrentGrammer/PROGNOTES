@@ -100,3 +100,36 @@ $$\lim_{x \to 2}(x^2 + 3x - 10) = 0$$
 $$\lim_{x \to a^-}f(x) = \infty$$
 $$\lim_{x \to a^+}f(x) = \infty$$
 $$\lim_{x \to a}f(x) = \infty$$
+
+## Properties of Limits
+
+4 Main Properties:
+
+### Limits are Factorable:
+
+- $f$ is a function $f(x)$ and $c$ is some constant
+- The Limit as some variable approaches some value, where some $c$ times some function $f$ is the same thing as $c$ times the Limit of that function.
+  - **You can factor out the Constant from inside of a function to outside of a function**
+  - Important for understanding why some deritaves of some functions are the way they are.
+    $$\lim_{x \to n}(cf) = c\lim_{x \to n}$$
+
+### Limits are Additive
+
+- The Limit of the Sum of two functions, $f$ and $g$, is the same as the Limit of each function computed separately, and then added together.
+  - The Limit values (what $x$ goes to) must be the same for all the Limits in the equation above.
+    $$\lim_{x \to n}(f+g) = \lim_{x \to n} f + \lim_{x \to n} g$$
+
+### Limits are Multiplicative
+
+- The Limit of $f(x)$ times $g(x)$ is the same thing as the Limit of $f(x)$ times the Limit of $g(x)$
+  $$\lim_{x \to n}(f \times g) = (\lim_{x \to n} f) \times (\lim_{x \to n} g)$$
+
+- Works for exponents as well:
+  $$\lim_{x \to n}(f^3) = (\lim_{x \to n} f) \times (\lim_{x \to n} f) \times (\lim_{x \to n} f)$$
+
+### The Divisive Property of Limits
+
+- The Limit of $f(x)$ divided by $g(x)$ is the same as the Limit of $f(x)$ divided by, the separate term which is, the Limit of $g(x)$
+  $$\lim_{x \to n}(f/g) = (\lim_{x \to n}f) / (\lim_{x \to n}g)$$
+- **NOTE**: This property only holds if the Limit exists.
+  - If any limit is undefined, in this case the denominator is 0, the results will not be equal as in $\lim_{x \to 0}f(g) / \lim_{x \to 0}(x^3 + x^2 + x)$
