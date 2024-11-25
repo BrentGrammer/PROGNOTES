@@ -4,7 +4,7 @@
   - [Plotting Functions Python Notebook](./plotAFunction.ipynb)
 - [Function Shapes](./FunctionShapes.md)
 - [Composite Functions](./CompositeFunctions.md)
-- [Continuous Functions and Discontinuities](./ContinuousFunctions.md)
+- [Continuous Functions and Discontinuities](./ContinuitiesDiscontinuities.md)
 - [Function Symmetry](./FunctionSymmetry.md)
 - [Inverse Functions](./InverseFunctions.md)
 - [Law of Exponents](./LawOfExponentsNaturalLog.md)
