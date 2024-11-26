@@ -233,6 +233,8 @@ $$exp(x)$$
 ### Notes on log functions
 
 - See [Python Notebook](./LawOfExponents.ipynb)
+- [Good Youtube Video on Logs](https://www.youtube.com/watch?v=up21mvokyQ4)
+
 - Logarithms are inverses of power functions (exponential functions)
   $$x = b^y$$
 

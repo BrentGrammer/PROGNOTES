@@ -1,6 +1,7 @@
 # Laws of Exponents and the Natural Log
 
 - See [Python Notebook](./LawOfExponents.ipynb) for code examples
+- [Good Youtube Video on Logs](https://www.youtube.com/watch?v=up21mvokyQ4)
 
 These are 6 very important principles used frequently in proving differentiation properties
 
