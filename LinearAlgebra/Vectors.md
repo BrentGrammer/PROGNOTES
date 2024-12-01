@@ -28,6 +28,7 @@
 
 - $\overrightarrow{\text{v}}$ and some other similar variations
 - common to use a bold lowercase **v**
+  - Matrices are notated with CAPITOL letters (**V**)
 
 ### Geometric Interpretation of a Vector
 
@@ -53,7 +54,7 @@
 - **All vectors must be the same dimensionality** (same number of elements in each)
   $$\begin{bmatrix}1 \\0 \\4 \\3\end{bmatrix} + \begin{bmatrix}2 \\-3 \\-2 \\1\end{bmatrix} = \begin{bmatrix}3 \\-3 \\2 \\4\end{bmatrix}$$
 
-### Geometrically adding Vectors
+### Geometric Interpretation
 
 - Put the TAIL of one vector at the HEAD of the other vector
   - See [video](https://www.udemy.com/course/linear-algebra-theory-and-implementation/learn/lecture/10500380) at timestamp 1:49
@@ -76,5 +77,53 @@
 - The subtracted vector's head becomes the new TAIL and the positive vector's HEAD becomes the new HEAD
   $$\begin{bmatrix}1 \\2\end{bmatrix} - \begin{bmatrix}2 \\1\end{bmatrix} = \begin{bmatrix}-1 \\1\end{bmatrix}$$
 
+# Multiplying Vectors (Scalar Multiplication)
 
-# Multiplying Vectors
+- **Changes the length, but preserves the direction of a vector**
+  - Foundation and fundamental concept used in eigen value decomposition
+
+### Scalar
+
+- Single numbers
+- notated with lowercase non-bold greek letters (alpha, beta, lambda): $\alpha {\space} \beta {\space} \lambda$
+
+### Algebraic Interpretation
+
+- Multiply each element of the vector by the scalar:
+  $$7{\begin{bmatrix}-1 \\0 \\1\end{bmatrix}} = {\begin{bmatrix}-7 \\0 \\7\end{bmatrix}} $$
+
+### Geometric Interpretation
+
+- Stretch or Shrink the vector by the amount specified by the Scalar
+  - Does NOT change the direction of the vector
+  - the Scalar "scales" the vector
+- $\lambda>1$: If the Scalar is greater than 1, it will scale the vector larger/longer
+- $\lambda \epsilon(0,1)$: If between 0 and 1, the resulting vector points in the same direction and will be smaller/shorter than the original.
+  - The epsilon $\epsilon$ means that lambda (the Scalar) is a member of or belongs to the set between 0 and 1
+- $\lambda<0>$: When scalar is a negative number, the result is a "spun around" vector pointing the other way.
+  - Note, that the vector is not technically pointing in a "different" direction (it is still on the infinite line in the one dimensional subspace that extends infinitely)
+- NOTE: all vectors that are produced from a scaled vector all lie in the same **subspace**
+
+## The Dot Product
+
+- A single number that provides information about the relationship between two vectors
+  - a.k.a. "The Scalar Product"
+
+### Notation
+
+- Numerous ways of notating the dot product:
+  - greek letter (alpha),
+  - a times b
+  - wide angle brackets
+  - aTb for "transposed" (the first vector transposed times the second vector. This is the most common notation in linear algebra),
+  - the algebraic definition: element-wise multiplication and the sum of all the corresponding elements of the two vectors
+    $$\alpha = a \cdot b = \left\langle a,b \right\rangle = a^Tb \space\text{(most common in lin. alg.)} = \sum^n_{i=1}a_ib_i$$
+
+### Computing the Dot Product
+
+- Both vectors must be the same size/dimensionality
+  - Otherwise the dot product is undefined
+- Do elementwise multiplication, and sum all the products together for the final result:
+
+$$\begin{bmatrix}1 \\0 \\2 \\5 \\-2\end{bmatrix} \begin{bmatrix}2 \\8 \\-6 \\1 \\0\end{bmatrix}$$
+$$\textbf{v}^T\textbf{w} = 1 * 2 + 0 * 8 + 2 * (-6) + 5 * 1 + (-2) * 0 = -5$$
