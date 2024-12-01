@@ -104,7 +104,7 @@
   - Note, that the vector is not technically pointing in a "different" direction (it is still on the infinite line in the one dimensional subspace that extends infinitely)
 - NOTE: all vectors that are produced from a scaled vector all lie in the same **subspace**
 
-## The Dot Product
+# The Dot Product
 
 - A single number that provides information about the relationship between two vectors
   - a.k.a. "The Scalar Product"
@@ -127,3 +127,25 @@
 
 $$\begin{bmatrix}1 \\0 \\2 \\5 \\-2\end{bmatrix} \begin{bmatrix}2 \\8 \\-6 \\1 \\0\end{bmatrix}$$
 $$\textbf{v}^T\textbf{w} = 1 * 2 + 0 * 8 + 2 * (-6) + 5 * 1 + (-2) * 0 = -5$$
+
+## Properties of the Dot Product
+
+### The Distributive property (The dot product IS)
+
+- Distribute the $a$ into each term:
+  Ex: $a(b+c) = ab + ac$
+- The vector dot product is distributive:
+  - $\textbf{a}^T(\textbf{b}+\textbf{c}) = \textbf{a}^T\textbf{b} + \textbf{a}^T\textbf{c}$
+
+### The Associative Property (The dot product is NOT)
+
+- In most linear algebra, you can change parentheses anywhere with multiplication: $a(b\cdot c) = (a \cdot b)c$
+- The Dot Product is NOT associative
+  - $\textbf{a}^T(\textbf{b}^T\textbf{c}) \neq (\textbf{a}^T\textbf{b})^T\textbf{c}$
+  - One side can produce a column while the other produces a row, or vector pairs could be different dimensions, etc.
+  - Note: there are rare special cases where this does not hold and it is associative
+    - one vector is the zeros vector
+    - case 2, all vectors equal to each other: $a = b = c$  
+  - Also Note: matrix multiplication, otoh, is associative
+
+### Commutative Property
