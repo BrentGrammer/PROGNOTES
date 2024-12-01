@@ -44,3 +44,37 @@
     - i.e. $\begin{bmatrix}{1,2}\end{bmatrix}$ is not x = 1 and y = 2, it is **one step over from the TAIL and 2 steps up.**
     - Note: when the vector is in Standard Position (0,0 origin for the tail), then the vector elements do cooincide with x and y coordinates.
 - NOTE: geometric vectors are useful in 2 and 3 dimensions, but beyond that you usually have to switch back to algebraic vectors.
+
+# Adding and Subtracting Vectors
+
+## Adding Vectors
+
+- Simply add the elements (per row or column) of one vector to the other
+- **All vectors must be the same dimensionality** (same number of elements in each)
+  $$\begin{bmatrix}1 \\0 \\4 \\3\end{bmatrix} + \begin{bmatrix}2 \\-3 \\-2 \\1\end{bmatrix} = \begin{bmatrix}3 \\-3 \\2 \\4\end{bmatrix}$$
+
+### Geometrically adding Vectors
+
+- Put the TAIL of one vector at the HEAD of the other vector
+  - See [video](https://www.udemy.com/course/linear-algebra-theory-and-implementation/learn/lecture/10500380) at timestamp 1:49
+  - The Vector Sum is the straight line vector from the TAIL of the first vector to the HEAD of the last vector
+    - see [video explanation](https://www.udemy.com/course/linear-algebra-theory-and-implementation/learn/lecture/10500380) at timestamp 7:09
+
+## Subtracting Vectors
+
+### Two ways to think about subtracting vectors
+
+#### 1.
+
+- You can think of adding two vectors, but multiply all the elements in the second vector by -1.
+- Has the effect of flipping/rotating the vector the other way
+  $$\begin{bmatrix}1 \\2\end{bmatrix} + \begin{bmatrix}-2 \\-1\end{bmatrix} = \begin{bmatrix}-1 \\1\end{bmatrix}$$
+
+#### 2.
+
+- Put both vectors in standard position (geometric interpretation, i.e.2d or 3d)
+- The subtracted vector's head becomes the new TAIL and the positive vector's HEAD becomes the new HEAD
+  $$\begin{bmatrix}1 \\2\end{bmatrix} - \begin{bmatrix}2 \\1\end{bmatrix} = \begin{bmatrix}-1 \\1\end{bmatrix}$$
+
+
+# Multiplying Vectors
