@@ -12,6 +12,7 @@
   - Provides a FIPS 140-2(L2) U.S. security standard
     - The L2 (Level 2 compliance) is important and differentiates KMS from other services
     - **important for the exam**
+- Also see [CloudHSM](./CloudHSM.md) for similar service with some differences
 
 ## KMS Keys
 
@@ -75,11 +76,10 @@ aws kms encrypt \
 
 ```bash
 aws kms decrypt \
-  --ciphertext-blob fileb://not_battleplans.enc # use ciphertext-blob to pass in ciphertext (the encrypted data) \ 
+  --ciphertext-blob fileb://not_battleplans.enc # use ciphertext-blob to pass in ciphertext (the encrypted data) \
   --output text \ # outputs text with different fields
   --query Plaintext | base64 --decode > decryptedplans.txt # get Plaintext field which is base64 encoded text, so use tool to decode it back to original form (the text)
 ```
-
 
 ### Decryption in KMS
 
@@ -254,6 +254,7 @@ Example key policy:
 - For AWS Managed keys is turned on once a year
 
 ### Deleting Keys
+
 - Select the key in KMS UI
 - Click Key Actions dropdown
   - Schedule key deletion option

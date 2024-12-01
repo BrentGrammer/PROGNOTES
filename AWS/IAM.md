@@ -157,6 +157,7 @@
 ### Policy Aggregation
 
 - If there are multiple policies involved for an action (a user policy, a group policy that the user belongs to, and a resource policy for example), then all statements are evaluated and if there is any explicit DENY in any of them - that wins.
+
   - Same priority rules listed above apply across all statements and policies.
 
   **Resource Policy**: (a policy that is attached to a resource instead of an IAM identity)
@@ -278,3 +279,173 @@
 - Switching accounts in the UI
 - cross account access using roles
 - Identity Federation
+
+# IAM Policy Examples:
+
+### Multi-part policies with a Condition
+
+- Multi-part Policy: This policy has explicit Deny's that overlap with the Allow effects, but has a condition to say that the Deny only applies during a certain timeframe
+- Uses `aws:CurrentTime` in the condition which is evaluated at the time the statement is evaluated
+- This policy effectively makes objects in the holidaygifts bucket Write Only (no reads) between December first and December 25th
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:PutObject",
+        "s3:PutObjectAcl",
+        "s3:GetObject", // overlaps with Deny (explicit deny always wins, but with condition - see below)
+        "s3:GetObjectAcl", // overlaps with Deny
+        "s3:DeleteObject"
+      ],
+      "Resource": "arn:aws:s3:::holidaygifts/*"
+    },
+    {
+      "Effect": "Deny",
+      "Action": ["s3:GetObject", "s3:GetObjectAcl"],
+      "Resource": "arn:aws:s3:::holidaygifts/*",
+      "Condition": {
+        // condition means deny applies during these times only
+        // `aws:CurrentTime` always evaluates to the date/time when this statement is evaluated - this checks the current time is later or sooner than a specified datetime
+        "DateGreaterThan": { "aws:CurrentTime": "2022-12-01T00:00:00Z" },
+        "DateLessThan": { "aws:CurrentTime": "2022-12-25T06:00:00Z" }
+      }
+    }
+  ]
+}
+```
+
+### Single Deny Statement with Inverse Operations
+
+- This statement has a single part of Deny.
+- Generally when seeing statements like this, they will be used with separate Allow policies as well (since everything is implicitly Denied in AWS without an Allow effect)
+- This uses `NotAction` which is the inverse of Actions - this means that any action that is NOT specified in NotActions will be denied
+- `StringNotEquals` is also a inverse operational condition
+- `aws:RequestedRegion` resolves to the region of the service you are interacting with when this statement is evaluated
+- This policy effectively Denies regional operations if they're taking place in any region EXCEPT the list of regions in the Condition (deny these for all regions except the two listed), unless it is a global service (listed under the NotAction)
+  - Note again, that this policy needs to be used in conjuction with another Allow policy to allow anything at all, etc.
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "DenyNonApprovedRegions",
+      "Effect": "Deny",
+      // NotAction matches any actions that are not those listed here
+      // exclude these services from being affected by the conditional Deny effect:
+      // These services are global services, so we exclude them given our current region condition below. These services will not be explicitly denied for any region, then since cond would always fail for these. Most global services operate in us-east-1 from a logging perspective
+      "NotAction": ["cloudfront:*", "iam:*", "route53:*", "support:*"],
+      "Resource": "*",
+      "Condition": {
+        "StringNotEquals": {
+          // inverse op
+          // Condition applies the Deny effect if region of current service is not one of these:
+          "aws:RequestedRegion": ["ap-southeast-2", "eu-west-1"]
+        }
+      }
+    }
+  ]
+}
+```
+
+### Multi-part policy with Variables/multiple Statements
+
+- [AWS Variables that can be used in Policies](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_variables.html)
+- Policy with 3 Allow statements
+- With multiple Allows, overlap does not matter (unlike with Allow/Deny effects) - the end affect is still just to Allow something
+- NOTE: there are some S3 Actions where the Resource must be marked as `*` (see `s3:ListAllMyBuckets` and `s3:GetBucketLocation` below, and `s3:CreateBucket`)
+- Often you isolate Actions into separate statement entries based on what Resource is used/referenced they apply to
+- In this example, there is a bucket with a home folder structure (`home/{user}` folder for each user)
+- Uses the variable `aws:username` to reference folders named by the user names
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      // allow listing buckets, but not seeing user folders in home folder
+      "Action": [
+        "s3:ListAllMyBuckets", // these two actions allow listing buckets
+        "s3:GetBucketLocation"
+      ],
+      "Resource": "*" // must use * for these s3 actions
+    },
+    {
+      "Effect": "Allow",
+      "Action": "s3:ListBucket",
+      "Resource": "arn:aws:s3:::cl-animals4life",
+      // allow listbucket op only for listing contents of following prefixes/namespaces:
+      "Condition": {
+        "StringLike": {
+          "s3:prefix": [
+            "", // matches no prefix - allows listbucket op at the top lvl
+            "home/", // matches home prefix, allows listing folders in home namespace
+            "home/${aws:username}/*" // show contents in user's home folder
+          ]
+        }
+      }
+    },
+    {
+      "Effect": "Allow",
+      "Action": "s3:*", // allow all s3 ops on your home folder or any object inside the user's home folder
+      "Resource": [
+        "arn:aws:s3:::cl-animals4life/home/${aws:username}",
+        "arn:aws:s3:::cl-animals4life/home/${aws:username}/*"
+      ]
+    }
+  ]
+}
+```
+
+# Evaluating Permissions
+
+### Components of permission evaluation
+
+- Explicit Deny effects
+- Organization Service Control Policies (SCPs)
+  - Impact what identities in Organization Member Accounts can do
+- Resource Policies - permissions on the resource being accessed
+- IAM Identity Boundaries - even if Identity Policies allow for a certain action, the Identity Boundaries in place may not allow it
+- Session Policies - assuming an IAM Role could have Session limited permissions applied
+- Identity Policies are involved (multi-account access)
+
+## Policy Evalulation Logic
+
+### For Single AWS Account (same account)
+
+- [video](https://learn.cantrill.io/courses/1101194/lectures/27994716) timestamp 3:20
+
+- AWS gathers all policies that apply to an access attempt for a particular Identity using a particular Resource
+- Any Explicit Deny: AWS gathers a list of all these policies and then first, determines if there is an Explicit Deny for what the Identity is trying to do
+  - If explicit Deny found, then evaluation STOPS and that takes precendence over everything else
+- SCPs: Then Service Control Policies are checked (part of AWS Organizations product to determine what members of accounts can do, in this case what identities in the same account can do)
+  - If there are multiple SCPs in different accounts that apply for the org, the only one that counts is the one in the account that the Identity belongs to.
+  - Checks if there are any Allow actions in the SCP. If not, all actions not found allowed are implicitly Denied
+  - Processing permissions continues if no SCP exists
+- Resource Policy: for the resource that the identity is attempting to access. If it contains an Allow for the action, then processing permissions stops
+  - If no Allow actions found for the access operation, then processing continues
+  - This is different from the others in that there is no implicit Deny if no Allow is found and permissions checks continue instead of stop
+- Boundaries: checks if there is a boundary and if the action is Allowed. If not, then the Action is implicitly Denied
+  - If no boundary found, then processing continues
+- Session Policies: If this step is reached, then it means an IAM Role is being used for the action.
+  - Checks for session policy with reduced set of permissions for the role (i.e., if a session contains a reduced set of permissions for a Role that would normally have more)
+  - Checks if the action is Allowed
+  - If no Allow, implicit Deny is applied and processing stop
+  - If no session policy, processing continues
+- Check Identity Policies: If no explicit Allow listed for resource/action, then the action is implicitly Denied
+
+### Multi-account Permission Logic
+
+- One account contains the Identity, the other account contains the resource being accessed/acted on
+  - Account A contains Identity Policies, Account B contains a resource policy
+- Two Requirements for cross-account Access:
+  - Explicit Allow is needed in Account A (allow access OUT to Acct B)
+  - and an explicit Allow is needed in Account B (allow access IN from Acct A)
+  - If both of these are not in place, access is Denied
+
+
