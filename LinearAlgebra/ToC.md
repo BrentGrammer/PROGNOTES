@@ -4,4 +4,5 @@
 
 ## Table of Contents
 
+- [Dot Product](./DotProduct.md)
 - [Vectors](./Vectors.md)

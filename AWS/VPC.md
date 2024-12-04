@@ -6,7 +6,10 @@
 - **Custom VPCs** can be many per region.
 - Linked to a specific region, but spans all availability zones in that region (subnets within the vpc only span one AZ - see below)
 - Each instance in a VPC can have a public (internet accessible) and private (only within VPC accessible) IP address. (you can also turn off public ip address)
-- **SUBNETS**: A partition of your VPC network associated with and corresponds to an Availability Zone
+
+### **SUBNETS**:
+
+- A partition of your VPC network associated with and corresponds to an Availability Zone
   - Each subnet is set to an AZ on creation and cannot be changed later.
   - Ex: you can have a public subnet accessible by the internet and a private subnet that's not
     - Public: accessible by internet
@@ -16,9 +19,17 @@
       - Private subnet resources: Databases, dont need access to internet
       - Need to create a Route table and configure private subnets manually
   - use **Route Tables** to define access between the internet and between subnets
-- CIDR Range: a range of IP addresses that are allowed within the VPC
-  - Minimum is /28 (16 host addrs) and maximum size allowed is /16 (65,536 IP host addrs)
-    - probably avoid 10.0 and 10.1 up through 10.10 (since people will probably pick those already)
+- *AWS Services use Subnets where IP addrs are allocated from. 
+  - You can't just launch services in a VPC, you need to use subnets for the services
+  - Subnet is one AZ, so you need to think about how many AZs you will need (depends on regions since some regions have less AZs than others...). 3 AZs is a good starting point (will work in any region) + 1 spare - 4 AZs
+- You should have a subnet for each AZ per tier (Application, Database, Web tiers + a spare)
+
+### CIDR Range:
+
+- a range of IP addresses that are allowed within the VPC
+  - **Minimum range is /28 (16 host addrs) and maximum size allowed is /16 (65,536 IP host addrs)**
+    - Good starting point is to use a 10. range of IP addrs
+    - avoid picking ranges in 10.0 and 10.1 up through 10.10 (since people will probably pick those already) - start with 10.16 range for example.
     - When choosing how many think about the maximum number of regions the business will operate in and add a few as a buffer. Shoot for 2 network IP ranges for each region per account.
       - see [video](https://learn.cantrill.io/courses/1101194/lectures/26950363) at timestamp 10:41
   - recommended is to use 10. addressed networks within that range (10.1 through to 10.255). try starting with 10.16
@@ -26,20 +37,24 @@
 - Internet Gateway: helps the VPC instance/subnet connect with the internet.
   - An Internet Gateway is attached to the VPC
   - Pubic subnets have a route to the internet gateway (traffic goes through it for comms with internet and subnet)
-- NAT Gateway: allows Private Subnets to access the internet, but they are still private and inbound traffic is denied
-  - Used if service needs to download software or updates from the internet for ex.
-  - NAT Gateway is AWS Managed
-  - NAT Instances are self managed by you
-  - Route from private subnet goes to NAT Gateway/Instance and that goes to the Internet Gateway
+- increasing prefix increases number of subnets: /16 to /17 creates 2 networks, /16 to /18 creates 4, to /19 creates 8 and to /20 creates 16 networks
 
-### Default VPC** - only ONE per region allowed and created by default. 
-  - **default CIDR Range is preset for default VPC to 172.31.0.0/16**
-  - Resiliency: One subnet is configured for every AZ in the region.
-  - The subnets cannot overlap with others:
-    - AZ 1: 172.31.0.0/20 -- 172.31.0.0 to 172.31.15.255
-    - AZ 2: 172.31.16.0/20 -- 172.31.16.0 to 172.31.31.255
-    - AZ 3: 172.31.32.0/20 -- 172.31.32.0 to 172.31.47.255
-    - The define the ranges for the subnets that can be used within the VPC.
+### NAT Gateway: 
+- allows Private Subnets to access the internet, but they are still private and inbound traffic is denied
+- Used if service needs to download software or updates from the internet for ex.
+- NAT Gateway is AWS Managed
+- NAT Instances are self managed by you
+- Route from private subnet goes to NAT Gateway/Instance and that goes to the Internet Gateway
+
+### Default VPC\*\* - only ONE per region allowed and created by default.
+
+- **default CIDR Range is preset for default VPC to 172.31.0.0/16**
+- Resiliency: One subnet is configured for every AZ in the region.
+- The subnets cannot overlap with others:
+  - AZ 1: 172.31.0.0/20 -- 172.31.0.0 to 172.31.15.255
+  - AZ 2: 172.31.16.0/20 -- 172.31.16.0 to 172.31.31.255
+  - AZ 3: 172.31.32.0/20 -- 172.31.32.0 to 172.31.47.255
+  - The define the ranges for the subnets that can be used within the VPC.
 - Some services expect a default VPC to exist, so generally should leave it in place, but not use it for anything in production (structure and CIDR range cannot be change and is inflexible)
 - Best practice is NOT to use the default VPC directly
 
