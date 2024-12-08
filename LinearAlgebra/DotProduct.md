@@ -116,3 +116,8 @@ $$\textbf{v}^T\textbf{w} = 1 * 2 + 0 * 8 + 2 * (-6) + 5 * 1 + (-2) * 0 = -5$$
 
 - Algebraic expression of A transpose B is equal to the cosine of the angle between a and b, multiplied by the magnitudes of the two vectors
   $$a^Tb = \cos{(\theta_{ab})}||a|| \ ||b||$$
+
+## Cauchy Schwarz Inequality
+
+- Relationship of dot product to lengths of the vectors
+- See [Cauchy Schwarz Inequality](./CauchySchwarz.md)
