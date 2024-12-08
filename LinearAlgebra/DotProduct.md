@@ -121,3 +121,11 @@ $$\textbf{v}^T\textbf{w} = 1 * 2 + 0 * 8 + 2 * (-6) + 5 * 1 + (-2) * 0 = -5$$
 
 - Relationship of dot product to lengths of the vectors
 - See [Cauchy Schwarz Inequality](./CauchySchwarz.md)
+
+## Affects of Scalar Multiplication on the Sign
+
+- The sign of a dot product is not invariant to, and is affected by, scalar multiplication
+  $$(a \times \text{scalar1}) * (b \times \text{scalar2}) = \text{sign/scalar-dependent result}$$
+- see [notebook](./dotproduct.ipynb) for examples
+- When the vectors are orthogonal (90 deg angle between them geometrically), and the numbers involved are negative (scalar or vector elements), then the scalar multiplication and the vector dot product original is 0
+  - The cosine is 0 due to the 90 deg (1/2 pi)
