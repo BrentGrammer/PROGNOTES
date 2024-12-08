@@ -30,6 +30,14 @@
 
 - Trick to remembering the formulas: "soh-cah-toa"
 
+### Soh-cah-toa Rule
+
+- The sine of angle theta $\theta$ is equal to the Opposite (vertical side of a right triangle) divided by the Hypotenuse (long diagonal side of the right triangle)
+
+### Sin Cos squared rule
+
+- $\sin{}^2 + \cos{}^2 = 1$
+
 ### Sin and Cosin are Ratios (Unitless)
 
 - The ratio is UNIT-LESS: The specific units of measurement (ft., inches, etc.) do NOT matter
@@ -40,7 +48,7 @@
 - A Radian is a measure of the Angle in the lower corner of the triangle at the origin, coords 0,0 to the point on the Unit Circle
 - Radians are an alternative measure to degrees:
   - 1 radian ≈ 57.3 degrees
-  - pi radians (1 radian * 3.14...) = 180 degrees
+  - pi radians (1 radian \* 3.14...) = 180 degrees
   - 360 degrees = $2\pi$ Radians = A full circle
   - 90 degrees = $\pi \over 2$ Radians
 - Goes from $0$ Radians to $2\pi$ Radians (for one full cycle around the Unit Circle)
