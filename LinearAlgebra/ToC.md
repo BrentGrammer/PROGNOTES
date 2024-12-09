@@ -4,6 +4,8 @@
 
 ## Table of Contents
 
-- [Dot Product](./DotProduct.md)
-  - [Cauchy-Schwarz Inequality (Dot Products)](./CauchySchwarz.md)
 - [Vectors](./Vectors.md)
+  - [Dot Product](./DotProduct.md)
+  - [Cauchy-Schwarz Inequality (Dot Products)](./CauchySchwarz.md)
+  - [Cross Product](./CrossProduct.md)
+  - [Outer Product](./OuterProduct.md)

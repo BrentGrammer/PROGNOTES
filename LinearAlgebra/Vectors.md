@@ -104,3 +104,25 @@
   - Note, that the vector is not technically pointing in a "different" direction (it is still on the infinite line in the one dimensional subspace that extends infinitely)
 - NOTE: all vectors that are produced from a scaled vector all lie in the same **subspace**
 
+# Hadamard (Element-wise) Multiplication of Vectors
+
+- 2 vectors must be same size/dimensionality
+
+$$\begin{pmatrix} 1 \\ 0 \\ 2 \\ 5 \\ -2 \end{pmatrix} \odot \begin{pmatrix} 2 \\ 8 \\ -6 \\ 1 \\ 0 \end{pmatrix} = \begin{pmatrix} 2 \\ 0 \\ -12 \\ 5 \\ 0 \end{pmatrix}$$
+
+# Vector Multiplication
+
+- See [Notebook](./vectormultiplication.ipynb)
+
+## The Dot Product
+
+- See [NOTES](./DotProduct.md)
+
+## The Inner Product
+
+- See [Notes](./OuterProduct.md)
+- Alternative to the Dot Product
+
+## Cross Product
+
+- See [Notes](./CrossProduct.md)
