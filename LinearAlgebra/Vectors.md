@@ -82,6 +82,16 @@
 - **Changes the length, but preserves the direction of a vector**
   - Foundation and fundamental concept used in eigen value decomposition
 
+## Computing the Length (Magnitude/Norm) of a Vector
+
+- The length can be referred to as the "magnitude" or the "norm"
+- Take the square root of the dot product of the vector with itself
+  $$||v|| = \sqrt{\textbf{v}^T\textbf{v}}$$
+- This formula works because of the pythagorean theorem.
+  - The length of a vector in standard position could be thought of as the hypotenuse
+  - The first element in vector $\begin{bmatrix}2,3\end{bmatrix}$ for example, is 2 which is the length of the adjacent side of a right triangle when projected to the x-axis, and 3 which is the length of the opposite side of a right triangle (vertical height). so $||v||^2 = (v_1)^2 + (v_2)^2$, i.e. $c^2 = a^2 + b^2 = 2^2 + 3^2 = 13$, and therefore the square root of 13 is vector length $||v||$
+  - The algebraic application (vs. the geometrical in 2d or 3d) becomes useful in higher dimensions
+
 ### Scalar
 
 - Single numbers

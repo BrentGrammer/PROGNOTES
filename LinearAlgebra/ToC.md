@@ -7,5 +7,6 @@
 - [Vectors](./Vectors.md)
   - [Dot Product](./DotProduct.md)
   - [Cauchy-Schwarz Inequality (Dot Products)](./CauchySchwarz.md)
+  - [Complex Numbers](./ComplexNumbers.md)
   - [Cross Product](./CrossProduct.md)
   - [Outer Product](./OuterProduct.md)
