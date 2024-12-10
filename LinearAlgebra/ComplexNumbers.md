@@ -65,6 +65,7 @@ $$= 25 + 16i$$
 
 ## Hermitian Transpose (a.k.a. "Conjugate Transpose")
 
+- Useful for computing the Dot Product of vectors that have Complex Numbers
 - Often what is used to transpose complex vectors/matrices
 - Takes into account an operation on Complex Numbers called the Complex Conjugate
 
