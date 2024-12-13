@@ -92,7 +92,17 @@
   - The first element in vector $\begin{bmatrix}2,3\end{bmatrix}$ for example, is 2 which is the length of the adjacent side of a right triangle when projected to the x-axis, and 3 which is the length of the opposite side of a right triangle (vertical height). so $||v||^2 = (v_1)^2 + (v_2)^2$, i.e. $c^2 = a^2 + b^2 = 2^2 + 3^2 = 13$, and therefore the square root of 13 is vector length $||v||$
   - The algebraic application (vs. the geometrical in 2d or 3d) becomes useful in higher dimensions
 
-### Scalar
+### The Length/Magnitude of the Dot Product of Two Vectors
+
+- You do not take the square root when computing the magnitude of a dot product/scalar, you just take the absolute value (to represent length on a 1D number line to the origin):
+  $$|v^Tv| = ||v^Tv||$$
+- The dot product between two (different) vectors is not Euclidean length, so you don't need to take its square root. If you wanted to compute the distance between two points, then you would need the square root.
+
+- You can also think about the geometric interpretation of the dot product -- the magnitude of one vector times the magnitude of the other vector times the cosine of the angle between them. That's also not a length. Or think about two vectors that are really long, like as long as the observable universe. But they meet at a right angle, so the dot product between them is 0.
+
+- Now, when the two vectors are the same, then the angle is 0 and cosine of that is 1. So then the dot product of a vector with itself ends of being the same as the length squared. But the dot product on its own is not a measure of length, because it's also dependent on the angle.
+
+## Scalar
 
 - Single numbers
 - notated with lowercase non-bold greek letters (alpha, beta, lambda): $\alpha {\space} \beta {\space} \lambda$
@@ -136,3 +146,35 @@ $$\begin{pmatrix} 1 \\ 0 \\ 2 \\ 5 \\ -2 \end{pmatrix} \odot \begin{pmatrix} 2 \
 ## Cross Product
 
 - See [Notes](./CrossProduct.md)
+
+# The Unit Vector
+
+## Definition
+
+- A Vector with a length of 1
+  - The "Unit Number" is the number 1
+- _You can compute the Unit Vector for another vector that will be the same orientation/angle/direction, but its length will be transformed to 1 from the original length_
+- Used in Statistics (Correlation Coefficient b/w two vars - Pearson Correlation Coefficient), Machine Learning (Cosine Similarity), useful for Basis Vectors (they only change direction/orientation, not length)
+
+### Algebraic Definition:
+
+- Some vector that is a scaled multiplication of $v$ - $\mu \textbf{v}$ - such that (s.t.) the magnitude (length - $||$) of $\mu \textbf{v}$ is equal to 1
+  $$\mu \textbf{v} \space \text{s.t.} \space ||\mu \textbf{v}|| = 1$$
+
+### Principles
+
+- All vectors have some length and some orientation
+- All vectors with the same orientation (the same angle) are related to each other by some scalar multiplication
+  - This allows you to create a Unit Vector in the same direction as some other vector
+
+### Finding $\mu$ - the scalar to get a Unit Vector
+
+- **To get the Unit Number (1) by multiplying by any number, you can multiply the number by its recipricol to get 1**:
+  $$\mu 3 = 1 \rightarrow \mu = 1/3$$
+- To find the scalar necessary to scale a vector to get a unit vector, take the reciprocol of the magnitude (length) of that vector:
+  $$\mu = {1 \over{||\textbf{v}||}}$$
+
+#### EXCEPTION: The Zero Vector
+
+- A vector containing all zeros does NOT have a corresponding Unit Vector
+  - Geometrically this vector has no length and is just a point, so it's not possible to define some other vector in the same direction of the Zero Vector
