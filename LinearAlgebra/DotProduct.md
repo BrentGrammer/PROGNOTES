@@ -100,6 +100,10 @@ $$\textbf{v}^T\textbf{w} = 1 * 2 + 0 * 8 + 2 * (-6) + 5 * 1 + (-2) * 0 = -5$$
 - **Important thing to know is the relationship between the cosine of the angle between two vectors and the sine of the dot product between those two vectors**
   - vectors that meet at a right angle are orthogonal and have a dot product of zero. a'b=0 is one of the most important expressions in linear algebra, and is the foundation for myriad applications ranging from subspace projections to least-squares statistical modeling to eigenvalue decomposition and singular value decomposition.
 
+#### In Machine Learning:
+
+- The dot product of normalized vectors ranges between -1 and 1 (effectively the cosine of the angle between them). And in ML, correlation between two features also ranges between -1 and 1.
+
 ### The Law of Cosines
 
 - Proof that the algebraic and geometric expressions for the dot product are equivalent
