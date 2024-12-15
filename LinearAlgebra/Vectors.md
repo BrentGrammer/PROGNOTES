@@ -178,3 +178,179 @@ $$\begin{pmatrix} 1 \\ 0 \\ 2 \\ 5 \\ -2 \end{pmatrix} \odot \begin{pmatrix} 2 \
 
 - A vector containing all zeros does NOT have a corresponding Unit Vector
   - Geometrically this vector has no length and is just a point, so it's not possible to define some other vector in the same direction of the Zero Vector
+
+# Notes on Dimension
+
+- Dimension represents the number of elements in a vector
+- Each dimension in a vector can represent a new "feature" or new piece of information about the Vector
+- Each dimension represents a new geometric direction
+- The axes on a geometric plane in linear algebra correspond to a dimension (element) in a Vector
+
+  - i.e. instead of x and y axes, for a given vector $v$, we would have $v_1$ and $v_2$ axes for a 2-D Vector, for example
+
+- NOTE: A 3-Dimensional Vector is still a line (i.e. 1-D subspace embedded in 3 Dimensions, for ex.), but it is 3-Dimensional because it has 3 elements.
+  - It could be said that a 3-D vector corresponds to a line in a 3 Dimensional space
+
+## Fields
+
+- **Field**: A set of numbers, upon which a set of arithmetic (addition,subtraction,division,multiplication) can be used and is valid.
+
+### Notation of Fields
+
+- Indicated with a Hollow Letter symbol:
+  $$\mathbb{R} - \text{Real Numbers}$$
+  $$\mathbb{C} - \text{Complex Numbers}$$
+  $$\mathbb{Z} - \text{Integers ("Counting Numbers" 1,2,3,4,5... Note: NOT a field!)}$$
+
+#### Indicate Dimensionality in Superscript
+
+- $N$ or $M$ in the superscript is a conventional place holder for the number of dimensions (i.e. two different sets of vectors with different dimensionalities, used in matrices often):
+  $$\mathbb{R}^N, \mathbb{R}^M$$
+- Example of dimensions specified:
+  $$\mathbb{R}^2 \space \rightarrow \begin{bmatrix}3 -4\end{bmatrix}$$
+
+#### Vectors can be Members of a Field
+
+- Vectors can be members of ($\in$) a Field
+- In this example, we can already tell by looking at this that the dot product of these two vectors $v$ and $w$ is not defined unless $N$ is equal to $M$, for example.F
+  $$\textbf{v} \in \mathbb{R}^N$$
+  $$\textbf{w} \in \mathbb{R}^M$$
+
+# Subspace
+
+- Encompass vectors based on **Linear Combinations** of Vectors: Scaling (multiplied by a Scalar) and addition if multiple vectors
+- Subspaces are part of the **AMBIENT SPACE** (the total space of a plane or area they can fall in)
+
+## Formal Definition of Subspace:
+
+- A Vector subspace must
+  - be closed under addition and scalar multiplication
+    - "For any vectors, v and w that are both members of the subspace V, and for any Scalar lambda or alpha in the set of Real Numbers, lambda times v plus alpha times w is still a member of subspace V"
+      $$\forall \textbf{v}, \textbf{w} \in V; \quad \forall \lambda,\alpha \in \mathbb{R}; \quad \lambda \textbf{v} + \alpha \textbf{w} \in V$$
+      - Where $V$ is the subspace, $\forall$ means "for all", $v$ and $w$ are vectors and $\mathbb{R}$ is set of real numbers
+      - i.e. **any way of combining the two vectors linearly results in another vector in the same subspace**
+  - contain the zero vector (implied and given with the first condition above)
+    - if you set the Scalar to be 0, then you get the zero vector (a vector of all zeros)
+
+## Algebraic Interpretation of Subspace
+
+- The set of all Vectors that can be created by taking linear combinations (multiplied by a scalar) of some vector $v$ or a set of Vectors, where the Scalar $\lambda$ is in a set of any Real Value number
+  $$\lambda \textbf{v}, \lambda \in \mathbb{R}$$
+- Any other Vector scaled as $\lambda \textbf{v}$ **is in the same subspace** as Vector $\textbf{v}$
+  $$\textbf{v} = \begin{bmatrix}2 \\ 3\end{bmatrix} \rightarrow 2 \begin{bmatrix}2 \\ 3\end{bmatrix} = \begin{bmatrix}4 \\ 6\end{bmatrix} \text{(In the same subspace as $\textbf{v}$)}$$
+  $$-3 \begin{bmatrix}4 \\ 6\end{bmatrix} = \begin{bmatrix}-12 \\ -18\end{bmatrix} \space \text{(Still in the same subspace as original vector (the **Basis Vector**) $\textbf{v} \space above!$)}$$
+  - (If you took 3 and -2 together (-6) and scaled vector $\textbf{v}$ by that you can get to $\begin{bmatrix}-12 \\ -18\end{bmatrix}$, so it is still in the same subspace)
+- A vector that cannot be multiplied by the same scalar $\lambda$ as another vector is NOT in the same subspace:
+  $$\textbf{v} = \begin{bmatrix}2 \\ 3\end{bmatrix} \rightarrow \begin{bmatrix}2 \\ 4\end{bmatrix} \space \text{(Impossible for [2,4] to be in the same subspace as [2,3] with 1 as the Scalar)}$$
+
+### Can have a Subspace of Multiple Vectors
+
+- A Subspace can be defined by combining multiple vectors as well (all possible Linear Combinations of the two vectors)
+  $$\lambda \textbf{v} + \beta \textbf{w}$$
+- A Vector can be in the same subspace that can be defined by the Vectors $v$ and $w$
+  $$6 \textbf{v} - 4 \textbf{w} = \begin{bmatrix}12 \\ 2\end{bmatrix}$$
+
+## Geometric Interpretation of Subspace
+
+### Single Vector
+
+- If you take a vector and plot it on a graph, then think about all scaled versions of that vector, you'll find that they all lie on an infinitely long line (from $\lambda - \infty$ to $\lambda + \infty$)
+  - One vector describes a line
+  - All scaled versions of the vector represent a 1-Dimensional subspace
+
+### Multiple Vectors
+
+- The subspace of the combination of two vectors is a 2 Dimensional plane
+  - The two vectors which are combined, even though individually they do not have to belong to the same subspace themselves, lie within the 2-D plane (for example on a 3-D plane) that goes infinitely long in all its 2-D directions, encompassing the subspace of their combination
+- **ALL SUBSPACES INTERSECT AT THE ORIGIN**
+  - All subspaces must necessarily include the origin
+- **NOTE**: Having 2 vectors does not necessarily mean you get a plane for the subspace!
+  - Vectors that are already in the same subspace lie along the same 1D subspace
+    $$\lambda \begin{bmatrix}1 \\ 2 \\ 4\end{bmatrix} \quad \mu \begin{bmatrix}2 \\ 4 \\ 8\end{bmatrix}$$
+    - Linear combinations of these two vectors do not result in a 2D subspace, but a 1D subspace, since they are both in the same subspace - the second vector is just a scaled version of the first
+  - In order for the combination of 2 vectors to create a 2D subspace, the two vectors need to be independent of each other!
+
+### Ambient Space
+
+- The total area/plane space that all subspaces can fall into
+- 0D Subspace - the point at the origin
+  - There is only ONE 0D subspace
+- 1D Subspaces - defined by a line
+  - There are an infinite number of 1D subspaces embedded inside a 3D Ambient Space
+- 2D Subspaces - planes
+  - Infinite number of these that can be embedded within a 3D Ambient Space
+- 3D Subspace - 3D area in the ambient space
+  - There is only ONE 3D subspace that fits inside a 3D Ambient Space
+
+### Subspaces with higher than 3D Ambient Space
+
+- For $\mathbb{R}^5$ (5F Ambient Space)
+
+  - 0D subspace = $[0,0,0,0,0]$
+  - A 1D Subspace instance embedded in $\mathbb{R}^5$ Ambient Space: $[0,1,3,1,0]$ - This is a line in 5 Dimensional Space
+
+    $$
+    0D = \left\{
+    \begin{bmatrix}
+    0 \\ 0 \\ 0 \\ 0 \\ 0
+    \end{bmatrix}
+    \right\}
+
+    1D = \left\{
+    \begin{bmatrix}
+    0 \\ 1 \\ 3 \\ 1 \\ 0
+    \end{bmatrix}
+    \right\}
+
+    2D = \left\{
+    \begin{bmatrix}
+    0 \\ 1 \\ 3 \\ 1 \\ 0
+    \end{bmatrix}
+    \begin{bmatrix}
+    9 \\ 4 \\ 2 \\ 3 \\ 1
+    \end{bmatrix}
+    \right\}
+    $$
+
+  - In this example of what looks like a 3D plane, it is actually just a 2D plane, because the last vector is just a scaled version of the 2nd vector - so the subspace is actually 2D!
+    $$
+    3D? (2D) = \left\{
+    \begin{bmatrix}
+    0 \\ 0 \\ 0 \\ 0 \\ 1
+    \end{bmatrix}
+    \begin{bmatrix}
+    0 \\ 0 \\ 0 \\ 1 \\ 0
+    \end{bmatrix}
+    \begin{bmatrix}
+    0 \\ 0 \\ 0 \\ 2 \\ 0
+    \end{bmatrix}
+    \right\}
+    $$
+  - Changing the 3rd vector does not make it a scaled version of another, so taking the combination of these 3 vectors actually creates a 3 Dimensional subspace embedded with $\mathbb{R}^5$:
+    $$
+    3D = \left\{
+    \begin{bmatrix}
+    0 \\ 0 \\ 0 \\ 0 \\ 1
+    \end{bmatrix}
+    \begin{bmatrix}
+    0 \\ 0 \\ 0 \\ 1 \\ 0
+    \end{bmatrix}
+    \begin{bmatrix}
+    0 \\ 0 \\ 1 \\ 0 \\ 0
+    \end{bmatrix}
+    \right\}
+    $$
+    - NOTE: In 5 Dimensional Ambient Space, this 3D subspace still does not fill up all of it as it would in a 3 Dimensional Ambient Space
+    - This is called a **Hyperplane** - indicates some high dimensional space in some even higher ambient space
+
+## Subset vs. Subspace
+
+- A set of points that satisfies some conditions
+  - Does not need to include the origin
+  - Does not need to be closed (under multiplication/addition)
+  - Can have boundaries
+- Example: All points on the XY Plane such that x is greater than 0 and y is greater than 0
+  - This is NOT a subspace, because:
+    - the origin is not included (greater than 0)
+    - Flipping the sign and multiplying a vector in this subset by the Scalar -1, puts it outside of the subset (-x and -y coordinates), therefore it is not a subspace because the first rule for a subspace is that any scalar of a vector must still remain in the subspace defined.
+- A subset can be a subspace, but some subsets are NOT subspaces if they violate the rules of a subspace
