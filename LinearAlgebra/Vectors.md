@@ -354,3 +354,39 @@ $$\begin{pmatrix} 1 \\ 0 \\ 2 \\ 5 \\ -2 \end{pmatrix} \odot \begin{pmatrix} 2 \
     - the origin is not included (greater than 0)
     - Flipping the sign and multiplying a vector in this subset by the Scalar -1, puts it outside of the subset (-x and -y coordinates), therefore it is not a subspace because the first rule for a subspace is that any scalar of a vector must still remain in the subspace defined.
 - A subset can be a subspace, but some subsets are NOT subspaces if they violate the rules of a subspace
+
+# Spans
+
+- Vectors can span a subspace
+- The span of a set of vectors is all possible linear combinations of all the vectors in that set
+- A common question in linear alg. is whether one vector is in the span of another or set of vectors
+
+$$\text{span}(\{\textbf{v}_1,..., \space \textbf{v}_n\}) = \alpha_1 \textbf{v}_1 + ... + \alpha_n \textbf{v}_n, \space \alpha \in \mathbb{R}$$
+
+- All possible lineaer weighted combinations of all the vectors in the set, where $\alpha$ is a member of all real numbers, spans some subspace
+- The span can stretch to infinity since the Scalars can be arbitrarily large or small
+
+### Spans
+
+- A span of a set of vectors (in a set $S$, for example) is the entire space that can be reached by any linear combination of those vectors (multiplying the vectors by some weights/Scalars)
+- We often want to determine if one or a couple vectors is in the span of a set $S$ of vectors
+  - In this example, it is because you can multiply the vectors in the set $S$ by weights to get the vector $\textbf{v}$
+  - It is a weighted combination of vectors in set $S$
+  - The weights are not easy to find quickly and there are matrix operations for determining weights to see if a vector is a member of a set
+    $$\textbf{v} = \begin{bmatrix}1 \\2 \\0\end{bmatrix} \space \textbf{w} = \begin{bmatrix}3 \\ 2 \\1\end{bmatrix} \quad S = \left\{ \begin{bmatrix}1 \\ 1 \\0\end{bmatrix},\begin{bmatrix}1 \\ 7 \\ 0\end{bmatrix}\right\}$$
+    $$\textbf{v} \in \text{span}(S) \rightarrow \begin{bmatrix}1 \\ 2 \\0\end{bmatrix} = { 5 \over 6 } \begin{bmatrix}1 \\ 1 \\0\end{bmatrix} + {1 \over 6} \begin{bmatrix}1 \\ 7 \\ 0\end{bmatrix}$$
+- Note: if the set has 0s in it and the vector we're trying to determine if it is in the set only has non-zero numbers, then we already know it is not in the span (see vector $\textbf{w}$ above - the third element 1 against the 0s in the span set)
+
+#### Geometric Interpretation
+
+- **The span of 2 independent vectors (not scaled versions of each other which would just be on the same line 1D plane) is a 2 dimensional plane**
+
+  - Any point on the plane (which extends infinitely in all directions) can be expressed as some linear scaling of the vectors in the span set.
+    - Since other sets of vectors can be in the space, this means that multiple distinct sets of vectors can span the same space
+  - See visualization of how spans represent a plane in [video](https://www.udemy.com/course/linear-algebra-theory-and-implementation/learn/lecture/10500416) at timestamp 9:35
+
+- The span $S$ above is a two dimensional plane embedded in a 3 dimensional ambient space
+- Vector $\textbf{v}$ is a line that is also in the plane of $S$
+- vector $\textbf{w}$ is not in the same plane (points off in some other direction)
+- The vectors $\textbf{v}$ and $\textbf{w}$ are independent (one cannot be constructed as some multiple of the other), therefore the form a 2-D plane (this may not always be the case if they are dependent and one is just a scaled version of the other - making it on the same line)
+- See visualization in [video](https://www.udemy.com/course/linear-algebra-theory-and-implementation/learn/lecture/10500416) at timestamp 5:20
