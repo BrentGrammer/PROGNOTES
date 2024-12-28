@@ -19,7 +19,7 @@
       - Private subnet resources: Databases, dont need access to internet
       - Need to create a Route table and configure private subnets manually
   - use **Route Tables** to define access between the internet and between subnets
-- *AWS Services use Subnets where IP addrs are allocated from. 
+- \*AWS Services use Subnets where IP addrs are allocated from.
   - You can't just launch services in a VPC, you need to use subnets for the services
   - Subnet is one AZ, so you need to think about how many AZs you will need (depends on regions since some regions have less AZs than others...). 3 AZs is a good starting point (will work in any region) + 1 spare - 4 AZs
 - You should have a subnet for each AZ per tier (Application, Database, Web tiers + a spare)
@@ -39,7 +39,8 @@
   - Pubic subnets have a route to the internet gateway (traffic goes through it for comms with internet and subnet)
 - increasing prefix increases number of subnets: /16 to /17 creates 2 networks, /16 to /18 creates 4, to /19 creates 8 and to /20 creates 16 networks
 
-### NAT Gateway: 
+### NAT Gateway:
+
 - allows Private Subnets to access the internet, but they are still private and inbound traffic is denied
 - Used if service needs to download software or updates from the internet for ex.
 - NAT Gateway is AWS Managed
@@ -142,3 +143,217 @@
 - No need for managing peering, etc.
 - Works with AWS VPCs, Direct Connect Gateway and all the VPN connection options
 - **Way to connect hundreds or thousands of VPCs together including on premises**
+
+# Custom VPCs (Building a VPC Network)
+
+- [Video - theory](https://learn.cantrill.io/courses/1101194/lectures/26953721)
+- [Demo - creating a Custom VPC](https://learn.cantrill.io/courses/1101194/lectures/45241152)
+
+## Some Custom VPC Security Basics
+
+- VPCs are Regionally isolated and Regionally resilient
+  - Created in a Region, and operates in all AZs of that Region
+- VPCs allow you to create isolated Networks, even can have multiple isolated networks in a single account in a single region.
+- Nothing is allowed IN or OUT of a VPC without explicit configuration set up.
+  - A network boundary which provides an isolated blast radius
+  - If a VPC is compromised, the impact is limited to that VPC or anything connected to it
+- Allow for **Default** or **Dedicated** Tenancy
+  - Defined whether resources in the VPC operate on shared hardware or dedicated hardware
+  - **WARNING**: If choosing Dedicated tenancy at first at the VPC level, you are LOCKED IN! If you choose Default for the VPC first, then you can choose later on a per resource basis whether they go on shared or dedicated hardware.
+  - Unless you really know you want Dedicated Tenancy, just pick Default (it is the default option to start)
+
+### IP Addressing
+
+- IP Addresses: IPv4 Private CIDR Blocks by default. Can manually make IP Addrs public to allow access from the public internet.
+- Comes with a pool of IP Addresses: Allocated a mandatory Primary Private IPv4 CIDR Block, configured when you create a custom VPC, and optionally configured public IPs.
+  - Must be at the smallest a /28 prefix (The entire VPC has 16 IP Addresses)
+  - Largest block size is /16 prefix - 65,536 IP addresses.
+  - You can optionally add secondary CIDR blocks up to a limit and more via a support ticket
+- Optional: Configure IPv6 by using a assigned /56 Prefix CIDR Block to the VPC
+  - Note: some features might be limited versus using IPv4
+  - Must let AWS assign the IP range, or use addresses that you already own - you cannot pick a block like you can with IPv4
+  - All ranges that AWS uses for IPv6 are publicly route-able by default (there is no concpet of private and public IP addresses with IPv6). Explicit access from public internet etc still must be configured.
+    - This is not a security concern, just removes some admin overhead.
+
+### DNS provided to VPCs
+
+- Provided by Route53
+- Available on the base IP Address of the VPC + 2.
+  - Example: if VPC addr is `10.0.0.0`, then the DNS IP address is `10.0.0.2`
+- Options for DNS:
+  - `enableDnsHostnames`: Indicates whether instances with Public IPs in a VPC are given public DNS host names.
+  - `enableDnsSupport`: Enables or disables DNS Resolution in the VPC. If enabled, instances in the VPC can use the DNS addr (Base IP + 2 noted above), if disabled then this is not available.
+  - **Check these settings if you have DNS issues and are troubleshooting** - switch them on or off as appropriate if you are having DNS issues to start with.
+- In AWS Console, the DNS settings are in Actions dropdown > Edit VPC Settings > DNS Settings section
+
+### Creating a VPC
+
+- Just give it a name, example, "a4l-vpc1"
+- Allocate a CIDR Range (i.e. `10.16.0.0/16`) which is from your IP planning
+- Under IPv6 CIDR Block, choose `Amazon-provided IPv6 CIDR Block` to make sure the VPC is enabled for IPv6
+- Set Tenancy (Default is recommended)
+- After creating the VPC, the DNS settings are in Actions dropdown > Edit VPC Settings > DNS Settings section
+  - Enable DNS hostnames if using (it is disabled by default) - this way any resources created with public IP Addresses will also have public DNS host names
+
+## VPC Subnets
+
+- [Video demo - creating subnets in a VPC](https://learn.cantrill.io/courses/1101194/lectures/26953794)
+
+- Where services run from inside a VPC, and provide structure and resilience to VPCs
+- Note on diagrams: Blue colored subnets on a AWS diagram means private, green highlighted subnets means they are public
+- Subnets start off as private by default in VPCs and require configuration to make them public
+
+### What is a subnet?
+
+- A subnetwork inside a VPC that is limited to one Availability Zone
+- Created in and for only one AZ and cannot be changed from that. A subnet cannot be in multiple Availabilty Zones.
+  - If the AZ fails, then the subnet in that AZ fails as well
+  - **For resiliency you need to put your components in different AZs so if one fails, you have resiliency**
+  - Note: An AZ can have 0 or many subnets
+- IP Range is a subset of the CIDR Range allocated to the VPC
+  - _The IPs have to be non-overlapping and cannot overlap with other ranges/subnets in the VPC_ (exam question)
+- Ipv6 can be enabled for subnets in the /64 prefix range (a subset of the /56 IPv6 range of the VPC).
+- Communication: Subnets within a VPC can communicate with other subnets within the same VPC
+
+### Reserved IP Addresses in a Subnet
+
+- some IPs in a VPC subnet are reserved
+- There are 5 reserved IP Addresses that you cannot use in a subnet:
+  - **Network Address**: The first/starting address of any subnet (example: for `10.16.16.0/20`, `10.16.16.0` is reserved)
+    - Note: This is true for any IP network even outside of AWS, you never use the first addr in a network
+  - **Network +1**: The first IP after the Network Address (see above). Reserved for the VPC Router which moves data around and in aor out of the VPC subnets. The network Interface of the Router uses this address. Ex: `10.16.16.1`
+  - **Network +2**: The second usable IP addr in the range is reserved and used for DNS. Ex: `10.16.16.2`
+  - **Network +3**: Reserved for future requirements and cannot be used. Ex: `10.16.16.3`
+  - **Network Broadcast**: The last address in the subnet range (ex: `10.16.31.255`). Broadcasting is not allowed, but this address is reserved and cannot be used.
+  - _Always remember to subtract 5 usable addresses from the number of addrs you need in a subnet!_
+
+### DHCP Options Set (Dynamic Host Configuration Protocol)
+
+- A Configuration Object Applied to VPCs - every VPC has a DHCP Options Set linked to it
+- DHCP is how computers recieve IP addresses automatically
+- The DHCP Object is applied once to a VPC and that configuration flows through to subnets in the VPC
+  - controls DNS servers, NTP servers, net bios servers, and more
+- You CANNOT CHANGE the DHCP Options Set - if you want to change the settings, you need to create a new one and link it to the VPC.
+- Can optionally configure a auto assign public IPv4 Address (required for making addresses in a subnet public which make resources in the subnet public)
+- Optionally give addrs in a subnet a IPv6 addr.
+
+### Example of a Subnet plan:
+
+- This is a plan to create 12 subnets across 3 Availability Zones
+- Note how we have copies of the components across 3 Availability Zones in 3 subnets - A, B and C for resiliency
+
+| NAME          | CIDR          | AZ  | CustomIPv6Value |
+| ------------- | ------------- | --- | --------------- |
+| sn-reserved-A | 10.16.0.0/20  | AZA | IPv6 00         |
+| sn-db-A       | 10.16.16.0/20 | AZA | IPv6 01         |
+| sn-app-A      | 10.16.32.0/20 | AZA | IPv6 02         |
+| sn-web-A      | 10.16.48.0/20 | AZA | IPv6 03         |
+
+<br>
+| sn-reserved-B | 10.16.64.0/20  | AZB | IPv6 04         |
+| sn-db-B       | 10.16.80.0/20  | AZB | IPv6 05         |
+| sn-app-B      | 10.16.96.0/20  | AZB | IPv6 06         |
+| sn-web-B      | 10.16.112.0/20 | AZB | IPv6 07         |
+<br>
+| sn-reserved-C | 10.16.128.0/20 | AZC | IPv6 08         |
+| sn-db-C       | 10.16.144.0/20 | AZC | IPv6 09         |
+| sn-app-C      | 10.16.160.0/20 | AZC | IPv6 0A         |
+| sn-web-C      | 10.16.176.0/20 | AZC | IPv6 0B         |
+
+Remember to enable auto assign ipv6 on every subnet you create.
+
+- You would also have a AZ D set of ranges for another subnet for future growth (unknown additional requirements/components that would need addresses) - this is not shown in the table.
+
+- See [video](https://learn.cantrill.io/courses/1101194/lectures/26953794) at timestamp 3:19 for making the IPv6 subnet ranges unique by adjusting the last values in the CIDR block numbers.
+
+### Creating a Subnet
+
+- Normally you do not create all the subnets manually, but you would automate the process.
+
+- AWS Console > VPC > Subnets > "Create Subnet"
+- Follow the specs in your IP plan for assigning the ranges (add a subnet for each group per AZ A, B, C for example as shown above in the table)
+  - Create subnet button in VPC dashboard for each group by AZ
+- Remember to enable auto-assign IPv6 addresses - VPC > Subnets > select subnet > Actions dropdown > Edit Subnet settings > Auto-assign IP Settings section > tick Enable auto-assign IPv6 address
+
+## VPC Routing
+
+- Highly Available device available in all VPCs (default or custom) that moves traffic from one point to another
+  - Runs in ALL Availability Zones that the VPC uses automatically
+- VPC Router has a Network Interface in every subnet in the VPC at the **Network +1** address in the subnet
+- By default, VPC Router routes traffic between subnets in a VPC
+  - For example: An EC2 instance in one subnet wants to communicate with something in another subnet in the VPC, the Router is what moves that traffic between them.
+
+### Route Tables
+
+- Configurable with Route Tables to control what it does with traffic or data when it leaves a subnet
+  - By default, in a subnet, a **Main Route Table** is used unless a custom route table is created.
+    - When creating a custom route table for a subnet, the Main Route Table is disassociated.
+  - A subnet can only have one route table associated with it
+  - A Route table can be associated with many different subnets
+
+#### Managing data leaving the subnet:
+
+- A packet of data has a source, destination and data in it.
+- A route table looks at the destination address of a packet leaving the subnet
+- The router looks at all routes that match the destination address of the packet
+  - A destination address could be a specific IP Address or an entire network (`/32` or `/60` match for ex.), or a default address (`0.0.0.0/0` matches all IPv4 IP addrs)
+    - If there are multiple matches, then the higher the CIDR prefix value of the route, the higher priority it has
+  - When a destination match is found in the route table, the VPC Router forwards the packet to the **Target** field in the route table.
+    - The **Target** field will point to an AWS Gateway or `local` (`local` = destination is within the VPC)
+
+#### "Local" Routes
+
+- All Route Tables have at least one route defined - the `local` route, which maps to the VPC CIDR Range and can be delivered directly.
+  - If the VPC has IPv6 enabled, it will have another default `local` route matching the IPv6 CIDR for the VPC
+- `local` routes in the Route Table **take priority over everything** and have the highest priority in the case of multiple matches for the destination.
+- `local` routes are not editable
+
+#### Exam takeaways for Route Tables
+
+- Route Tables are attached to 0 or more Subnets
+- A Subnet must have a Route Table (either the Main Route Table of the VPC or a custom one you create)
+- Controls what happens to data that leaves the subnet or subnets that the route table is associated with
+- local routes match the VPC IPv4 or IPv6 CIDR Range
+- A Route Table matches to a Destination in a data packet in the table, and directs the data to the Target field for that Destination in the table.
+
+### Internet Gateway
+
+- Regionally resilient gateway that can be attached to a VPC
+
+  - You do NOT need a Gateway per Availability Zone - it is resilient across the region's AZs by design
+
+- VPC can have 0 or 1 Gateways:
+  - 0 Gateways: makes the VPC totally private!
+  - 1 Gateway: makes VPC accessible to public internet
+  - An Internet Gateway can only be attached to 1 VPC at a time
+- Runs from the border of the VPC and the AWS Public Zone
+  - Allows resources with public configured IPv4 or IPv6 IP addresses to be reached from the Internet, or to allow connection to the AWS Public Zone or the Internet.
+  - The AWS Public Zone encompasses access to services like S3, SQS, SNS or any other public AWS service
+- Managed Gateway: AWS handles maintenance and performance of the service
+
+- See [Video Diagram of using an Internet Gateway in a VPC](https://learn.cantrill.io/courses/1101194/lectures/26953800) at timestamp 8:25
+
+#### Nuances of public IPv4 Addresses
+
+- **An EC2 instance in a VPC that is accessible from/to the outside public internet has no awareness of its public IP address - it only has a private IP, and the Internet Gateway maps the private IP to a public IP that it manages.**
+  - an EC2 instance only configures a private IPv4 address and never the public address
+  - IPv6 addresses are natively publicly routeable, so an EC2 instance does know the public IPv6 IP address. (The Internet Gateway does not do any translation as described below in this case)
+- An instance will have an assigned subnet address within CIDR range (i.e. `10.16.16.20` and also a associated public IPv4 address, i.e. `43.250.192.20`)
+  - The IPv4 public address is not directly for the EC2 instance in the subnet of the VPC
+  - A record is created which the Internet Gateway maintains which links the instance's private IP address to its allocated public IP address.
+  - The instance itself **is not configured with that public IP** address! Inside the Operating System on the instance - **it will NOT see or be aware of the public associated IP address inside the instance and only see the private addr!!**
+- An internet gateway will intercept a packet leaving the VPC from an EC2 instance and change the source address on the packet to the public IPv4 address linked to the EC2 instance that it came from (because the EC2 instance attached its private IP address as the source on the packet since it is unaware of the public IPv4 address associated with it and only mapped in the Internet Gateway)
+  - The external destinations of the packet do not know anything about the source private IP address of the EC2 instance that the packet came from, only about the public IP address the INternet Gateway maintains for that EC2 instance.
+  - When the response packet is received by the INternet Gateway, it also again changes the destination address from the Public IP address for the EC2 instance to the private IP address in the VPC subnet for the instance (it has a record of the relationship between the private IP of the instance in the VPC to the public IP address registered for it)
+
+### Bastion Hosts
+
+- a.k.a. Jumpboxes
+- An instance in a public subnet in a VPC
+- Bastion Hosts are used to allow incoming management connections
+  - Once connected, the user can access internal VPC private resources
+- Used as a management point or entry-point for private-only VPCs
+  - A private VPC will have a Bastion Host as the ONLY way to get access to that VPC
+  - Can be configured to accept connections from certain IP addresses, authenticate with SSH, integrate with onprem identity servers, etc.
+  - *They function as the ONLY entrypoint to a highly secure VPC*
+    - Note: There are alternative ways to do this now which are recommended.
