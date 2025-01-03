@@ -390,3 +390,102 @@ $$\text{span}(\{\textbf{v}_1,..., \space \textbf{v}_n\}) = \alpha_1 \textbf{v}_1
 - vector $\textbf{w}$ is not in the same plane (points off in some other direction)
 - The vectors $\textbf{v}$ and $\textbf{w}$ are independent (one cannot be constructed as some multiple of the other), therefore the form a 2-D plane (this may not always be the case if they are dependent and one is just a scaled version of the other - making it on the same line)
 - See visualization in [video](https://www.udemy.com/course/linear-algebra-theory-and-implementation/learn/lecture/10500416) at timestamp 5:20
+
+# Linear Dependence/Independence
+
+### Formal Definition of Linear Dependence
+
+- If these equations are true for at least one lambda scalar not equal to 0, then the set of vectors $\textbf{v}$ is a linearly dependent set.
+- A weighted combination of the vectors in the set can form the 0 vector
+  - (The case of the lambdas scalars all being 0 case is ignored)
+    $$0 = \lambda_1\textbf{v}_1 + \lambda_2\textbf{v}_2 + ... + \lambda_n\textbf{v}_n, \quad \lambda \in \mathbb{R}$$
+- Alternatively, some scaled version of vector $\textbf{v}_1$ can be created by some linear scaled combination of the other vectors in the set
+  - **At least one of the lambda scalars must not be zero (all or some of the other $\lambda$ scalars can be 0)**
+    $$\lambda_1\textbf{v}_1 = \lambda_2\textbf{v}_2 + ... + \lambda_n\textbf{v}_n$$
+    $$\textbf{v}_1 = {\lambda_2 \over \lambda_1}\textbf{v}_2 + ... + {\lambda_n \over \lambda_1}\textbf{v}_n \quad \lambda_1 \neq 0, \textbf{v}_1 \neq 0$$
+
+### Geometric Interpretation of Linear Dependence/Independence
+
+- If two vectors lie on the same line, they are linearly dependent (same 1-D subspace)
+- Two vectors in R^2 (2 Dimensional Space) at an acute angle are linearly independent - no scalar can change the direction of the vector to match the other vector (the case of scaling both by 0 is ignored and is trivial)
+- Any 3 vectors in R^2 (2 Dimensional Space) is always a Linearly Dependent Set, because you can reach any point in the space by scaling two of the three vectors, so you can derive the third vector always from some combination of the other 2.
+- In R^3 space (3 Dimensional Space), same rules as above apply if the vectors all lie on the same 2-D plane in the space, but if you have another vector that sticks or pops out of the plane (goes up, for example), then it is a Linearly Independent Set.
+  - The new vector must point in a new direction in a different geometric dimension from the others.
+- **A set of M vectors is independent if each vector points in a geometric dimension not reachable using the other vectors in the set**
+
+### Theorem: Maximum N independent vectors in R^N
+
+- Any set of $M>N$ vectors in $R^N$ is dependent. IOW, It is not possible to have a linearly independent set of vectors with more than $N$ vectors.
+  - Ex: if in $R^2$ (2 Dimensions), a set of 3 ($3 > 2$) vectors is necessarily a Dependent Set
+- Any set of $M \leq N$ vectors in $R^N$ could be independent
+  - Ex: if you have 4 or 5 vectors in a set when dealing with $R^5$ space, then that set COULD be an independent set.
+
+### Steps to Help Determine if a Vector Set is Independent
+
+1. Count the vectors and compare with the dimension space $N$ in $R^N$ (More vectors than Dimensions $N$? If yes, set must be dependent)
+1. Check for 0's in the corresponding or all elements of the vectors (If zero vector is any vector in set, must be linearly dependent because any vectors times 0 is 0. Or if 2 zeros in set of 3 vectors and the 3rd element is not zero, there is no way the set is dependent - it is a independent set)
+1. Educated guess and test (works with smaller sets of vectors, just do back of the napkin math with the elements to determine if dependent/scaled etc.)
+1. Use the Matrix rank method (put all elements of the vectors into columns of a matrix and compute its rank)
+
+### Examples of Linearly Dependent Sets of Vectors
+
+- Vectors that can be formed by a scaled version of the other vectors in the set
+  - Any two or sub-group of vectors in a set could be linearly independent (a subset does not have vectors that are scaled versions of the others), but all vectors considered together form a linearly dependent set
+
+$$\left\{ \textbf{w}_1, \textbf{w}_2\right\} = \left\{ \begin{bmatrix}1 \\2  \\3 \end{bmatrix} \space \begin{bmatrix}2 \\4  \\6 \end{bmatrix} \right\} \rightarrow \textbf{w}_2 = 2\textbf{w}_1$$
+$$\left\{ \textbf{v}_1, \textbf{v}_2, \textbf{v}_3 \right\} = \left\{ \begin{bmatrix}0 \\2  \\5 \end{bmatrix} \space \begin{bmatrix}-27 \\5  \\-37 \end{bmatrix} \begin{bmatrix}3 \\1  \\8 \end{bmatrix} \right\} \rightarrow \textbf{v}_2 = 7\textbf{v}_1 - 9\textbf{v}_3$$
+
+- v1 could be linearyly dependent on v2 and v3, and v3 is also linearly dependent on v1 and v2
+
+### Examples of Linearly Independent Sets
+
+- In the first, you cannot scale 3 multiplied by 2 to get 7 in the last element
+- In the second example, no single one of the vectors in the set can be expressed as a combination of the other vectors
+
+$$\left\{ \textbf{w}_1, \textbf{w}_2\right\} = \left\{ \begin{bmatrix}1 \\2  \\3 \end{bmatrix} \space \begin{bmatrix}2 \\4  \\7 \end{bmatrix} \right\}$$
+$$\left\{ \textbf{v}_1, \textbf{v}_2, \textbf{v}_3 \right\} = \left\{ \begin{bmatrix}0 \\2  \\5 \end{bmatrix} \space \begin{bmatrix}-27 \\0  \\-37 \end{bmatrix} \begin{bmatrix}3 \\1  \\9 \end{bmatrix} \right\}$$
+
+# Basis
+
+- A concept in Linear Algebra that combines span and independence.
+- Similar to a ruler to define coordinates and find distances in some space
+
+### Basis Sets
+
+- [Video](https://www.udemy.com/course/linear-algebra-theory-and-implementation/learn/lecture/10500418)
+
+1. Contains a set of linearly independent vectors
+2. Spans all of the subspace (the $\mathbb{R}^N$ dimension space)
+   <br>
+   <br>
+
+- **Any point in the space can be obtained by some linear combination of the standard basis vectors in the basis set**
+- Example of a linearly indepedent basis set that spans all of $\mathbb{R}^3$:
+  $$M_2 = \left\{ \begin{bmatrix}-4 \\ \pi \\ 3 \end{bmatrix} \begin{bmatrix}\pi \\ 3 \\ 0 \end{bmatrix} \begin{bmatrix}3 \\ 2\pi \\ 3 \end{bmatrix}\right\}$$
+- Most common basis set is the **Standard (Cartesian Axis) Basis** Vectors
+  - One unit vector in each Cardinal direction (X and Y)
+  - Contain only 0s and 1s
+- Each Basis Vector has Unit Length
+- All Vectors in a Set are mutually orthogonal
+  $$\mathbb{R}^2 \quad \left\{ \begin{bmatrix}1 \\ 0 \end{bmatrix} \begin{bmatrix}0 \\ 1 \end{bmatrix} \right\}$$
+
+$$\mathbb{R}^3 \quad \left\{ \begin{bmatrix}1 \\ 0 \\0 \end{bmatrix} \begin{bmatrix}0 \\ 1 \\0 \end{bmatrix} \begin{bmatrix}0 \\ 0 \\1 \end{bmatrix} \right\}$$
+
+- This can also be a basis set for $\mathbb{R}^2$, and span all the space and is linearly independent
+  - This is a different "ruler" - a different way to map out $\mathbb{R}^2$ space than above with the standard Cartesian basis set...
+    $$T = \left\{ \begin{bmatrix}1 \\ 1 \end{bmatrix} \begin{bmatrix} 0 \\ 2 \end{bmatrix}\right\}$$
+
+#### Example of using Standard Basis Set to get to a coordinate:
+
+- To get to coordinate point $P$, using the Standard Basis Set $S$, you need to go 2 scaled units of the first vector and 1 scaled unit of the second vector
+  $$P_{[S]} = [2,1]$$
+- Using a different Basis Set $T$ (see above), to get to the same coordinate point $P$, you need to go 2 units of the first vector and -.5 units of the second:
+  $$P_{[T]} = [2,-.5]$$
+- Note: if using the standard basis set the $[S]$ subscript is usually ommitted on the point $P$ notation
+- If the first vector gets you to point $P$, then you just scale the second Basis Set vector by 0: $Q_{[T]} = [3,0]$
+- **The same Point $P$ can be represented more compactly using some basis sets vs. other basis sets**
+
+### Indpendence in Basis Sets
+
+- Any given vector should have a unique coordinate in some basis
+- If a basis set were dependent, then there would be many different ways to arrive at a coordinate point $P$, so for that reason, it was decided that basis sets should be linearly independent
