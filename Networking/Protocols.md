@@ -69,8 +69,40 @@
 
 ## TCP/IP
 
+### TCP (Transmission Control Protocol)
+
+[Good overview video](https://learn.cantrill.io/courses/1101194/lectures/36039667)
+
+- Layer 3 protocol that runs on top of IP
+- Adds error correction and the idea of ports to IP
+  - i.e. HTTP runs on TCP port 80
+  - HTTPS runs on TCP port 443
+
+#### Process of Client/Server Request/Response
+
+- Client picks an ephemeral port on the server (between 1024 and 65535, and it is chosen by the client's Operating System)
+- Client initiates a connection to the server using a **Well Known** Port number.
+  - Well Known port numbers are associated with a popular application or protocol, i.e. port 443 for HTTPS
+- The server makes a connection back to the source IP address on the packet sent from client
+  - The connection is made to the ephemeral port chosen by the client for the request at the beginning of this process
+- The combination of the well-known port on the server and the ephemeral random port chosen by the client represent a unique connection (source IP::source Port/destination IP::destination Port)
+
+#### Outbound vs. Inbound connections
+
+- Depends on the perspective
+  - From a client, a request is an outbound connection
+  - From a server, a request is an inbound connection
+  - From a client, a response is an inbound connection
+  - From a server, a response is an outbound connection
+- Stateless Firewalls need to take into account 2 rules for each request/response
+  - Inbound (request) and Outbound (response)
+  - The response rule always uses a random stateless ephemeral port - **need to allow the full range of ephemeral ports to any desination**
+  - This makes security questionable and it is better to use STATEFUL firewalls
+
+### Protocols
+
 - a network layer protocol responsible for delivering pack-
-  ets to network devices. The IP protocol uses logical IP addresses to refer to indi-
+  ets (with a source and destination) to network devices. The IP protocol uses logical IP addresses to refer to indi-
   vidual devices rather than physical (MAC) addresses. Address Resolution Protocol
   (ARP) handles the task of converting IP addresses to MAC addresses.
   - IP addresses consist of a network part and a host part, IP is a routable

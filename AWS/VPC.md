@@ -39,12 +39,57 @@
   - Pubic subnets have a route to the internet gateway (traffic goes through it for comms with internet and subnet)
 - increasing prefix increases number of subnets: /16 to /17 creates 2 networks, /16 to /18 creates 4, to /19 creates 8 and to /20 creates 16 networks
 
-### NAT Gateway:
+## NAT Gateway (Network Address Translation):
 
-- allows Private Subnets to access the internet, but they are still private and inbound traffic is denied
+[Video](https://learn.cantrill.io/courses/1101194/lectures/26982639)
+
+- A set of processes that can adjust IP packets by changing their Source or Destination IP addresses.
+  - Internet Gateways perform _Static NAT_ (changes the source IP address on the packet from the private IP addr to the public IPv4 addr, for example, and changes the destination addr to the private IP addr when the packet returns )
+- Primary purpose is to give private instances access to the internet (but not vice versa) and AWS public Zone services like S3, etc.
+- AZ Resilient - they are not regionally resilient like Internet Gateways - only in the AZ they're in
+  - For regional High Availability you need to deploy one NAT Gateway per AZ in your VPC!!
+  - A Route Table is needed for each AZ and must point at the NAT Gateway in that AZ as a target
+  - NOTE: **COST** - cost can get expensive if you have a lot of AZs - need to think about VPC design.
+    - There are **2 Charges for using NAT Gateways**:
+    - **HOURLY CHARGE**: Current cost is about 4 cents per hour, partial hours billed as full hours
+    - Data processing charge: in addition there is a 4 cents per Gigabyte of data processed
+- Scalable
+  - Can scale to 45 gigabits per second
+  - Can deploy multiple NAT Gateways and split subnets across multiple provisioned products
+    - Can provision heavy consumers across two different subnets in the same AZ, have two NAT Gateways in that AZ and route each subnet's traffic to a different NAT Gateway to quickly scale if more bandwidth is needed.
+
+### IP Masquerading:
+
+- When people say "NAT" they are usually talking about this
+- A subset of NAT - hides a whole CIDR IP Block behind a single public IP address.
+
+  - Gives a range of IP addresses **outgoing only** access to the public internet and AWS Public Zone
+    - Many private IPs represented by a single public IP address does not allow for incoming connections from the outside
+  - In contrast to Static NAT, this deals with multiple IP addresses converted to one IP addr.
+  - Popular due to IPv4 address space running out.
+    - **You can initiate connections to the outside with responses to those connections, but the outside cannot initiate connections to the IP addresses hidden behind a NAT**
+    - allows Private Subnets to access the internet, but they are still private and inbound traffic is denied
+
+### Use Cases
+
+- In multi-tier applications, you want some components/instances which are private and not accessible by the public internet, but want to allow outgoing connections
 - Used if service needs to download software or updates from the internet for ex.
-- NAT Gateway is AWS Managed
-- NAT Instances are self managed by you
+
+### Using NAT
+
+[Typical NAT setup in a VPC](https://learn.cantrill.io/courses/1101194/lectures/26982639) at timestamp 4:33
+
+- Private Subnet of components has route table that routes traffic to > NAT Gateway inside a public subnet of public components > Internet Gateway
+  - A private subnet has a route table of private IP addresses for the private instances used by the builtin VPC router
+  - A NAT Gateway is **provisioned inside another public subnet** in the VPC that has a translation table that converts the private IP addresses of the instances into a public routable address (an _Elastic IP Address_ - a static addr that does not change and are allocated to your account)
+    - The public routable address is not accessible to the internet because it is in a VPC
+    - You need already setup public subnets in the VPC which include having a Internet Gateway, public IPv4 address assignment configured/turned on, and a default route in the public subnets pointing at the Internet Gateway
+  - An Internet Gateway is needed to receive traffic from the NAT Gateway and change the source Address to a real public IPv4 address (that can be accessed by the internet or AWS public services such as S3)
+  - The response is converted by the INternet Gateway to have the Destination address changed to the NAT Gateways routeable address
+  - The NAT Gateway then changes the response packet's Destination address to be the private IP address of the instace in the private subnet (it knows what this is using the translation table holding those mappings)
+- Can use an EC2 instance setup to provide NAT services (historic way)
+  - NAT Instances are self managed by you
+- NAT Gateway is AWS Managed that can handle NAT for you which are provisioned in a VPC
 - Route from private subnet goes to NAT Gateway/Instance and that goes to the Internet Gateway
 
 ### Default VPC\*\* - only ONE per region allowed and created by default.
@@ -275,6 +320,8 @@ Remember to enable auto assign ipv6 on every subnet you create.
   - Create subnet button in VPC dashboard for each group by AZ
 - Remember to enable auto-assign IPv6 addresses - VPC > Subnets > select subnet > Actions dropdown > Edit Subnet settings > Auto-assign IP Settings section > tick Enable auto-assign IPv6 address
 
+Note: Subnets listed in the subnets page in AWS Console without a name are the default subnets. Those with a name are probably custom ones.
+
 ## VPC Routing
 
 - Highly Available device available in all VPCs (default or custom) that moves traffic from one point to another
@@ -355,5 +402,126 @@ Remember to enable auto assign ipv6 on every subnet you create.
 - Used as a management point or entry-point for private-only VPCs
   - A private VPC will have a Bastion Host as the ONLY way to get access to that VPC
   - Can be configured to accept connections from certain IP addresses, authenticate with SSH, integrate with onprem identity servers, etc.
-  - *They function as the ONLY entrypoint to a highly secure VPC*
+  - _They function as the ONLY entrypoint to a highly secure VPC_
     - Note: There are alternative ways to do this now which are recommended.
+
+## Making VPC private subnets Public
+
+[Video](https://learn.cantrill.io/courses/1101194/lectures/26982553)
+
+- Subnets such as those designated for Web components can be allocated to have a public IPv4 address to have connectivity to and from the internet and the AWS Public Zone
+
+### Steps to making a Subnet Public:
+
+#### Attach an Internet Gateway
+
+- AWS Console > VPC > Internet Gateways (in left side menu) > "Create Internet Gateway" button
+  - Note: you will see a default Internet Gateway (with no name) that was created automatically when you created the VPC to start with.
+  - You need to create a custom Internet Gateway for custom VPC/subnets
+- Enter a name for the Internet Gateway creating - example `a4l-vpc1-igw` ("igw" for internet gateway)
+  - Click create Internet Gateway
+  - Initially IGWs are not attached (will show detached state)
+- Attach the IGW to the VPC - click Actions dropdown > Attach to VPC
+
+#### Make the subnets for the web components public
+
+- **Create a Route Table**
+  - AWS Console > VPC > Route tables (menu on the left) > "Create Route table" button
+  - Name the route table (ex. {appname-vpc-rt for route table-component} -> `a4l-vpc1-rt-web`)
+  - Select the VPC for it and click Create Route table
+- **Associate the Route Table with the subnets**
+  - AWS Console > VPC > Route tables (left menu) > Subnet associations tab > "Edit subnet associations" button
+  - Select/tick the subnets to associate the route table with - i.e. your web component subnets
+    - Note how subnets are by default associated with the Main route table
+  - click save associations button to associate the rt with the subnets selected
+- **Add Routes to the Route Table (1 for IPv4 default route, and another for IPv6 default route)**
+  - Note: These routes target point to the attached Internet Gateway for the VPC
+  - AWS Console > VPC > Route tables (left menu) > Routes tab
+    - Note the local Routes already in the table which are the IPv4 and IPv6 CIDR ranges in the VPC - this ensures that all traffic can be routed in the range of the VPC by default (cannot be changed or removed)
+  - Click "Edit routes" > "Add Route" to add 2 default routes for IPv4/6.
+    - IPv4 -> `0.0.0.0/0`
+      - This means any IP address. Note that it is not as specific as the local default route of the CIDR range for the VPC which will take precedence, so **any traffic that is NOT destined for the VPC CIDR range will be handled by this default IPv4 default route and sent to the target Internet Gateway**.
+      - Assign the internet gateway for your VPC as the target for the route - select it in the target dropdown
+    - IPv6 -> `::/0`
+      - Matches all IPv6 addresses, but less specific than the local IPv6 route of CIDR Range for the VPC as above.
+      - Select the same INternet Gateway for the VPC as the target and click Save Changes
+- **Configure Auto-assign IPv4 public IP address for any resources launched into the web component subnets**
+  - AWS Console > VPC > Subnets (left menu)
+  - Select a web component's subnet > Actions dropdown > "Edit Subnet Settings"
+  - tick "Enable auto-assign public IPv4 address
+  - Click Save button
+  - Repeat these steps for all the web component subnets
+
+#### Creating a Bastion Host to test configuration (bad practice)
+
+[Video](https://learn.cantrill.io/courses/1101194/lectures/27186078)
+
+- Create an EC2 Instance (can use Linux AMI)
+  - Select a key pair (SSH RSA which you need to create if you have not already)
+  - Edit the Network Settings section and assign the EC2 instance to your custom VPC
+    - select a web component subnet to launch the EC2 instance into
+    - Select to create a security group and name it with description: Ex: `A4L-BASTION-SG`
+    - Make sure SSH and auto assign public IP addresses are ticked
+  - Will take a few minutes for bastion instance to initialize
+
+# NACL (Network Access Control Lists)
+
+- Like a traditional firewall that is available within a VPC
+  - See [Firewalls notes](../CyberSecurity/Firewalls.md)
+- **Associated with Subnets in a VPC**
+  - Every subnet has one associated Network ACL that filters data as it crosses the boundary of that subnet (data coming in or out of a subnet)
+  - Either a default NACL created with the VPC, or a custom one created by a user for the subnet
+    - Note: A single NACL can be associated with many different subnets (but, a subnet can only have one NACL)
+  - **IMPORTANT**: Connections between resources INSIDE the subnet are NOT AFFECTED by the Network ACLs
+- Operate on traffic at the SUBNET BOUNDARY
+- Have NO reference to Logical Resources - only references to IP addresses, ranges and ports
+
+### Typical Use Case for NACLs
+
+- Used with Security Groups to add explicit DENY rules for Bad IPs or Networks
+  - Use a Security Group to Allow traffic
+    - See [Security - Security Groups section](./Security.md)
+  - Use the NACL to Deny traffic
+
+### Default vs. Custom NACLs
+
+- VPCs are created with a DEFAULT NACL - contains inbound and outbound rule sets with the default implicit Deny and a catchall Allow
+  - **This means that the default for a NACL created with a VPC has NO EFFECT - all traffic is allowed!**
+    - Security Groups are preferred
+- Custom NACLs created for a specific VPC are initially associated with NO subnets
+  - Only one rule on both Inbound and Outbound rule sets: Default Deny all traffic
+  - Caution: If you associate a custom NACL with a subnet, then by default all traffic is Denied!
+
+### Each NACL has 2 sets of Rules
+
+- Note: Inbound and Outbound rules are only referring to the direction of traffic, not whether we are dealing with a request or response part of a connection!
+- **NACLs are Stateless** - they do not know if traffic is a request or a response
+  - You need two rules for each request/response - one Inbound/request rule and one Outbound/response rule!
+- Rules match the Destination IP Address or IP range, Destination Port or Port range together with the protocol
+  - Can **explicitly allow or deny traffic**
+
+#### Inbound Rules
+
+- Only affect data entering the subnet
+
+#### Outbound Rules
+
+- Only affect data leaving the Subnet
+
+### Rule Processing Order
+
+- Network ACL determines if Inbound or Outbound rules apply
+- Then, start from the lowest rule number
+  - Evaluate traffic against each individual rule until a match is found
+  - NOTE: Rule ordering numbers are considered UNIQUE/separately for Inbound and Outbound sets of rules. (i.e. you could have two rules with the same number in Inbound and Outbound rules, but they are considered separately)
+- Traffic is Allowed or Denied based on the matching rule
+  - **CAUTION**: if you have a Deny rule that comes before an Allow rule for the same traffic, the Allow rule is never processed.
+  - Note: There is a catchall marked by asterisk `*` with an explicit Deny - if no rule matches for the traffic, it will always be Denied.
+
+### Disadvantages of NACLs
+
+- Since they are stateless, require more overhead for request/response rules for traffic in and out of the VPC or traffic between subnets in the VPC - MORE COMPLICATED
+  - The pairs of rules needed for each request/response with opening up ephemeral port ranges needed for the response is one contributor to the complexity and overhead
+  - Additionally, requests for software updates require even more rules needed to be added
+- This can become complicated with multi-tier applications
+  - i.e. Rules are needed for both the boundary of a subnet and the internet and the boundary at the application level (ex: a web component in a subnet to an application component in another subnet in the same VPC)
