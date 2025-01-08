@@ -489,3 +489,10 @@ $$\mathbb{R}^3 \quad \left\{ \begin{bmatrix}1 \\ 0 \\0 \end{bmatrix} \begin{bmat
 
 - Any given vector should have a unique coordinate in some basis
 - If a basis set were dependent, then there would be many different ways to arrive at a coordinate point $P$, so for that reason, it was decided that basis sets should be linearly independent
+
+### Useful Bases
+
+- Some basis sets are more useful than others - othogonal basis sets like the standard basis set are easy to work with and use
+- Entire course on finding Optimal Basis sets by M Cohen - PCA & multivariate signal processing, applied to neural data.
+- Principle Components Analysis or Independent Components Analysis can be used to verify an optimal basis set that can be used with a particular data set.
+- These are used in Machine Learning, for example, to find the optimal basis sets to use
