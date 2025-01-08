@@ -1,4 +1,56 @@
-# Elastic Cloud Compute
+# EC2 - Elastic Cloud Compute
+
+## Architecture
+
+- EC2 Instances are Virtual Machines that run on **EC2 Hosts** - physical hardware machines that AWS manages.
+  - Shared Hosts: shared across different AWS customers (NOTE: every customer is isolated from each other)
+    - Default kind of EC2 Hosts
+  - Dedicated Hosts: One customer pays for the entire host - not shared.
+- **Availabilty Zone Resilient** - hosts run inside AZs. If the AZ fails, the Host and instances fail.
+  - key: EC2 instances run in one Availability Zone
+  - **Very AZ reliant** - everything about a EC2 instance - the host, the networking, the storage is all in the same AZ. \*All resources along with the EC2 instance MUST BE IN THE SAME AZ!
+  - For resiliency across AZs, you deploy resources in multiple AZs and use a load balancer to distribute traffic across them all
+
+### Resources for an EC2 Instance
+
+- CPU
+- Memory
+- Instance Store - storage that is on a specific host. NOTE: If the instance moves off of that host, then the storage is lost.
+- Networking:
+  - Storage Networking
+  - Data Networking
+  - When an instance is provisioned into a subnet in a VPC, what happens is a primary Elastic Network Interface is provisioned in the subnet which maps to the actual hardware on the EC2 Host
+  - Note: Instances can have multiple network interfaces in different subnets as long as they're in the same availability zone.
+- Can connect to remote storage (EBS - Elastic Block Store). EBS runs in one Availability Zone (cannot access multiple EBS across zones)
+  - You can allocate EBS Volumes (amount/area of persistent storage) to an EC2 instance in the same AZ.
+- Generally instances of the same type (but could be different sizes) share the same host.
+  - Hosts are associated with a date, with a certain CPU type and certain generation of hardware
+  - It's logical that different types of EC2 instances that use particular features or generations of features will be grouped on the same host.
+
+### Restarting/Stopping Instances
+
+- Restarting EC2 Instances stay on the same EC2 Host machine unless:
+  - The host fails or is taken down for maintenace by AWS
+  - an instance is STOPPED and then STARTED (not re-started), then it will be relocated to a different host (in the same AZ!!)
+
+### Use Cases for EC2
+
+- Certain vendor requirements for support, need specific OS with specific environment and setup with a traditional application
+- **Long-Running Compute capabilities**: Many other services have run time limits for compute, EC2 does not can be dedicated for long running processes and compute requirements.
+- Traditional Server Style applications - i.e. a server listening for and handling requests
+- Burst loads or steady state loads needed for an application requiring an operating system.
+- Good for monolithic applications - Database, middleware components that need to be running on a traditional operating system
+- Migrate Application workloads or provisioning a Disaster Recovery Environment
+- Generally, EC2 is the default choice for compute requirements - traditional apps, etc.
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+# From Cloud Practicioner Notes (Old):
+
 - IaaS - Infrastructure as a Service
 - Bootstrapping: running commands when a machine starts and boots up
   - Script is run ONCE on machine start
