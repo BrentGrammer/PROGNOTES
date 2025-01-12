@@ -31,6 +31,7 @@
 - [GoLang](./GoLang/)
 - [GraphQL](./GraphQL/)
 - [Kubernetes](./Kubernetes/)
+- [Linear Algebra](./LinearAlgebra/ToC.md)
 - [Music Production](./Cubase/)
   - [Cubase](./Cubase/)
 - [Networking](./Networking/)
