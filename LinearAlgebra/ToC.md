@@ -10,3 +10,8 @@
   - [Complex Numbers](./ComplexNumbers.md)
   - [Cross Product](./CrossProduct.md)
   - [Outer Product](./OuterProduct.md)
+- [Matrices](./Matrices)
+  - [Matrix Types](./Matrices/Matrices.md)
+  - [Matrix Addition/Subtraction](./Matrices/Matrices-addition-subtraction.md)
+  - [Matrix Multiplication](./Matrices/MatrixMultiplication.md)
+  - [Transposing](./Matrices/TransposingMatrices.md)
