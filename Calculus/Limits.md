@@ -133,3 +133,63 @@ $$\lim_{x \to a}f(x) = \infty$$
   $$\lim_{x \to n}(f/g) = (\lim_{x \to n}f) / (\lim_{x \to n}g)$$
 - **NOTE**: This property only holds if the Limit exists.
   - If any limit is undefined, in this case the denominator is 0, the results will not be equal as in $\lim_{x \to 0}f(g) / \lim_{x \to 0}(x^3 + x^2 + x)$
+
+# Important Limits of Trig Functions
+
+These functions are important for differentiating sin and cosine
+
+- The limit of this function as angle phi approaches 0 is 0 (the function output):
+  $$\lim_{\phi \rightarrow 0}\left[{{\cos(\phi)-1} \over \phi}\right] = 0$$
+- The limit of this function as angle phi approaches 0 is 1 (the function output):
+  - See a visual geometric proof of this in [video](https://www.udemy.com/course/pycalc1_x/learn/lecture/33947318) at timestamp 4:52
+  - The $\sin(\phi)$ is the vertical edge of the triangle (length of the line corresponding to the y-axis intercept), and as angle phi gets closer to 0, the ratio of the arc of the unit circle for the triangle goes to 1.
+  - It represents a ratio of a straight line (vertical edge) to the arc on the unit circle, and as the angle gets smaller and smaller to 0, the line and arc converge to become the same length
+    $$\lim_{\phi \rightarrow 0}\left[{{\sin(\phi)} \over \phi}\right] = 1$$
+    (Note: in either of these cases if phi = 0, there is a discontinuity as you can't divide by 0)
+
+## Squeeze Theorem (a.k.a. sandwich/pinch theorem)
+
+See [video](https://www.udemy.com/course/pycalc1_x/learn/lecture/33947322) at timestamp 3:30
+
+- A way to find the limit at a point in a function where it's very difficult or otherwise impossible to calculate the limit
+
+  - i.e. there is a discontinuity at the point of the limit, etc.
+  - Also useful if there are situations where it's very hard to compute the derivative of a function at a point.
+
+- Define two other functions $g(x), h(x)$ around the point of the original function $f(x)$ that are easier to compute the limit for, take their limits and conclude that the limit of $f(x)$ is in between the limits of $g(x)$ and $h(x)$
+- The squeeze or sandwich is taking points in the other two functions that are near or just below and above the point in the original function:
+  - the output of $g(a)$ is smaller or equal to the output of $f(a)$ which is smaller or equal to the output of $h(a)$
+    $$g(a) \leq f(a) \leq h(a)$$
+  - The limit of $f(x)$ as $x$ approaches point $a$ must be in between the limit of $g(x)$ and $h(x)$ as both of them approach point $a$
+    $$\lim_{x \rightarrow a}g(x) \leq \lim_{x \rightarrow a}f(x) \leq \lim_{x \rightarrow a}h(x)$$
+  - If the limits of $g(x)$ and $h(x)$ at point $a$ are the same, then the limit of $f(x)$ for $a$ must also be the same
+    $$L \leq \lim_{x \rightarrow a}f(x) \leq L$$
+
+### Choosing the other functions to squeeze the original with:
+
+- \*\*You need to make sure that the two outer functions at point $a$ pinch the point and squeeze closely around the point of the original function for the squeeze theorem to be useful. Otherwise the range is too large as to what the limit of the original function could be.
+  - It can be useful, however to know the rough boundaries of where the limit of your original function could fall between, even if that range is wide.
+- There's trial-and-error and some intuition involved, but you want to pick functions that are easy to work with and easy to manipulate (that is, have a particular value at a particular point). Quadratic functions like y=x^2 are popular for this reason. You can stretch and shift these functions as you need, e.g., y=(x-3)^2
+
+### Example using the Squeeze theorem
+
+- The limit for this function as x approaches 2 cannot be computed because there is a discontinuity at x=2 (the output is division by 0 / 0 and does not exist)
+  $$f(x) = {{x^2 - 2x} \over {x^2 - 4}}$$
+- Make two other functions that are easier to calculate the limit of as x approaches 2:
+  $$g(x) = .5 + (x-2)^2$$
+  $$h(x) = .5 - (x-2)^2$$
+  $$.5 \leq \lim_{x \to 2}f(x) \leq .5$$
+
+### Example squeeze theorem with simple Trig function
+
+- Finding the limit of $f(\theta)$ as $\theta$ approaches $0$
+  $$f(\theta) = \theta \cos{(\theta)}$$
+  $$\lim_{\theta \to 0} = ?$$
+- Use the boundaries of $\cos$ ($-1$ and $1$) and multiply through the differences against the original equation
+- $\cos$ is bound from -1 to 1, so we can assume the boundaries (if we multiply the variable $\theta$ by -1 or 1 at either end):
+  $$-\theta \leq \theta \cos(\theta) \leq \theta$$
+- You can use two functions to squeeze with:
+  $$g(\theta) = -\theta$$
+  $$h(\theta) = \theta$$
+- plugin limits as $\theta$ approaches $0$ for $h(\theta)$ and $g(\theta)$ which are $0$, so:
+  $$0 \leq \lim_{\theta \to 0}f(\theta) \leq 0$$
