@@ -136,6 +136,8 @@ $$\lim_{x \to a}f(x) = \infty$$
 
 # Important Limits of Trig Functions
 
+- see [Python Notebook](./triglimits.ipynb)
+
 These functions are important for differentiating sin and cosine
 
 - The limit of this function as angle phi approaches 0 is 0 (the function output):
@@ -193,3 +195,32 @@ See [video](https://www.udemy.com/course/pycalc1_x/learn/lecture/33947322) at ti
   $$h(\theta) = \theta$$
 - plugin limits as $\theta$ approaches $0$ for $h(\theta)$ and $g(\theta)$ which are $0$, so:
   $$0 \leq \lim_{\theta \to 0}f(\theta) \leq 0$$
+
+### Example Trig Function Limits using the Squeeze Theorem
+
+- The squeeze theorem can be applied to many problems of figuring out the limit of trig functions
+- This trig function has a discontinuity at $\theta = 0$
+  $$\lim_{\theta \to 0} f(\theta) = \theta^2\sin \left({1 \over \theta}\right)$$
+- Again, we can use the fact that $\sin$ is bounded by -1 and 1 to give us $-\theta^2 \leq \theta^2\sin\left({1 \over \theta}\right) \leq \theta^2$
+- So we find the limits of functions $-\theta^2$ and $\theta^2$ which is $0$ via the plugin method:
+  $$-0 \leq 0 \leq 0$$
+
+### Example 2
+
+- In this example, the numerator is always changing as $\theta$ goes to infinity (which gives us an oscillating discontinuity)
+  $$\lim_{\theta \to \infty}\left({\sin\theta \over \theta}\right)$$
+- We can isolate $\sin\theta$ and based on the bounds of $\sin$ again and make the numerator constant by dividing the bounds by $\theta$ as well as $\sin\theta$
+  $${-1 \over \theta} \leq {\sin\theta \over \theta} \leq {1 \over \theta}$$
+- We take the limits as $\theta$ goes to $0$ of the outer functions squeezing our original function which gives us:
+  $$-0 \leq 0 \leq 0$$
+
+### Example 3
+
+$$\lim_{\theta \to 0}\left[\tan(\theta) \over \theta\right]$$
+
+- We can rewrite this to split the $\tan$ as a ratio and then swap the denominators:
+  $${\tan(\theta) \over \theta} = {{\sin\theta / \cos\theta} \over \theta} = {\sin\theta \over \cos\theta} \times {1 \over \theta} = {\sin\theta \over \theta} \times {1 \over \cos\theta}$$
+- Using the multiplicative property of limits, we now have:
+  $$\lim_{\theta \to 0}\left[{\tan(\theta) \over \theta}\right] = \lim_{\theta \to 0}\left({\sin\theta \over \theta}\right) \times \lim_{\theta \to 0}\left({1 \over \cos\theta} \right)$$
+- $\sin\theta$ divided by $\theta$ is 1 and the $\cos$ of $0$ is $1$, using the plugin method we get the solution:
+  $$1 \times 1 = 1$$
