@@ -224,3 +224,52 @@ $$\lim_{\theta \to 0}\left[\tan(\theta) \over \theta\right]$$
   $$\lim_{\theta \to 0}\left[{\tan(\theta) \over \theta}\right] = \lim_{\theta \to 0}\left({\sin\theta \over \theta}\right) \times \lim_{\theta \to 0}\left({1 \over \cos\theta} \right)$$
 - $\sin\theta$ divided by $\theta$ is 1 and the $\cos$ of $0$ is $1$, using the plugin method we get the solution:
   $$1 \times 1 = 1$$
+
+# Types of Limits
+
+### Easy Limits
+
+- plugin the limit aproachee and get a finite result (real number)
+  - Here we plug in 2 and get the limit of 5
+    $$\lim_{x \to 2}{x+3 \over x-1} = {5\over 1}$$
+
+### Nonzero over 0
+
+- The limit of some function where the denominator is 0 and the numerator is a finite number, the outcome limit is either $-\infty \space \text{or} \space \infty \space \text{or} \space \text{undefined}$
+  $$\lim_{x \to a} f(x) \space \text{where} \space f(x) = {c \over 0}$$
+- As $x$ approaches $2$ from the right, the denominator gets closer to $0$ and so the limit is $\infty$
+  - Approaching 2 from the right will give us $-\infty$
+  - Two sided limit does not exist (undefined)
+    $$\lim_{x \to 2^+} {{x+2} \over {x-2}} = \infty$$
+
+### Indeterminate
+
+- The function approaches $0 \over 0$
+- Use Algebra manipulation or L'Hopital's rule to get the function into a different form
+  $$\lim_{x \to 0}{{\sin(x)} \over x} = 1$$
+
+### Infinite over finite number
+
+- When the function goes to $\infty \over c$ where $c$ is a finite constant number
+- Outcomes of the limit can be $-\infty \space \text{or} \space \infty \space \text{or} \space \text{undefined}$
+  $$\lim_{x \to \infty}{{\sqrt{x} \over 2}} = \infty$$
+
+### Finite number over infinite
+
+- Functions that yield a finite constant over infinity have a limit that is 0
+  $$f(x) = {c \over \infty}$$
+  $$\lim_{x \to \infty}{{\cos(x)} \over x} = 0$$
+
+### Infinite over Infinite (another Indeterminate form)
+
+- Functions that results in infinity divided by infinity limit can be calculated by using Algebra manipulation or L'Hopital's rule
+  $$f(x) = {\infty \over \infty}$$
+  $$\lim_{x \to \infty}{e^x \over x^3} = 0$$
+
+### Finite over Finite
+
+- As limit goes to infinity for a function that yields a finite number over a finite number
+- Both the numerator and denominator shoot up to infinity, but at different rates of speed
+  - In this example, the $x^2$s cancel as x goes to infinity reducing the limit to 1/2
+  - This indicates that the denominator grows faster than the numerator
+    $$\lim_{x \to \infty}{x^2 \over 2x^2} = {1 \over 2}$$
