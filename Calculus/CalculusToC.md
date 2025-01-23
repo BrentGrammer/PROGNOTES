@@ -6,6 +6,7 @@
 - [Composite Functions](./CompositeFunctions.md)
 - [Continuous Functions and Discontinuities](./ContinuitiesDiscontinuities.md)
 - [Function Symmetry](./FunctionSymmetry.md)
+- [Infinitesimals](./Infinitesimals.md)
 - [Inverse Functions](./InverseFunctions.md)
 - [Law of Exponents](./LawOfExponentsNaturalLog.md)
   - [notebook 1](./LawOfExponents.ipynb)
