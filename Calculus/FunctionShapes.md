@@ -5,6 +5,13 @@
 
 ## Sketching Function Shapes
 
+### Take apart the parts of the function
+
+- graph each part of a function separately
+- the range of this function is 3 to 7 and the domain is -infity to +infinity
+- The $5$ constant part is called a "modulator" and in this case shifts the graph up on the y-axis
+  $$2\sin(\theta)+5 \rightarrow \sin(\theta) \quad | \quad 5$$
+
 ### Being familiar with function shapes
 
 [video](https://www.udemy.com/course/pycalc1_x/learn/lecture/33947256) at timestamp 2:44 for overview of some common function shapes
@@ -45,3 +52,12 @@
 - In $f(x) = {{x-4} \over {x^2-1}}$ if $x = -1$ or $x = 1$, those are two discontinuities that will make the denominator 0 and the output undefined.
 - **The important thing to note is not where the discontinuity actually occurs, but what happens when $x$ is very near that point where the discontinuity occurs**
   - See [video example](https://www.udemy.com/course/pycalc1_x/learn/lecture/33947256) at timestamp 9:58
+
+### Famous function - Gaussian function (bell curve)
+
+- $e$ raised to any power is always positive
+- The range is between 0 (exclusive) and 1 (inclusive) $(0,1]$
+  - When $e = 0$, the output is $1$
+- As $x$ goes to $\infty$ or $-\infty$ the limit is $0$
+  $$e^{-x^2}$$
+- The general form of the gaussian bell curve is $e^{x^2}$
