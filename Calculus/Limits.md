@@ -273,3 +273,40 @@ $$\lim_{\theta \to 0}\left[\tan(\theta) \over \theta\right]$$
   - In this example, the $x^2$s cancel as x goes to infinity reducing the limit to 1/2
   - This indicates that the denominator grows faster than the numerator
     $$\lim_{x \to \infty}{x^2 \over 2x^2} = {1 \over 2}$$
+
+# Solving Limits Where the Plug-in Method Does Not Work
+
+[Python Notebook](./factoringlimits.ipynb)
+
+- Getting the limit for some equations cannot be done using the plugin method (plugging in $x$ with $a$ to get the limit).
+- Need to use other methods such as Factoring or Conjugates, etc. to calculate the limit
+  - **The goal is to get the expression into a form so that there is no longer a zero in the denominator**
+  - You can then calculate the limit
+
+### Using Factoring
+
+<br> NOTE: Factors represent the values of x that make the quadratic equation equal to zero. These values are also called the roots or zeros of the equation. They are used to get the solution for $x$ when the equation is $0$.
+
+- This problem cannot be solved by the plug-in method (by plugging in $x$ for $a$), so you need to use factoring
+  $$\lim_{x \to a}{{c(x^2 - (a+b)x + ab)} \over {x^2 + (b-a)x - ab}}$$
+  Where $a,b \in \{-4,-3,-2,-1,0,1,2,3,4\}$ and $c \in \{-1,1\}$
+- This can be factored into the below form. The $x-a$ terms will cancel and the denominator will not be zero enabling getting the limit
+  $$\lim_{x \to a}{{c(x-a)(x-b)} \over {(x-a)(x+b)}}$$
+  Example of a function that needs factoring to get the limit (otherwise you get 0 over 0) where $x = 3$:
+  $${-x^2 + 2x + 3} \over {x^2} + 4x + 3$$
+
+### Using the Conjugate
+
+- A function that results in 0/0 using square root:
+  $$\lim_{x \to -a}{{\sqrt{x+b}+c} \over {x+a}}$$
+- Use the conjugate which means to multiply by the same term, but flip the sign of $c$
+  $$\left[{{\sqrt{x+b}+c} \over {x+a}} \times {{\sqrt{x+b}-c} \over {\sqrt{x+b}-c}} \right]$$
+- Through algebraic manipulations you get to a final form of the following. This means that when $x$ goes to $-a$ you won't have a zero in the denominator anymore.
+  $$1 \over {\sqrt{x+b} + \sqrt{b-a}}$$
+
+### Solving Limits with Absolute Values
+
+- General structure of these kinds of expressions:
+  $$\lim_{x \to a}\left| x-a \right| + b$$
+- A problem expression that does not work with the plugin method:
+  $$\lim_{x \to a}{{x-a} \over {x-a}}$$
