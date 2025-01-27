@@ -43,29 +43,75 @@
 - Migrate Application workloads or provisioning a Disaster Recovery Environment
 - Generally, EC2 is the default choice for compute requirements - traditional apps, etc.
 
-<br>
-<br>
-<br>
-<br>
-<br>
-
-# From Cloud Practicioner Notes (Old):
-
-- IaaS - Infrastructure as a Service
-- Bootstrapping: running commands when a machine starts and boots up
-  - Script is run ONCE on machine start
-  - Bootstrapping script commands run with root user priveledges
-  - EC2 setup - advanced options -> **EC2 User Data** script. Runs on startup of EC2 instance
-- By default it is a private service (deployed into a subnet in a VPC in the private zone).
-  - If you want to allow public access you need to configure that.
-- IaaS - Infrastructure as a Service
-- EC2 is AZ Resilient: If an AZ that the EC2 instance is in fails, then the instance will be taken down with it.
-
 ## Instance types:
 
-See [instances.vantage.sh] for list of instances, est cost and reference
+[Video](https://learn.cantrill.io/courses/1101194/lectures/27806425)
+<br>
+[AWS Docs - Instance Types](https://aws.amazon.com/ec2/instance-types/)
+<br>
+[Most Used Types PNG](./instancetypes.png)
+<br>
+[Filterable lookup of instance types overview/costs](https://instances.vantage.sh/)
 
-Naming convention: [instanceClass][generation-number].[size within the class]
+- Different types allocate an amount of CPU, Memory, Local Storage Capacity and Storage type
+- Types also change the ratio of those resources (i.e. more CPU vs. memory for compute optimized types)
+- Influences the Storage and Network Bandwidth you get (if you use EBS volumes for example you need to make sure you have a type that allows good enough bandwidth over the network)
+- System Architecture (ARM, x86) and Vendor(Intel, AMD)
+
+### Five Main Categories of Types
+
+- General Purpose: default workloads, equal resource ratio (use this unless specific reason)
+- Compute Optimized: media processing, HPC, Scientific Modelling, gaming, Machine Learning
+- Memory Optimized: large in memory datasets used, database workloads
+- Accelerated Computing - Hardware GPU, field programmable gate arrays (FPGAs)
+- Storage Optimized: high transfer rates or large amounts of I/O operations - high sequential and random IO is best use case
+
+### Type Name Convention for Instance Types
+
+- `R5dn.8xlarge`
+  - `R`: Letter at start is instance family - designates type of computing/type of instance
+  - `5`: The Generation number - these change as generations are updated (hardware updates, etc.) - always select the most recent generation (unless it is not in your region)
+  - `dn`: Additional capabilities - series of letters that denote features available
+    - `a`: signifies AMD CPUs
+    - `d`: NVME storage
+    - `n`: Network Optimized
+    - `e`: Extra capacity of RAM or storage, etc.
+  - `8xlarge`: Instance size - there are multiple sizes available for a family/generation (indicates how much memory and CPU the instance is allocated)
+    - Note: usually better to scale up with larger number of smaller instance sizes due to price
+
+### Most used types
+
+- See [overview](./instancetypes.png)
+
+#### General Purpose (T, A, M types):
+
+- `A1`, `M6g`: ARM based processors are efficient and you can use smaller instances with lower cost and good performance
+- `T3`, `T3a`: Burstable instances - normally low levels of CPUs but occasionally need to handle spikes of high CPU (and then return to the low level). A lot cheaper than other types of General Purpose instances
+- `M5`, `M5a`, `M5n`: Steady State compute needs - i.e. load stays steady at 60% like for an email server. No bursts needed
+
+#### Compute Optimized (C Type):
+
+- `C5`,`C5n`: Good for general Machine Learning, gaming, scientific modelling
+
+#### Memory Optimized (R type - i.e. Ram):
+
+- `R5`,`R5a`: real-time memory apps, analytics, caches, some db applications
+- `X1`,`X1e`: large scale in-memory apps with lowest cost per GB of memory in AWS
+- High Memory series, `u-Xtb1`: Highest memory available in AWS
+
+#### Accelerated Computing:
+
+- `z1d`: large memory/CPU with directly connected NVMe storage
+- `P3`: Good for parallel processing and machine learning (has GPU)
+- `G4`: Good for graphics intensive requirements
+- `F1`: FPGA to program hardware for tasks: finance analysis, big data, genomics
+- `Inf1`: Machine Learning optimized for voice recongnition, forecasting, recommendation, analysis
+
+#### Storage Optimized:
+
+- `I3/I3en`: High performance SSD (NVMe), analytics, warehousing, NoSQL Databases
+- `D2`: Dense Storage - data warehousing, HADOOP, Distributed File Systems, lowest price disk throughput
+- `H1`: High throughput, Big Data, Apache Kafka
 
 - As generation number increases, hardware improves
 - _Compute Optimized_ are for high compute intensive tasks
@@ -85,6 +131,24 @@ Naming convention: [instanceClass][generation-number].[size within the class]
   - Redis
   - Cache in memory
   - Data warehouses
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+# From Cloud Practicioner Notes (Old):
+
+- IaaS - Infrastructure as a Service
+- Bootstrapping: running commands when a machine starts and boots up
+  - Script is run ONCE on machine start
+  - Bootstrapping script commands run with root user priveledges
+  - EC2 setup - advanced options -> **EC2 User Data** script. Runs on startup of EC2 instance
+- By default it is a private service (deployed into a subnet in a VPC in the private zone).
+  - If you want to allow public access you need to configure that.
+- IaaS - Infrastructure as a Service
+- EC2 is AZ Resilient: If an AZ that the EC2 instance is in fails, then the instance will be taken down with it.
 
 ### Starting and Stopping an instance
 

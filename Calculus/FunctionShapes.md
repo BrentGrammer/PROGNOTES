@@ -61,3 +61,4 @@
 - As $x$ goes to $\infty$ or $-\infty$ the limit is $0$
   $$e^{-x^2}$$
 - The general form of the gaussian bell curve is $e^{x^2}$
+- The effect of using this function as a modulator, for example, is that as input $x$ is close to 0 or closer to infinity (the tails of the bell curve), this modulates the other part down towards 0
