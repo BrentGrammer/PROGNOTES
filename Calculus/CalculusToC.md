@@ -5,6 +5,7 @@
 - [Function Shapes](./FunctionShapes.md)
 - [Composite Functions](./CompositeFunctions.md)
 - [Continuous Functions and Discontinuities](./ContinuitiesDiscontinuities.md)
+- [Derivatives](./Derivatives.md)
 - [Function Symmetry](./FunctionSymmetry.md)
 - [Infinitesimals](./Infinitesimals.md)
 - [Inverse Functions](./InverseFunctions.md)
