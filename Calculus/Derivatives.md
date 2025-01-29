@@ -111,7 +111,7 @@ This expansion is also known as the "FOIL" method when applied to multiplying tw
 $$f(x) = x^2$$
 $${dy \over dx} = \lim_{h \to 0}\left[{{(x+h)^2 - x^2} \over h} \right]$$
 
-- Expand algebraically to start to get around having to divide by $0$:
+- Expand algebraically with the goal of getting around having to divide by $0$:
   $$= \lim_{h \to 0}\left[{{x^2+2xh+h^2-x^2} \over h} \right]$$
 - $x^2$ cancels out, then factor out $h$:
   $$= \lim_{h \to 0}\left[ {{h(2x+h)} \over h} \right]$$
