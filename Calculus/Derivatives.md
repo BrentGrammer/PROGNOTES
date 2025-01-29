@@ -117,7 +117,7 @@ $${dy \over dx} = \lim_{h \to 0}\left[{{(x+h)^2 - x^2} \over h} \right]$$
   $$= \lim_{h \to 0}\left[ {{h(2x+h)} \over h} \right]$$
 - $h$ cancels out:
   $$= \lim_{h \to 0}\left[ 2x + h\right]$$
-- We now don't have to worry about divide by $0$, just use the plugin method by setting $h$ to $0$
+- We now don't have to worry about divide by $0$, just use the plugin method by setting $h$ to $0$:
   $${dy \over dx} = 2x$$
 - The slopes of the tiny line segments change for different values of $x$ (as opposed to a straight line where the derivative and slope is constant)
   - We leave $x$ as a variable because we want to allow for different slope values depending on $x$
