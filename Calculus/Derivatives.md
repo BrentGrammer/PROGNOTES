@@ -29,19 +29,96 @@ See [Python Notebook](./derivatives.ipynb)
   $$f(x) = mx + b$$
 - $m$ is the slope parameter and $b$ is the `Intercept`
 
-#### The Intercept: Where the line crosses the y-axis when $x = 0$
+#### The Intercept: Where the line crosses the y-axis when input $x = 0$ in the function.
 
 - The Intercept is unimportant for the Derivative - we only care about the $m$ slope parameter
 
 ### Computing the Slope parameter $m$
 
 - The change in the $y$ axis values normalized by the change in the $x$ axis values
+
   - Take the difference between the y-axis of 2 points on a line and divide it by the difference of the x-axis coordinates for those points
     $$m = {{y_2 - y_1} \over {x_2 - x_1}} = {\Delta y \over \Delta x}$$
 
-### The slope as it relates to the Derivative
+- You will also see the slope formula as the change of a function where $x$ plus a small change in $x$ minus the function with just $x$ over the change in $x$:
+  $$m = {{f(x + \Delta x) - f(x)} \over \Delta x}$$
+- or using $h$ in place of $\Delta x$:
+  $$m = {{f(x + h) - f(x)} \over h}$$
+
+#### Special Slope Properties of Straight Lines
+
+- **NOTE:** No matter what $x$ value or $h$ you use for getting the slope of a straight line, you will always get the same slope result. A property of straight lines is: the slope anywhere is the slope everywhere
+- The global slope is the same as the local slope (of a line segment)
+- These properties hold true for the derivative of straight lines as well
+
+### The Slope as it relates to the Derivative
 
 - If we continue to chop up a portion of a line between two points into smaller and smaller line segments to get the Limit as the distance on the x-axis between those segments goes to 0
 - The distance between two points along the x-axis $\Delta x$ as it gets smaller and smaller arbitrarily close to $0$ without actually being $0$ (then we would have ${\Delta x \over \Delta y} = {0 \over 0}$)
 - At the limit as the segments get smaller and smaller towards 0 length (but not 0), we have a **slope series** (i.e. a vector of slopes for each chopped up line segment) - this is the Derivative
   - The slope series becomes the derivative when the segments are so numerous that the distances between them is almost 0
+
+## The Derivative
+
+- The derivative is **the Limit** as a change in the input $h$ goes to $0$
+  - In other words, as the change of $x$ is an "infinitesimal" or very close to $0$
+- Or the Slope of a line segment as the x-axis distance (x coords of the two end points) goes to $0$
+  - How the function behaves or what it moves towards as $h$ gets closer and closer to $0$
+- (Note: when $h$ goes to $0$ you have a undefined limit since you cannot divide by $0$ and need to use techniques to do differentiation to get around this)
+  $${dy \over dx} = \lim_{h \to 0}\left[{{f(x+h)-f(x)} \over h} \right]$$
+
+### Slope vs. Derivative
+
+- "Slope": when $\Delta x$ is relatively large
+- "Derivative": when $\Delta x$ is infinitesimal and very tiny and arbitrarily close to $0$ without actually getting to $0$ (i.e. infinitesimal)
+  - **The Slope gotten from the Derivative can change at each infinitesimal change of input $dx$**
+
+### Getting around dividing by 0
+
+- Use algebraic expansions like the distributive property to expand the equations out and cancel out terms to help get a solution (as the limit goes to 0)
+- **The Distributive Property:**
+  For any number a and terms b and c:
+  $$a(b + c) = ab + ac$$
+  This rule applies to any number of terms inside the parentheses. For instance:
+  $$a(b + c + d) = ab + ac + ad$$
+
+#### Expansion:
+
+Algebraic expansion for the func: $(2(x+h) + 5) - (2x+5)$:
+
+1. Distribute the 2 in the first parenthesis: $(2x + 2h + 5) - (2x + 5)$
+
+Now we have removed all nested parentheses.
+
+2. The next step is to subtract the second set of parentheses from the first.
+
+When subtracting expressions in parentheses, we change the operation for all terms inside the second parenthesis. In this case, subtraction becomes addition, and addition becomes subtraction:$(2x + 2h + 5) + (-2x - 5)$
+
+3. Now we can remove the parentheses completely:2x + 2h + 5 - 2x - 5
+
+4. Finally, we combine like terms:
+
+The $2x$ and $-2x$ cancel out.
+The $5$ and $-5$ cancel out.
+The $2h$ remains and is the final simplified expression.
+
+#### Expanding binomials - For any binomial $(a + b)^2$:
+
+This expansion is also known as the "FOIL" method when applied to multiplying two binomials, as $(a + b)^2$ is equivalent to $(a + b)(a + b)$.
+
+### Example computing the Derivative for $x^2$
+
+$$f(x) = x^2$$
+$${dy \over dx} = \lim_{h \to 0}\left[{{(x+h)^2 - x^2} \over h} \right]$$
+
+- Expand algebraically to start to get around having to divide by $0$:
+  $$= \lim_{h \to 0}\left[{{x^2+2xh+h^2-x^2} \over h} \right]$$
+- $x^2$ cancels out, then factor out $h$:
+  $$= \lim_{h \to 0}\left[ {{h(2x+h)} \over h} \right]$$
+- $h$ cancels out:
+  $$= \lim_{h \to 0}\left[ 2x + h\right]$$
+- We now don't have to worry about divide by $0$, just use the plugin method by setting $h$ to $0$
+  $${dy \over dx} = 2x$$
+- The slopes of the tiny line segments change for different values of $x$ (as opposed to a straight line where the derivative and slope is constant)
+  - We leave $x$ as a variable because we want to allow for different slope values depending on $x$
+  - The slope of the function when $x=0$ is $0$, when $x=1$, the slope is $2$, etc.
