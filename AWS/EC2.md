@@ -132,6 +132,21 @@
   - Cache in memory
   - Data warehouses
 
+## SSH into EC2
+
+- [Video](https://learn.cantrill.io/courses/1101194/lectures/27806428)
+- **BAD PRACTICE TO ALLOW ALL IP ADDRESSES IN SECURITY GROUP INBOUND RULES**
+  - Use the IP (ip_prefix) value from here for AWS services if needed (i.e. to allow EC2 instance connect): https://ip-ranges.amazonaws.com/ip-ranges.json
+- Make sure the security group for the EC2 instance allows your IP address in the inbound rules
+  - You can go to Edit inbound rules in the security group > in the Source column dropdown select My IP
+- Create a key pair - EC2 > Create Key Pair on left menu > .pem key
+  - Download the key to your machine
+  - Go to the folder you downloaded the .pem key, chmod to 400 permissions and use the command given in SSH Connect page in AWS console to connect
+  - Using this method requires admin and does not scale as every team member needs a copy of this .pem file
+- Using EC2 Instance Connect
+  - You need to know the user name if using a custom AMI, otherwise it is guessed automatically for connecting
+  - More scalable with high number of team members than using the .pem key
+
 <br>
 <br>
 <br>
