@@ -144,6 +144,22 @@ $${dy \over dx} = \lim_{h \to 0}\left[{{(x+h)^2 - x^2} \over h} \right]$$
   - We leave $x$ as a variable because we want to allow for different slope values depending on $x$
   - The slope of the function when $x=0$ is $0$, when $x=1$, the slope is $2$, etc.
 
+### Differentiation is a LINEAR Operation
+
+- Scalar multiples and additive terms in a function can be differentiated separately and summed to get the derivative of the entire function (the same result if you differentiated the entire function and not the separate terms individually).
+  - You can differentiate the terms with the independent variable (i.e. $x$ for example) and pull out the constants
+- You can take the differentiation of separate additive terms in a function and add them all together to get the derivative of the entire function
+- Example: Scalars $a$ and $b$ are scalar multipliers of two functions $f(x)$ and $g(x)$ which are terms in a whole complete function we are differentiating:
+  $${d \over dx} \left[af(x) + bg(x) \right]$$
+- Because Differentiation is linear, we can differentiate the two function terms in the original function separately, then multiply those DERIVATIVES of the two functions by the scalars $a$ and $b$, take the sum and the result is exactly the same as getting the derivative for the entire function:
+  $$af'(x) + bg'(x) = {d \over dx} \left[af(x) + bg(x) \right]$$
+
+#### Multiplier scalars with the Linearity Property of Differentiation
+
+- $a$ is a constant and $x^2$ is a term in the entire function.
+- We can take the derivative of the term being multiplied by the constant and multiply the scalar constant by it to arrive at the same result as the derivative for the entire function
+  $${d \over dx}\left(ax^2\right) = a\left({d \over dx}x^2\right)$$
+
 ## Geometry of Derivatives
 
 ### Secant and Tangent lines
