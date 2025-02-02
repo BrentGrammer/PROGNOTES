@@ -9,12 +9,33 @@ See [Python Notebook](./derivatives.ipynb)
 - Derivative: The instantaneous slopes (i.e. at each point)
 - Differentiation: The process and the technique of getting the derivative
 
-### Notation
+## Notation
 
-- the Delta greek letter represents a change in some quantity:
-  $$\Delta x \over \Delta y$$
-  or it's lowecase variant:
-  $$\delta x \over \delta y$$
+- the Delta greek letter represents a change in some quantity:$\Delta x \over \Delta y$
+  - or it's lowecase variant: $\delta x \over \delta y$
+- Leibniz and Lagrange are the most common forms
+
+### Leibniz notation
+
+- df = change of function and sometimes the function is written outside the ratio notation as well: $${dy \over dx} = {df \over dx} = {d \over dx}f(x)$$
+  - Higher order derivative notation: ${d^2y} \over {dx^2}$
+- Chain Rule: $${dy \over dx} = {dy \over du} \times {du \over dx}$$
+
+### Lagrange Notation
+
+- More compact than Leibniz (f prime of x is the derivative) $$f'(x) = f' = fx$$
+- second derivative or partial derivatives: $f'' = fxx$
+
+### Newton Notation
+
+- Simple - use a dot on top of the dependent variable (second derivate uses double dot)
+- Commonly used to notate derivatives of physical forces over time (physics)
+  $$\dot{y} \quad \ddot{y}$$
+
+### Euler Notation
+
+- Least commonly used, is a Capital D in front of the function:
+  $$Df = Df(x) \quad D^2f \text{(second derivative)}$$
 
 ## The Slope of a Line
 
@@ -122,3 +143,17 @@ $${dy \over dx} = \lim_{h \to 0}\left[{{(x+h)^2 - x^2} \over h} \right]$$
 - The slopes of the tiny line segments change for different values of $x$ (as opposed to a straight line where the derivative and slope is constant)
   - We leave $x$ as a variable because we want to allow for different slope values depending on $x$
   - The slope of the function when $x=0$ is $0$, when $x=1$, the slope is $2$, etc.
+
+## Geometry of Derivatives
+
+### Secant and Tangent lines
+
+- Descriptions of straight lines that pass through functions
+- Secant line: passes through two points in a function (that are not infinitessinally close to each other)
+- Tangent line: a line that passes through two points in a function which are infinitessimally close to each other (looks like it's grazing one point of the function graph)
+
+### Geometric definition of a Derivative
+
+- The slope of the Tangent Line at some point $x$ on a function $f(x)$
+  - The tangent line passes through two points that are infinitessimally close to each other on the x-axis
+  - Or the tangent is what you get when you take a Secant Line starting at $x$ and crossing through some other point on the function graph and you bring the distance of the points smaller and smaller to 0 (The limit as the distance $\Delta x$ approaches 0)
