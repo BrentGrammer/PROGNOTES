@@ -157,3 +157,25 @@ $${dy \over dx} = \lim_{h \to 0}\left[{{(x+h)^2 - x^2} \over h} \right]$$
 - The slope of the Tangent Line at some point $x$ on a function $f(x)$
   - The tangent line passes through two points that are infinitessimally close to each other on the x-axis
   - Or the tangent is what you get when you take a Secant Line starting at $x$ and crossing through some other point on the function graph and you bring the distance of the points smaller and smaller to 0 (The limit as the distance $\Delta x$ approaches 0)
+
+## Interpreting Derivative Plots
+
+- **Shows the slope of a function at each point**, not the value (output) of the function - it shows you how the function is CHANGING
+- A Derivative plot is a plot of the Tangent Line (a pair of infinitesimally close points on the function) at each x-axis point
+- Two features to look for in Derivative Plots:
+  - The sign of the derivative (is it positive or negative) tells you where the function is going up or going down
+  - Where does the derivative cross 0? Those are critical points where the function changes direction. Indicates that the function is doing something qualitatively different.
+
+### Example of a Derivative plot that is more complicated
+
+- For the function $x^3 - x^2$, the slope of the function goes up and down and back up
+- The derivative plot for this function looks like $x^2$, but you should interpret it as showing that the slope of the function is positive to start with, negative and then positive again
+  - Note where the derivative plot crosses 0 on the y-axis at two points - these represent changes in direction of the function
+    <br>
+    <img src="./derivativeplot.png" width="400" height="auto" />
+    <br>
+- The derivative plot of $ln(x)$ - The first is the plot of the function and the plot below is the derivative plot.
+  - The derivative plot shows us that the function is always going up (the derivative is always a positive number - y-axis on derivative plot)
+  - The derivative plot also shows that the function starts with a high slope and then the slope starts decreasing so it is less and less steep
+    <br>
+    <img src="./logplotderivative.png" width="400" height="auto" />
