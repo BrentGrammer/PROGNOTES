@@ -195,3 +195,55 @@ $${dy \over dx} = \lim_{h \to 0}\left[{{(x+h)^2 - x^2} \over h} \right]$$
   - The derivative plot also shows that the function starts with a high slope and then the slope starts decreasing so it is less and less steep
     <br>
     <img src="./logplotderivative.png" width="400" height="auto" />
+
+## Diffentiating Polynomials
+
+- Polynomials are really easy and fast to compute the derivate for
+
+### The Power Rule
+
+- To get the derivative of a polynomial, take the exponent $r$ and put it in front of the coefficient $c$ as a multiplier and subtract 1 from the exponent
+  - The exponent comes down as a coefficient that multiplies any existing coefficient
+    $$f(x) = cx^r \quad \rightarrow f'(x) = rcx^{r-1}$$
+- Example: $f(x) = x^2 \quad \rightarrow f'(x) = 2x^{2-1}$
+- **NOTE**: This rule only applies to simple polynomials, not composite functions (where you have exponents and sqaure roots or sin functions in other terms, etc.)
+
+### Differentiating a polynomial with multiple terms:
+
+- NOTE: Derivative of a constant is always 0 (here the constant is the term $10$), the derivative of $x^1$ is $1$ for the term $x$
+  - side note: The 12x^3 and 7.5x^2 cannot be simplified further because they are not like terms (do not have the same exponent)
+    $$\frac{d}{dx}(3x^4 + 2.5x^3-7x^2+x+10) = 12x^3 + 7.5x^2 -14x + 1 + 0$$
+- if you have more complicated terms, here $e^{\pi}$ and $\pi^e$, that do not involve $x$, then treat them as constants:
+  $$\frac{d}{dx}\left(e^{\pi}x^2-\pi^e x^4\right) = 2e^{\pi}x-4\pi^e x^3$$
+- For a trinomial multiplied by a binomial, use the distributive property
+  $$
+  2(x^2 + h^2 + 2xh)(x + h) \\
+  \text{To distribute (x + h), we multiply each term inside the first parenthesis by x, and then by h, and add the results:} \\
+  (x^2) * x = x^3 \\
+  (x^2) * h = x^2h \\
+  (h^2) * x = xh^2 \\
+  (h^2) * h = h^3 \\
+  (2xh) * x = 2x^2h \\
+  (2xh) * h = 2xh^2 \\
+  \text{Final solution:} \\
+  x^3 + x^2h + xh^2 + h^3 + 2x^2h + 2xh^2
+  $$
+
+### Parity of Polynomial Derivatives
+
+- Even polynomial functions always have odd derivatives (the number in the exponent due to $n-1$ for it in the Power Rule)
+  $$f'x^2 = 2x^1$$
+- Odd polynomial functions always have an even derivative
+  - Odd polynomials function values are always increasing! (they can start negative, but as x increases, y always goes up)
+  - Their derivatives everywhere along the function are non-negative (could include 0, but all other slopes are positive)
+    $$f'x^3 = 3x^2$$
+
+## The Derivatives of Sin and Cosine
+
+- The derivatives of cosine and sin are each other
+  - $f'\cos(x) = -\sin(x)$
+  - $f'-\sin(x) = -\cos(x)$
+  - $f'-\cos(x) = \sin(x)$
+  - $f'\sin(x) = \cos(x)$
+- Trick to remembering: "Cosine to sin switches the sign" (derivative of cosine is negative sin)
+  - The derivative of sin keeps the same sign
