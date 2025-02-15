@@ -179,8 +179,14 @@ $${dy \over dx} = \lim_{h \to 0}\left[{{(x+h)^2 - x^2} \over h} \right]$$
 - **Shows the slope of a function at each point**, not the value (output) of the function - it shows you how the function is CHANGING
 - A Derivative plot is a plot of the Tangent Line (a pair of infinitesimally close points on the function) at each x-axis point
 - Two features to look for in Derivative Plots:
+
   - The sign of the derivative (is it positive or negative) tells you where the function is going up or going down
   - Where does the derivative cross 0? Those are critical points where the function changes direction. Indicates that the function is doing something qualitatively different.
+
+- Derivative plot of sin (note that when the y value of the derivative plot is negative, the sin function is sloping down, and when positive it slopes up)
+  <br>
+  <img src="./sinderivativeplot.png" width="400" height="auto" />
+  <br>
 
 ### Example of a Derivative plot that is more complicated
 
@@ -240,10 +246,22 @@ $${dy \over dx} = \lim_{h \to 0}\left[{{(x+h)^2 - x^2} \over h} \right]$$
 
 ## The Derivatives of Sin and Cosine
 
-- The derivatives of cosine and sin are each other
+- The derivatives of cosine and sin are cyclic and go back and forth around a cycle of 4 differentiations
   - $f'\cos(x) = -\sin(x)$
   - $f'-\sin(x) = -\cos(x)$
   - $f'-\cos(x) = \sin(x)$
   - $f'\sin(x) = \cos(x)$
 - Trick to remembering: "Cosine to sin switches the sign" (derivative of cosine is negative sin)
   - The derivative of sin keeps the same sign
+- see exercise in [Notebook](./derivatives.ipynb) for how to cycle through the differentiations with sympy
+
+#### Are Inverse Trig functions also cyclic?
+
+- i.e. arc cosine, or $\cos^{-1}(x)$, starting the cycle is NOT cyclic like the trig functions above. The cycles only apply to cos and sin
+
+## Empirical vs. Analytical Derivative
+
+- "Discrete Derivative" or Difference vector - this is not the same as the analytical derivative which you would write out on a chalkboard, for ex.
+  - Based on a discrete difference between a point and a previous point, not an analytical "pure" derivative, but a empirical derivative
+  - in Numpy: `np.diff(fx) / dx` - run function input diffs and scale by the change in x where dx is a paraterized step size - see [Notebook](./derivatives.ipynb)
+- The smaller and closer the `dx` step size parameter is to zero, the closer the empirical derivative gets to the actual analytical derivative
