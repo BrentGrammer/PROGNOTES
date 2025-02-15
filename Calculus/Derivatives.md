@@ -88,6 +88,13 @@ See [Python Notebook](./derivatives.ipynb)
 - (Note: when $h$ goes to $0$ you have a undefined limit since you cannot divide by $0$ and need to use techniques to do differentiation to get around this)
   $${dy \over dx} = \lim_{h \to 0}\left[{{f(x+h)-f(x)} \over h} \right]$$
 
+### Empirical vs. Analytical Derivative
+
+- "Discrete Derivative" or Difference vector - this is not the same as the analytical derivative which you would write out on a chalkboard, for ex.
+  - Based on a discrete difference between a point and a previous point, not an analytical "pure" derivative, but a empirical derivative
+  - in Numpy: `np.diff(fx) / dx` - run function input diffs and scale by the change in x where dx is a paraterized step size - see [Notebook](./derivatives.ipynb)
+- The smaller and closer the `dx` step size parameter is to zero, the closer the empirical derivative gets to the actual analytical derivative
+
 ### Slope vs. Derivative
 
 - "Slope": when $\Delta x$ is relatively large
@@ -208,6 +215,7 @@ $${dy \over dx} = \lim_{h \to 0}\left[{{(x+h)^2 - x^2} \over h} \right]$$
 
 ### The Power Rule
 
+- Workds for any real number except when $r=0$
 - To get the derivative of a polynomial, take the exponent $r$ and put it in front of the coefficient $c$ as a multiplier and subtract 1 from the exponent
   - The exponent comes down as a coefficient that multiplies any existing coefficient
     $$f(x) = cx^r \quad \rightarrow f'(x) = rcx^{r-1}$$
@@ -259,9 +267,65 @@ $${dy \over dx} = \lim_{h \to 0}\left[{{(x+h)^2 - x^2} \over h} \right]$$
 
 - i.e. arc cosine, or $\cos^{-1}(x)$, starting the cycle is NOT cyclic like the trig functions above. The cycles only apply to cos and sin
 
-## Empirical vs. Analytical Derivative
+## Derivative of absolute value, Square Root, log and exp Functions
 
-- "Discrete Derivative" or Difference vector - this is not the same as the analytical derivative which you would write out on a chalkboard, for ex.
-  - Based on a discrete difference between a point and a previous point, not an analytical "pure" derivative, but a empirical derivative
-  - in Numpy: `np.diff(fx) / dx` - run function input diffs and scale by the change in x where dx is a paraterized step size - see [Notebook](./derivatives.ipynb)
-- The smaller and closer the `dx` step size parameter is to zero, the closer the empirical derivative gets to the actual analytical derivative
+### The derivative of Absolute Value Function
+
+- Surprisingly, the abs value function has a complicated derivative
+  $$f(x) = |x|$$
+- It is a piecewise function with a non-differential point in the middle
+  - if $x$ is negative, multiply it by -1 to get it negative, if positive it is just $x$
+    $$
+    = \begin{cases}
+        -x \text{ if } x < 0 \\
+        x \text{ if } x \ge 0
+    \end{cases}
+    $$
+- The derivative needs to also be a piecewise function.
+  - The derivitive with respect to x if x is negative is -1, if positive, +1
+  - **When $x=0$ the derivative is undefined**. There is infinite tangents you could place at the tangent line where x is 0 since the function abruptly goes in the opposite direction (so the derivative plot has a discontinuity there)
+  - Note that the derivative of the absolute value function is not technically the Signum (sign function) since there is a discontinuity at x=0, it is used for brevity and ignores that specific case.
+    $$f'(x) = \text{sgn}(x)$$
+    $$
+    = \begin{cases}
+          -1 \text{ if } x < 0 \\
+          1 \text{ if } x \ge 0 \\
+          \text{d.n.e.} \text{ if } x = 0
+      \end{cases}
+    $$
+
+### The derivative of the Square Root
+
+- You can rewrite the square root function as exponentiated $x$ to $1/2$ and then use the power rule to get the derivative
+  - (power rule = $cx^r \rightarrow rcx^{r-1}$)
+    $$f(x) = \sqrt{x} = x^{1/2} \quad \rightarrow f'(x) = {1 \over {2\sqrt{x}}} = 1/2x^{-1/2}$$
+
+### The derivative of the Natural Log
+
+- Note: all logarithms regardless of their base are 0 when $x=1$
+  - The log of $0$ is negative Infinity
+  - The log of a negative number is undefined in real number terms (it is a complex number)
+  - The Natural Log uses the mathematical constant $e$ (approximately $2.71828$) as its base
+    - side note: $log_e(e) = 1$
+- The log function always go up, so the derivative is always positive. It starts extremely large when $x$ is close to $0$ and gets smaller and smaller as $x$ gets further away from $0$
+
+#### The derivative for the Natural Log:
+
+$$f(x) = \ln(x) \quad \rightarrow f'={1\over x}$$
+
+#### The derivative for logs using other bases:
+
+- The derivative for logs other than natural log is still $1/x$ but scaled by the base $B$
+  $$f(x) = \log_{B}(x) \quad \rightarrow f' = {1 \over {x\ln(B)}}$$
+
+### The derivative of exp $e$
+
+- The derivative of the Natural Exponent $e^x$ is identical to $e^x$
+  - This is a remarkable feature for $e$ that is **unique**. There is no other function that is it's own derivative! (except for $y=0$, but that can be expressed as a special case: $y=0e^x$)
+    $$f(x) = e^x \quad \rightarrow f' = e^x$$
+
+
+## Critical Points
+- Special points on a function where the behavior changes in some significant way or is degenerate at that point
+- Useful in optimization
+- 
