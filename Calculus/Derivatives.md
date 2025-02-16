@@ -1,6 +1,6 @@
 # Derivatives
 
-See [Python Notebook](./derivatives.ipynb)
+See [Python Notebook](./derivatives_notebooks/derivatives.ipynb)
 
 - The slope of the line of a function as the Limit of change approaches 0
 
@@ -90,9 +90,9 @@ See [Python Notebook](./derivatives.ipynb)
 
 ### Empirical vs. Analytical Derivative
 
-- "Discrete Derivative" or Difference vector - this is not the same as the analytical derivative which you would write out on a chalkboard, for ex.
+- "Discrete Difference" or Difference vector - this is not the same as the analytical derivative which you would write out on a chalkboard, for ex., but is an estimate
   - Based on a discrete difference between a point and a previous point, not an analytical "pure" derivative, but a empirical derivative
-  - in Numpy: `np.diff(fx) / dx` - run function input diffs and scale by the change in x where dx is a paraterized step size - see [Notebook](./derivatives.ipynb)
+  - in Numpy: `np.diff(fx) / dx` - run function input diffs and scale by the change in x where dx is a paraterized step size - see [Notebook](./derivatives_notebooks/derivatives.ipynb)
 - The smaller and closer the `dx` step size parameter is to zero, the closer the empirical derivative gets to the actual analytical derivative
 
 ### Slope vs. Derivative
@@ -261,7 +261,7 @@ $${dy \over dx} = \lim_{h \to 0}\left[{{(x+h)^2 - x^2} \over h} \right]$$
   - $f'\sin(x) = \cos(x)$
 - Trick to remembering: "Cosine to sin switches the sign" (derivative of cosine is negative sin)
   - The derivative of sin keeps the same sign
-- see exercise in [Notebook](./derivatives.ipynb) for how to cycle through the differentiations with sympy
+- see exercise in [Notebook](./derivatives_notebooks/derivatives.ipynb) for how to cycle through the differentiations with sympy
 
 #### Are Inverse Trig functions also cyclic?
 
@@ -324,8 +324,58 @@ $$f(x) = \ln(x) \quad \rightarrow f'={1\over x}$$
   - This is a remarkable feature for $e$ that is **unique**. There is no other function that is it's own derivative! (except for $y=0$, but that can be expressed as a special case: $y=0e^x$)
     $$f(x) = e^x \quad \rightarrow f' = e^x$$
 
+# Critical Points
 
-## Critical Points
-- Special points on a function where the behavior changes in some significant way or is degenerate at that point
-- Useful in optimization
-- 
+See [Notebook](./derivatives_notebooks/criticalpoints.ipynb)
+
+- Special points on a function where the behavior or direction changes in some significant way or is degenerate at that point
+- Used to understand characteristics of a function and improve sketching a function
+- Main use: Optimization to minimize errors/cost in many domains
+  - The idea is to find extreme values to determine how to optimize
+
+### Definition of a Critical Point
+
+- Points in a function where 
+  - the derivative is undefined 
+  - the derivative equals $0$, **and the function is defined**
+- If the function output is undefined or there is a discontinuity in the function, then there can be no critical point there  
+  - Note: the derivative can be undefined and we can still have a critical point
+- Gemoetrically: the x-axis values where the slope is flat or does not exist
+- "Critical Point": the x-axis coordinate
+- "Critical Value": The y-axis function output for that x coordinate.
+  - Note: This is **not** the value of the derivative, but the value of the function
+
+## Computing the Critical Points
+
+### Algebraic approach
+
+- Identify all the $x$ values that solve for $x$ in the derivative of the function $f'(x) = 0$ where the derivative is 0
+  - These $x$ values are the x-axis value of the function (input value) that has a critical value (function output)
+- Also, you need to find if there are discontinuities (anywhere the function is not defined)
+- Note: you do not know what type of critical point you are dealing with when you complute it purely algebraically (i.e. what the critical point is telling you about the behavior of the function at that point)
+
+### Geometric approach
+
+- Look for bends or discontinuities in the graph of the function
+  - (note that some discontinuities are removable and not easy to identify on a graph, so you fall back to the algebraic approach)
+- Looking at a graph of the function after finding the critical points algebraically can help us understand what type of behavior change the critical points represent
+
+## Types of Critical Points
+
+- Maximum
+- Minimum
+- Discontinuity
+- Inflection points: where a rate of change changes (increasing at a higher and higher rate and then changes that increase rate at a decreasing rate)
+  - corresponds to where the second derivative (higher order derivative) is $0$
+- Corner: function is defined but non-differentiable at that point
+
+### Higher order critical points
+
+- Taking the derivative of a derivative (a Higher order derivative) and finding critical points on it
+- Tell us where the derivative is changing, specifically about Inflection points, the higher order derivative will be $0$
+
+### Interpreting the Derivative plot for Critical points
+
+- Do not look at direction changes on the derivative plot for the function, but look at the **Zero Crossings** on the plot
+- Everywhere the derivative plot passes through 0, the function has a local minimum or a local maximum (output y value) at those x points.
+  - To know whether the points are minimum or maximum, you need to look at a graph or use the second derivative test
