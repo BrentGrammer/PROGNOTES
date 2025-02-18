@@ -21,6 +21,7 @@
   - Typically when presented to a service a File System is created on top of the block storage (NTFS or ext3 etc)
   - Mounts as a C drive in Windows or the Root volume in Linux
   - Can Mount an EBS volume, for example or Boot off of a EBS Volume
+    - Booting means you have the OS stored on the volume and boot it up with it
   - Most EC2 instances use EBS as a boot volume that stores the Operating System and that is what is used to boot up and start the OS
   - Used for high performance or to boot from in EC2
 - **File Storage**: **STRUCTURED** - has a File System builtin that is already there
@@ -60,6 +61,7 @@
   - can be detached from one instance and attached to another
 - Persistent beyond instance lifetime. If an instance moves to another EC2 Host machine, then the EBS volume follows it and is still attached to it
   - Stops and restarts of instances do not affect the volume - it is maintained and persisted until the volume specifically is deleted
+- Independent from EC2 Instances, you can attach and detach them at will and the data remains on the volume
 
 ### Backing up EBS Volumes
 
@@ -143,6 +145,34 @@
   - 12 MB/s per TB of volume size
   - Burst of 80 MB/s per TB of volume size
 
+### Creating Volumes
+
+- Go to EC2 in AWS console > Volumes on the left side menu > Create Volume button
+- Device Name is how the OS on the instance sees the volume (you will see it as a identifier when listing volumes on the instance)
+- You can add a tag with a name to help identify the volume easier: Add Tag > key: "Name" value: "MyEBSVolume"
+- After creating, right click it in the list and select "Attach Volume"
+
+### Useful command line scripts for configuring EBS in an instance
+
+- `lsblk` - list block devices on the instance
+  - Useful to check for the EBS volume by device name in case it is not mounted yet
+  - Note: all device names are under /dev, so if you see "xvdf" that means it is /dev/xvdf
+- `sudo file -s {ebsDevicename}` - check if there are file systems present on the volume
+  - if you see `/dev/xvdf: data` returned or something with just "data" (i.e. raw data) and no file system info in addition, that means there is not a file system present
+- `sudo mkfs -t xfs /dev/xvdf` - build a file system if there is none present with above command. -t is the type, mkfs means make file system, and /dev/xvdf is the device name for the EBS volume
+- **In Linux, files sytems are mounted to a directory** - create one and mount it with `sudo mount {ebsDeviceNameId} /{yourdirectory}`
+  - use `df -k` to list file systems and check that it was mounted
+  - the directory where the file sys is mounted will contain all of the persitently stored files for the volume
+- reboot the ec2 instance with `sudo reboot`
+- `sudo blkid` - get the ebs block ID if needed
+- Add a file system to mount automatically on boot in fstab in /etc on linux
+  - see [Video Demo](https://learn.cantrill.io/courses/1101194/lectures/28705524)
+  - `sudo nano /etc/fstab` - open the fstab configuration to manage file system mounts
+  - enter mount information using the block ID
+  - `sudo mount -a` - manually mount all file systems without rebooting
+
+NOTE: before detaching an EBS Volume, stop the instance it is attached to first!
+
 ## Instance Store Volumes
 
 - See [EC2 Storage](./Ec2-Storage.md)
@@ -157,6 +187,9 @@
 - numbers of performance and iops numbers for exam to memorize: https://learn.cantrill.io/courses/1101194/lectures/27806440
 
 # EBS Snapshots
+
+[Video Demo creating a Snapshot](https://learn.cantrill.io/courses/1101194/lectures/28705524) at timestamp 8:29
+see [video](https://learn.cantrill.io/courses/1101194/lectures/28705524) at timestamp 12:12 for copying a snapshot to a different region
 
 - Efficient way to backup EBS Volumes to S3
   - becomes region resilient
@@ -192,6 +225,7 @@
   - use FSR
 
 #### Fast Snapshot Restore (FSR)
+
 - Option set to make the snapshot instantly restore
 - You are allowed 50 fast snaphsot restores per region
 - When enabled, select the snapshot and how many AZs to restore to
@@ -203,5 +237,3 @@
   - 10GB stored in a snapshot per month is a billable unit
   - Note this is not charged for the volume size only USED data size on the volume (how much data is actually stored for the snapshot)
   - Can restore snapshots more frequently and it is the same cost as doing them less frequently with the same amount of data for that time period
--  
-  
