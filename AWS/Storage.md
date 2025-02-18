@@ -145,4 +145,63 @@
 
 ## Instance Store Volumes
 
+- See [EC2 Storage](./Ec2-Storage.md)
+
 - Block storage physically connected directly to one EC2 instance Host that can be used as a file system by the operating system
+
+### Specifics on exam
+
+- Cost: default to ST1 or SC1 over SSD ebs volumes
+- Throughput or streaming? use ST1
+- Need to Boot EC2 instance? Do NOT use ST1 or SC1 (cannot boot)
+- numbers of performance and iops numbers for exam to memorize: https://learn.cantrill.io/courses/1101194/lectures/27806440
+
+# EBS Snapshots
+
+- Efficient way to backup EBS Volumes to S3
+  - becomes region resilient
+- Protects against availability zone issues or local storage system failures in that AZ
+- Can be used to migrate data on EBS between AZs using S3 as an intermediary
+
+### Snapshots
+
+[Video](https://learn.cantrill.io/courses/1101194/lectures/27806444)
+
+- Incremental in nature
+  - First snapshot is a full copy of the data on a EBS volume
+    - Note: the data is the size of the snapshot, not the data + the size of the rest of the volume size
+  - First snapshot takes a longer time
+  - Future snapshots reference previous ones for the data that hasn't changed
+  - EBS performance is NOT affected during backup
+  - **Future snapshots are incremental** - only stores the difference between the previous snapshot and the state of the source volume when the snapshot is taken
+    - Takes shorter amount of time
+    - loss of increments is accounted for automatically - you can delete or lose an incremental snapshot and future snapshots will not be affected negatively
+- Offer a great way to clone a volume when spinning up a new EBS volume
+- Snapshots can be copied between regions
+  - used for global Disaster Recovery processes or migration between regions
+
+### Snapshot and Volume Performance Considerations
+
+- Snapshots are restored lazily
+  - If restoring a snapshot to a new EBS Volume, this is done in the background over time
+  - If data is fetched before it is finished, it will fallback to getting the data from S3, which is slower performance compared of EBS reading
+- Force a read of every block when restoring: To prevent performance decline, you can force AWS to pull all data from S3 into the volume immediately
+  - Typically this is done immediately when you restore the volume and before releasing the new instance/volume to Prod
+  - Can use things like DD on linux
+  - ensures full performance when customers start using data
+  - use FSR
+
+#### Fast Snapshot Restore (FSR)
+- Option set to make the snapshot instantly restore
+- You are allowed 50 fast snaphsot restores per region
+- When enabled, select the snapshot and how many AZs to restore to
+  - each snapshot/AZ combo represents 1 FSR.
+  - restoring to 4 AZs means that is 4 snapshots out of the allowed 50 FSRs
+- Extra cost and can get expensive if you have a lot of FSRs
+  - You can achieve the cheaper alternative by forcing a read of every block when restoring as mentioned earlier.
+- Billed using GB/month metric
+  - 10GB stored in a snapshot per month is a billable unit
+  - Note this is not charged for the volume size only USED data size on the volume (how much data is actually stored for the snapshot)
+  - Can restore snapshots more frequently and it is the same cost as doing them less frequently with the same amount of data for that time period
+-  
+  
