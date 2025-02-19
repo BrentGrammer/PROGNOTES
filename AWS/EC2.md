@@ -309,3 +309,67 @@
 - Right click on the instance in the dashboard and click terminate
 - Clean up the security Group (in the left menu panel) - select it and click on `Actions` dropdown and select delete security groups.
   - May have to wait until EC2 instance is terminated before this is allowed.
+
+# Network Interfaces
+
+### ENI Elastic Network Interfaces
+
+- EC2 instances always start with at least one ENI - the Primary Network Interface
+- Network Interfaces must be in the same AZ (can connect secondary Network Interfaces on different subnets)
+- Components such as IP addresses, Security Groups and more look like they're attached to the EC2 instance, but they are actually attached to the Network Interface
+  - MAC Address: the hardware address of the interface. Visible to the OS and can be used for things like software licensing
+  - Primary IPv4 private address: each network interface has this and it is in the range of the subnet that the interface is created in
+    - When selecting a VPC and subnet for an EC2 instance you are actually picking those for the primary network interface
+  - 0 or more secondary IP addresses
+  - 0 or 1 Public IP address for the interface
+  - 1 or more Elastic IP address (1 per private IPv4 address)
+    - different from public address where you can only have one
+  - 0 or more Ipv6 addresses (all of these are publicly routable, there is no concept of private/public with ipv6)
+  - Security Groups can be attached to Network Interface and affects all IP addresses on that interface
+  - Source/Destination checks can be enabled/disabled.
+    - If enabled, traffic on the interface is discarded if it's not from one of the ip addresses as a source or going to one of the IP addresses on the interface marked as a destination
+    - You would disable this if you need the network interface to function as a NAT gateway instance, for example
+- Different instance types allow you a different number of secondary network interfaces
+  - With secondary interfaces, you can detach them and move them to other EC2 instances (unlike primary interfaces~)
+
+### IP Addresses and DNS
+
+- EC2 Instances (via the Primary Network Interface) are given a primary private IPv4 IP Address and a DNS name associated with it.
+  - These never change throughout the instances lifetime
+  - Only resolvable insided the same VPC
+- Private primary IPv4 address naming convention: `10.16.0.0` translates to `ip-10-16-0-0.ec2.internal`
+  - ip-{ipaddr-separated-by-dashes}.ec2.internal
+  - can use the private DNS name to get the internal private ip address of an instance in the same VPC
+- If configuration is set to assign a public IP address, the primary network interface/ec2 instance will get one
+  - This public IP is dynamic and NOT fixed
+  - Stopping and Starting an instance will change the public IP address! and so will anything causing an instance to move to another EC2 host
+  - stopping de-allocates the address and starting again gets a new address to be allocated for it
+  - Restarting/rebooting an instance will not change the public address
+- Public Addresses have a DNS name generally in this format: ip `3.87.9.136` translates to `ec2-3-87-9-136.compute-1.amazonaws.com`
+  - Inside the VPC: Public DNS name translates to the internal PRIVATE IPv4 address! (remains more stable using the private address instead of the public one)
+  - when referenced inside the VPC traffic never leaves the VPC (i.e. it does not go out to the internet gateway and back in)
+  - Outside of the VPC: The public DNS always resolves to the public IP address, not the internal one
+  - Public addresses are not attached to the network interface/instance - they are associated and handled by the Internet Gateway which handles translation
+- The OS of an instance cannot ever see the public IPv4 address. That is handled by NAT via the internet gateway.
+  - The OS always deals with the private IP address on the Network Interface
+  - You will never configure a public IPv4 address in the OS (windows/linux etc.)
+
+### Elastic IP Addresses
+
+- To avoid dynamically changing public IP addresses when instances are stopped/started, you need to allocate and assign an Elastic IP Address that remains stable
+- You allocate Elastic IP Addresses to your account and use them with a primary or secondary network interface
+- If you associate an elastic IP with a primary network interface on an instance, the current Public IPv4 address for that instance is removed and replaced with the Elastic IP address in its place
+  - If you remove the Elastic IP Address, the instance will gain a new public IPv4 address (there is no way to get the first public IP address back)
+
+### Use cases for Network Interfaces
+
+- Licensing via a MAC address can be moved to different hosts/instances via just moving the interface that has that MAC address
+- Can have separate network interfaces for management and data
+- Multiple Interfaces can be used with different Security Groups on each (Security Groups are attached to the network interfaces, not the instance itself)
+  - Useful if you need different rules for different IP addresses your instance has, for example.
+
+### Manual installation of software on EC2
+
+- [Demo](https://learn.cantrill.io/courses/1101194/lectures/27806465) at timestamp 7:14
+- [Commands](https://learn-cantrill-labs.s3.amazonaws.com/awscoursedemos/0006-aws-associate-ec2-wordpress-on-ec2/lesson_commands_AL2023.txt)
+- Enabling and starting services for rebooting restarts, etc.

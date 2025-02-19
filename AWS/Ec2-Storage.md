@@ -2,6 +2,8 @@
 
 ## EC2 Instance Storage
 
+[Video Demo and Usage](https://learn.cantrill.io/courses/1101194/lectures/28705526)
+
 - Block Storage
 - Isolated to a specific host machine
   - Instances on the host can access the storage
@@ -12,6 +14,10 @@
   - Unlike EBS, you CANNOT attach them afterwards
   - You cannot add new instance store volumes after the EC2 instance has been launched
 - Ephemeral storage. If instances move to another host, the storage volume is lost for that instance.
+  - Instance Stores do survive reboots/restarts, but not stopping and starting etc.
+    - After rebooting you need to mount again manually or have configuration to tell the OS to mount the instance store file system on reboot
+    - Rebooting does not change the instance to another host, it stays on the same one
+    - The way to tell if an instance is on a new host is if its IPv4 address changes
   - Instances can move to new hosts for many reasons, changing types etc.
   - **Not for persistent data**
 

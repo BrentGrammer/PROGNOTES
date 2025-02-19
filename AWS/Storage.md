@@ -175,9 +175,15 @@ NOTE: before detaching an EBS Volume, stop the instance it is attached to first!
 
 ## Instance Store Volumes
 
+[Video Demo](https://learn.cantrill.io/courses/1101194/lectures/28705526)
+
 - See [EC2 Storage](./Ec2-Storage.md)
 
 - Block storage physically connected directly to one EC2 instance Host that can be used as a file system by the operating system
+- Instance Stores do survive reboots/restarts, but not stopping and starting etc.
+  - After rebooting you need to mount again manually or have configuration to tell the OS to mount the instance store file system on reboot
+  - Rebooting does not change the instance to another host, it stays on the same one
+  - The way to tell if an instance is on a new host is if its IPv4 address changes
 
 ### Specifics on exam
 
@@ -237,3 +243,47 @@ see [video](https://learn.cantrill.io/courses/1101194/lectures/28705524) at time
   - 10GB stored in a snapshot per month is a billable unit
   - Note this is not charged for the volume size only USED data size on the volume (how much data is actually stored for the snapshot)
   - Can restore snapshots more frequently and it is the same cost as doing them less frequently with the same amount of data for that time period
+
+# EBS Encryption
+
+- Provides At Rest encryption for volumes and snapshots
+- Uses KMS with a KMS key
+  - the KMS key can be a default generated key named `aws/ebs` or a customer managed key that you create
+- The KMS key is used to generate an encrypted Data Encryption Key (DEK)
+  - `GenerateDataKeyWithoutPlaintext` API Call gets it
+  - The key is stored on the volume in the raw storage (unformatted block storage without a file system)
+  - The DEK can only be decrypted with KMS by an identity with permissions to decrypt the DEK using the corresponding KMS key
+- When the volume is first used - mounted on the instance or when the instance is launched, EBS asks KMS to decrypt the DEK
+  - The DEK is used just for that one volume
+  - The decrypted DEK is loaded into the memory of the EC2 Host that will be using it
+  - Only held in memory on the host that is using the volume currently
+- The decrypted DEK in the EC2 Host memory is used to encrypt/decrypt data between an instance and the raw storage that an EBS Volume is stored on
+  - The data stored onto the raw storage which is used by the EBS Volume is cipher text (encrypted at rest)
+- Data only exists in an unencrypted form in the memory of an EC2 Host
+  - What is stored in the actual storage on the volume is the encrypted data
+- When an EC2 instance moves to another host, the DEK key is discarded and only the encrypted data on the disk (EBS storage) remains
+  - Another DEK needs to be encrypted and loaded into the new EC2 Host
+- If a snapshot is used for an encrypted volume, the same Data Encryption Key DEK is used for that snapshot
+  - This means any snapshots taken from an encrypted EBS Volume are also encrypted
+  - Any backups or new EBS Volumes restored from that snapshot are also encrypted and use the same DEK
+
+### Billing
+
+- No cost!
+- Should use encryption by default
+- No performance loss for using it!
+
+### Key points of EBS Encryption
+
+- Can configure AWS Accounts to use EBS Encryption by default
+  - Can set to use a default generated key or a managed key you create every time
+- The KMS key is not used to directly encrypt/decrypt data. It is used to generated a DEK (Data Encryption Key) that is unique per volume.
+  - Snapshots from that volume or any EBS volumes created from the snapshot use the same DEK
+  - New EBS Volumes from scratch have their own new unique key generated (DEK)
+- No way to remove encryption from a volume or snapshot
+  - You can manually clone data to an unencrypted volume to get around this, but it is not a service that is offered
+  - Inside the OS of an instance it only sees plain text
+- The OS is NOT aware of encryption - it only sees plain text
+  - The encryption happens between the Ec2 host and the volume
+  - If you need the OS to do the encrytion you need to do software disc encryption where the OS stores the keys instead (using both EBS encryption and software disc encryption does not usually make sense, but is possible)
+- Encryption uses AES-256
