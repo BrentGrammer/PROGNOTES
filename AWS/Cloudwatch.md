@@ -148,6 +148,8 @@ Percentiles: Indicates the relative standing of a value in a dataset (95th pecen
 
 - Public, Regional service
   - **Logs data across a fleet of resources**
+  - Services send logs to Cloudwatch Logs in the same region they are in
+  - Certain services like S3 (global) send the logs to us-east-1 region
 - **Centralizes logs from your AWS resources**
 - Can collect logs from:
   - Elastic Beanstalk - from application
@@ -162,23 +164,76 @@ Percentiles: Indicates the relative standing of a value in a dataset (95th pecen
 - Allows for real time monitoring
 - Adjustable retention - 1 week, 30 days, year, infinitely etc.
 
+### Ingestion
+
+- To bring in application logs (your own logs), you need to install the Cloudwatch Agent
+- Can Ingest VPC Flow logs or logs from Cloudtrail as well and other AWS services
+
+### Log Events
+
+- Two parts
+  - timestamp: when the event occurred
+  - raw message: msg sent by the app or service
+- Events are collected into a Log Stream
+
 ### Log Streams
 
-- Store Log Events
+- Store **Log Events**
 - A log stream is a sequence of events from the same source (i.e. an API, EC2, database etc.)
   - For EC2 instances, each log stream represents one instance
 - Configuration settings are stored on the log group and apply to all log streams in that log group
   - retention
   - permissions
-- Metric Filters are defined in log groups
-  - constantly monitors log events in the streams in the group that satisfy certain patterns
-  - When a event that satisfies a metric filter criteria happens, the metric is incremented
-  - Metrics can be associated with alarms that notify admins or other systems
 
 ### Log Groups
 
-- Containers for multiple log streams for the same type of logging
+- Containers for multiple log streams (i.e. logs per instance) for the same type of logging
   - I.e. a group of log streams for var/log events coming from different EC2 instances.
+- Represents the thing being monitored, i.e. `var/log` messages for EC2 (from various instances/log streams, for example)
+- Can hold streams from Lambda divided up by time periods
+- Settings on the log group:
+
+  - Retention: stores logs indefinitely by default. Can set a time limit to reduce costs
+  - Permissions: choose who can access the logs
+  - Encryption: at rest using KMS if desired
+
+### Metric Filters are defined in log groups
+
+- constantly monitors log events in the streams in the group that satisfy certain patterns
+- When a event that satisfies a metric filter criteria happens, the metric is incremented
+- Metrics, once created, can be used to make alarms that notify admins or other systems, or invoke Lambda functions, etc.
+  - i.e. define the metric as failed ssh attempts or number of application crashes
+
+### Delivering Logs
+
+- Manual export to S3 with `CreateExportTask` - can take a long time (12 hours, etc.)
+  - **Not realtime**
+  - can only encrypt the data with SSE-S3, not SSE-KMS
+- You can get logs out to other destinations in realtime on a per log group basis
+  - Start with a log group, i.e. the Prod LogGroup
+  - Configure a **Subscription Filter** on that log group
+    - Set a pattern that determines what is handled by that filter
+    - Set the destination ARN where the logs go to
+    - Set the distribution to control how log data is grouped as its sent to the destination
+    - Define permissions for Cloudwatch Logs to get access to the destination
+
+#### Near Realtime delivery of Logs:
+
+- For sending to S3 for longterm storage, use Kinesis Data Firehose as the destination and have that send the data through to S3 or any supported Firehose destination.
+- This is **near realtime** - not good for true realtime delivery, only near realtime (60seconds, etc.) - very cost effective
+
+#### For realtime delivery of logs:
+
+- Configure a subscription filter to send logs to a Lambda or Kinesis Data Stream
+- Can send to Elasticsearch, for example, via a AWS managed Lambda function
+- Make a custom Lambda function to deliver to any other resource you want
+- Kinesis Data Streams, alternative to using a Lambda, accepts any KCL consumers (Dashboards, etc.) and anything else that can interface with Kinesis Data Streams can get the logs in real time
+
+### Log Aggregations with Subscription Filters
+
+- Use the Subscription Filter to send all logs from many different accounts/regions to central Kinesis Data Stream
+- Subscriptors could be monitoring this stream using KCL
+- Then use Kinesis Data Firehose to persist all the logs to S3 or other logging aggregation systems
 
 # Amazon EventBridge (formerly CloudWatch Events)
 
