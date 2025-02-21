@@ -22,6 +22,8 @@
   - Mounts as a C drive in Windows or the Root volume in Linux
   - Can Mount an EBS volume, for example or Boot off of a EBS Volume
     - Booting means you have the OS stored on the volume and boot it up with it
+    - Usually the device id/name of a boot volume is /dev/xvda
+    - Extra volumes are usually named /dev/xvdf
   - Most EC2 instances use EBS as a boot volume that stores the Operating System and that is what is used to boot up and start the OS
   - Used for high performance or to boot from in EC2
 - **File Storage**: **STRUCTURED** - has a File System builtin that is already there

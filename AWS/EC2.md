@@ -373,3 +373,181 @@
 - [Demo](https://learn.cantrill.io/courses/1101194/lectures/27806465) at timestamp 7:14
 - [Commands](https://learn-cantrill-labs.s3.amazonaws.com/awscoursedemos/0006-aws-associate-ec2-wordpress-on-ec2/lesson_commands_AL2023.txt)
 - Enabling and starting services for rebooting restarts, etc.
+
+## Purchase Options (EC2 types)
+
+### On Demand
+
+- Default option - start with this and only move to something else if needed, mostly okay for normal usage 99% of the time - no capacity management needed.
+- Ideal for short term workloads or undetermined workloads - something you need to provision for something and then terminate or not sure of need
+  - short term workload which needs the cheapest EC2 pricing but **can't tolerate interruption**
+- Different customers using isolated instances can exist on the same host and use shared hardware
+- Reasonable cost - per second billing while instances are running
+  - When shutting an instance down you're not paying for the resources
+  - Associated resources like storage still charge regardles if the instance is shut down
+  - No discounts, consistent pricing.
+- If there is a capacity or system failures, reserved types are receieve priority provisioning over On Demand options
+  - If the business need is critical then you should consider using something other than On Demand
+
+### Spot Purchase Option
+
+- Per region, there is free unused capacity on EC2 Hosts - AWS takes this and offers it at a spot price which is cheap
+- You set a maximum price you are willing to pay and AWS will have their own price. If their price is lower than your maximum price, you will pay only their current spot price per second.
+- **If capacity needs change, AWS can raise the spot price at will** - if the raised spot price exceeds the maximum price you set to pay, your instances will be automatically terminated.
+  - These instances should not be viewed as reliable
+- Should not be used for workloads that cannot tolerate interruptions or are needed long term
+- Good use cases are for things that are not time critical or need reliable uptime.
+  - Good for broken up tasks or stateless workloads that can be re-run on failure
+
+### Standard Reserved Instances
+
+- For known Long term consistent usage and core parts of your system and workloads that cannot tolerate interruption
+- Unused reservations are still billed!
+- Locked to an AZ or region and specific instance type
+  - If locked to an AZ, then reservations only apply to instances launched in that AZ
+  - If you have a reservation for a smaller instance type than you provision you will get a partial cost effect
+- Should be used for parts of infrastructure that are always there and never change
+- Time commitment must be 1 or 3 years for a reduced per second fee.
+  - All Upfront: You can optionally pay for the entire agreed term for the greatest discount - longer term means cheaper but you are locked in, but there is no per second fee this way.
+  - Partial Upfront: reduced pay per second fee - good middle ground without long commitment
+  - You pay whether the reservation is used or not
+- Note: reserved instances are still on hosts that are shared with other customers, like On Demand
+
+### Scheduled Reserved Instances
+
+- Long term requrements, but it doesn't need to run consisently and constantly (i.e. only at specific times of day or specific days in a week)
+- Specify the frequency, duration and time of use (i.e. daily for 5 hours)
+- Get a slightly cheaper rate than On Demand, but you can only use it for that specified time
+- Use cases: Sales analysis data that needs to run at steady intervals (once a day or week, etc.) for the foreseeable future
+- Minimum commitment is one year
+
+### Capacity Reservations
+
+- USed for critical operations that cannot tolerate interruptions (AWS will allocate capacity to reserved tiers over On Demand, etc. if there is a failure)
+- Billing component
+- Capacity Component: can reserve capacity but no need for long term commitment to AWS
+- Types of reservations - need to commit at least one year for these:
+  - Regional Reservation crosses AZs - billing discounts for any instances launched into a region.
+    - Note: no capacity reservation with this alone. You are at the same priority as On Demand instances in the case of a widespread failure or issue with AWS
+  - Zonal Reservations: this is for a specific AZ, but also reserves capacity for that AZ
+- On Demand Capacity Reservations: for a specific AZ and you always pay for the capacity whether you consume it or not - you do get higher priority from on demand capacity if system failure across AWS
+  - No time commitment required
+  - Need to know what capacity you require so you don't waste it if it is not used.
+  - No cost reduction. If you don't need all the capacity and are doing something that is consistent, it might be cheaper to use Reserved Instances instead
+
+### Dedicated Host
+
+- A host allocated to one customer entirely (no shared hardware with other customers)
+- The hosts are designed for a specific family - A, C or R for example
+- INstances on the host have no per second charge - you pay for the entire Host
+- You need to manage the host's capacity - if you run out then you cannot launch anymore instances.
+  - Limited number of instances you can launch on your host
+- Host Affinity: feature linking EC2 instances to certain EC2 Hosts. Stopping and starting the instance will remain on the same host.
+- **Reason to use option is for socket and core licensing requirements** (for software that is bound and tied to specific hardware via a license agreement)
+
+### Dedicated Instances
+
+- Launch instances on a host and AWS commits to not letting any other customers using hardware on that same host - only your instances can be launched on it.
+- Useful when you don't want to share hardware, but you don't want to manage the host itself.
+- Pay a cost premium to ensure you will never share underlying hardware with other customers
+- You do not pay for or own the host itself
+- Billing: hourly fee for any regions you're using dedicated instances, regardless how many you are using in that region.
+
+### Savings Plan
+
+- Time based commitment on a hourly cost you will pay consistently for that time commitment (i.e. 20 dollars an hour for 3 years)
+- You get a reduced cost on resources with this comittment
+- Useful if migrating away from EC2 to other services like Fargate, Lambda and serverless architectures
+- two types
+  - General Compute amounts - can save up to 66% on the normal on demand price
+    - Valid for various compute services: EC2, Fargate and Lambda
+    - Savings plan rate expires after you've consumed the price usage commitment you made, afterwards you get charged normal on demand rates. You should evaluate your usage and adjust the savings commitment as needed.
+  - EC2 Savings Plan - you have to use only EC2, but get up to 72% reduction in price from regular on demand charges.
+
+## Status Checks & Auto Recovery
+
+### Instance Status Checks
+
+- Every EC2 instance has 2 high level status checks
+  - EC2 console should show 2/2 checks passed, otherwise there is a problem
+- First check: System Status
+  - indicates EC2 service or host issues: loss of system power, loss of network connectivity, or software/hardware issues with the EC2 host
+- Second check: Instance Status
+  - Corrupt file system, networking problems (internal, bad settings set), OS kernel issues preventing correct boot up
+
+### Auto Recovery
+
+[Video](https://learn.cantrill.io/courses/1101194/lectures/27806478) timestamp 3:01
+
+- Simple feature to automatically handle recover if the status checks fail or ec2/host specific problems
+- Moves instance to a new host, starts it up with the same config as before (IP addressing is maintained), restarts any software configure to auto-restart
+- Enables potential full recovery from any status checks issues.
+- Go to EC2 instance in AWS console > Status Checks tab for instance > Actions dropdown > Create Status Check Alarm
+  - Will alarm if instance fails checks
+  - SNS notification sent by default if checks fail a set number of times within a selected time period
+  - Alarm Action can be set to specify what to do when the alarm occurs - recover, restart, stop or terminate the instance
+  - To use Auto Recovery, select the Recover option in the Alarm Action options
+
+#### Auto Recovery considerations
+
+- Note: does not protect against AZ wide failure - only takes action inside the AZ that the instance is provisioned in and EC2 instance host/specific instance problems.
+- Requires available extra capacity - in case of major failure across AZs in a region this won't work if the entire region is down etc.
+- Only works with certain instance types, see [docs](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-recover.html)
+- Does NOT work if using instance store volumes - only works with instances that have EBS volumes attached.
+
+### Termination Protection
+
+[Video Demo](https://learn.cantrill.io/courses/1101194/lectures/27806479)
+
+- Adds a layer of protection to prevent inexperienced team members from terminating an instance on accident
+  - an ec2 attribute is set `disableApiTermination`
+- Adds an extra permission which is required in order to terminate an instance (you need permissions to disable the protection to be able to first turn it off and then terminate an instance)
+  - Allows for role separation where you can give permissions to enable/disable the protection to one group of people (i.e. only Senior Administrators) and the ability to actually terminate to another group (i.e. normal or junior Administrators)
+- In AWS Console go to EC2 > right click on instance > Instance Settings > Change termination protection option. Click enable and save in the dialog that comes up.
+- If you try to terminate an instance with this on, you will be presented with an error that it could not be terminated when you click on Terminate.
+
+#### Change shutdown behavior
+
+- Note: you can also right click on EC2 instance in console > Instance settings > Change shutdown behavior to tell AWS to terminate or stop instances.
+  - the default is to stop the instance, not terminate it
+  - If you don't want a bunch of stopped instances lying around for example this can be changed to just terminate on failure or shutdown.
+
+## Instance Metadata
+
+- Service provided to instances with data about the instance that can be used to configure an instance.
+  - Accessible via an endpoint with the metadata IP address http://169.254.169.254/
+- Allows the instance to access information about its environment that it wouldn't be able to access otherwise
+- Accessible in all instances at IP address `169.254.169.254`
+  - endpoint: `http://169.254.169.254/latest/meta-data/{attribute}`
+- Environment info access: host name, events, security groups, etc.
+- Allows access to Networking info (OS of an instance cannot see any of its own IPv4 public addressing, this allows the instance to see it)
+  - OS only has exposure to private IPv4 addresses
+  - A public IPv4 address is never configured in an instance Operating System, it is only configured by the Internet Gateway resource
+  - Note: IPv6 is configured in the OS, since it is always public (no concept of private/public with IPv6)
+- Authentication information access
+- Used to pass in temporary ssh keys by AWS (using instance connect, for ex. behind the scenes it does this)
+- User-data access. can run scripts for automation steps on the instance
+- **Meta-data service has no authentication or encryption**
+  - anyone who can access the instance can see the meta-data
+  - assume that meta-data is exposed and treat it as public data
+
+### Metadata commands:
+
+- Can access the metadata endpoint with curl on the instance
+- Can also download the AWS query tool
+
+```shell
+# example queries for some attributes of the instance:
+curl http://169.254.169.254/latest/meta-data/public-ipv4
+curl http://169.254.169.254/latest/meta-data/public-hostname # public DNS name
+
+# Download the AWS query tool for easier use
+wget http://s3.amazonaws.com/ec2metadata/ec2-metadata
+chmod u+x ec2-metadata # on linux make whereever it downloaded the tool to executable
+
+# commands with query tool
+ec2-metadata --help # get list of commands
+ec2-metadata -a # show AMI used to launch this instance
+ec2-metadata -z # get availability zone the instance is in
+ec2-metadata -s # show any security groups launched with the instance
+```
