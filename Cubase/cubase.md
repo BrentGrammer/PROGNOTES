@@ -48,3 +48,7 @@ NOTE: You may need to restart Cubase if you do not see the new instrument create
 - Now for the final step. Mosey on down to the "Source" menu and click the "Mod" button. You might see some stuff there already. Don’t pay it any mind.
   - Move your cursor down to "add modulator ...". Under "External Sources", click on "pitch bend".
 - You should now have pitch bend working with the wheel for that instrument.
+
+## Keyboard Shortcuts
+
+- Move to beginning of track: Shift-B
