@@ -23,6 +23,8 @@
 
 ### Outputs
 
+NOTE: You may need to restart Cubase if you do not see the new instrument created in the list!
+
 - in Kontakt player > View > Outputs
   - Click Presets / Batch Configuration dropdown
   - Select Batch functions > Clear output selection and create one individual channel for each loaded instrument
