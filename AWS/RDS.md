@@ -8,7 +8,7 @@
 
 - It is a Managed Database SERVER as a Service
   - You don't get a database with RDS, you get a Database Server
-  - You can have multiple databases on this server
+  - You can have multiple databases on this server (all need to be of the same engine - only one engine supported per instance)
   - No access to the OS or SSH access (RDS Custom gives you some low level access)
 - Managed Database Server so you do not have to manage hardware or maintenance of the DB Engine
 - Offers a range of Database Engines to use:
@@ -62,6 +62,12 @@
 
 ### Multi-AZ Instance Deployment
 
+- [Video Demo](https://learn.cantrill.io/courses/1101194/lectures/27894848)
+
+  - Multi AZ setup at timestamp 8:05
+  - Simulate a AZ failure by going to Actions > Rebooting the instance with the failover option checked at timestamp 12:21
+    - This moves the CNAME so it points at the standby instance and the primary instance is restarted
+
 - historically the way to achieve high availability with RDS
 - Primary database instance with any databases you create, when enabled it is configured to replicate its data synchronously to a Standby replica database running in another AZ.
 - Only ONE standby Repica instance and it cannot be used for reads/writes
@@ -106,6 +112,16 @@
 
 [Video](https://learn.cantrill.io/courses/1101194/lectures/27894846)
 
+- [Video Demo creating snapshots](https://learn.cantrill.io/courses/1101194/lectures/27894848)
+
+  - Multi AZ setup at timestamp 8:05
+  - Simulate a AZ failure by going to Actions > Rebooting the instance with the failover option checked at timestamp 12:21
+    - This moves the CNAME so it points at the standby instance and the primary instance is restarted
+
+- [Video Demo 2](https://learn.cantrill.io/courses/1101194/lectures/27894849)
+
+  - Simulating Data Corruption failures and restoring from a snapshot
+
 - Two types of backups:
   - snapshots
   - Automated Backups
@@ -126,8 +142,10 @@
   - Initial snapshot takes a while
 - Snapshots do not expire and are not removed when you delete an RDS instance they were taken from
   - You must delete snapshots yourself explicitly to remove them
+  - System created (by AWS) snapshots are deleted automatically when the instance is deleted or the retention period expires.
 - Can run at various frequencies - once a month, once a week, once per day, once per hour, etc.
 - Taking more frequent snapshots minimizes data loss in case of system failures
+- Note: restoring a snapshot creates a NEW RDS instance to restore the snapshot to!
 
 ### Automated Backups
 
@@ -155,7 +173,9 @@
 
 ### Restoring
 
-- AWS creates a NEW RDS instance when you restore an automated backup or manual snapshot
+- **AWS creates a NEW RDS instance when you restore an automated backup or manual snapshot**
+  - When restoring, enter a new database identifier (i.e. `mydatabasename-restore`)
+  - After restoring, you need to point your application at the new rds instance database! (see [video](https://learn.cantrill.io/courses/1101194/lectures/27894849) at timestamp 4:43)
 - You need to update applications to use the new database endpoint address - it will be different from the existing one
 - Restoring a manual snapshot = restoring the database to a specific point in time when the snapshot was created
   - affects the Recover Point Objective (RPO)
@@ -190,3 +210,53 @@
 - NOTE: Read Replicas only good for RTO recovery time from Failure scenarios, NOT data corruption (the replica will also have the corrupted data)
 - Read Replicas can be promoted to be used as a normal RDS instance (not just reads, but writes)
 - Globally resilient - you can create cross-region replicas that you can failover to if there is a region wide outage or disaster
+
+# Data Security
+
+## Encryption
+
+### Encryption in Transit
+
+- All Engines in RDS allow for Encryption in transit (SSL/TLS)
+- Can be set to be mandatory on a per user basis
+
+### Encrytion at Rest
+
+- Depends on the database engine
+
+#### EBS/KMS encryption at rest
+
+- Standard RDS encryption method
+- Supports EBS Volume encryption using KMS
+- handled by the RDS Host and EBS storage
+  - The RDS database engine does not know about this and thinks its just writing unencrypted data to storage. Data is encrypted by the Host that the RDS instance is running on
+  - The database does not need to support native encryption itself
+- You need to choose a Customer Master Key (CMK)
+  - can use a customer managed CMK
+  - Another option is an AWS managed CMK
+  - This CMK is used to generated Data Encryption Keys (DEKs) which are used for the actual encryption operations
+  - The DEKs are loaded onto the RDS host machines as needed and used to perform the encryption
+  - The data is encrypted by the host and then sent to the EBS storage in its encrypted format
+- All logs, snapshots, transfers between replicas and storage are encrypted using the same Customer Master Key (CMK)
+- **Encryption cannot be removed once it is added**
+
+#### TDE (Transparent Data Encryption)
+
+- MSSQL and RDS Oracle support TDE
+  - Oracle supports TDE using CloudHSM (more secure with stronger key controls)
+    - CloudHSM managed by you with no key exposure to AWS
+- Supported and encryption is handled within the actual database engine (not the host that the instance is running on)
+- Useful for less trust environments and demanding regulatory situations since you know data is encrypted as soon as its written by the database engine (no third party handling)
+
+## IAM Authentication for RDS
+
+- Needs to be explicitly enabled on the RDS instance
+- Can configure RDS to use IAM user authentication against a database
+- On an RDS instance create a local database user account configured to allow authentication using an AWS auth token
+- Users or roles have policies attached to them which have a mapping from an AWS identity (user/role) to a local RDS database user
+- The policy allows the identities to run a `generate-db-auth-token` operation
+  - This generates a token based on the policy attached with a 15 minute validity time
+  - The token is used to login to the database user within RDS without a password
+- By associating policies with IAM users/roles it can be used to generate this token to login to RDS without using a password
+- **This is only for AUTHENTICATION, not AUTHORIZATION**
+  - The permissions for the user are still those which are defined on the local database user, not in the policy or on the IAM identity
