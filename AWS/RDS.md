@@ -260,3 +260,42 @@
 - By associating policies with IAM users/roles it can be used to generate this token to login to RDS without using a password
 - **This is only for AUTHENTICATION, not AUTHORIZATION**
   - The permissions for the user are still those which are defined on the local database user, not in the policy or on the IAM identity
+
+## Note on Aurora
+
+- Extra features such as rollbacks (no need to create a new instance if system failure)
+
+### Aurora Serverless
+
+- Managed database as a service - you don't need to manage instances as with Aurora Provisioned or RDS
+- Scales well automatically for unpredictable workloads
+- **Good use case for development or test databases**
+  - Can be configured to pause itself during periods of no load - during pauses you are only billed for storage
+  - Only billed for usage of resources when you use the database, unlike RDS where resources used for it are billed whether the database is being used or not
+  - Cost effective if use is not constant and infrequent (i.e. not constant like a production database)
+  - Compatible with MySQL/PostgreSQL with similar features and compatibility
+
+# Secrets Manager
+
+- Note: Different from the Parameter Store
+
+## Secrets Manager vs. Parameter Store
+
+- Secrets Manager good when Secret rotation, integration with RDS or secrets storage is needed
+- Shared functionality means that for some situations you can use either
+- Secrets manager designed specifically for **secrets** like Passwords or API keys
+- Usually secrets manager is integrated with other apps (i.e. a web application, etc.)
+  - Applications can use the Secrets Manager SDK to retrieve secrets like database credentials
+  - The SDK uses IAM credentials for authentication (generally a role) to interact with the secrets manager
+- Secret rotation is done automatically - uses a call to a Lambda periodically to update the secrets
+  - Uses an Execution Role to access the Lambda and rotate the secrets in Secrets Manager
+- Can directly integrate with RDS (to change any authentication is also changed when secrets are rotated - if lambda rotates a secret, the password inside an RSD instance is also changed in sync with it)
+- Secrets are encrypted at rest and integrates with IAM to control access to the secrets
+- Secrets are stored using KMS
+  - No risk of leakage if hardware or host is compromised
+  - Ensures role separation - permissions needed to KMS and Secrets Manager to access and decrypt secrets
+
+### Parameter Store
+
+- Parameter Store also stores encrypted strings - good more for things like configuration info, config for cloudwatch agents, etc.
+- What sets Secrets Manager apart from Parameter store is the automatic **secret rotation** using lambda that Secrets Manager provides.
