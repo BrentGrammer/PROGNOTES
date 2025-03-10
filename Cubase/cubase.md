@@ -35,6 +35,19 @@ NOTE: You may need to restart Cubase if you do not see the new instrument create
   - i.e. select KT {instrument name}
   - these will be added to your mixer and represent each midi track so you can control volume and mix etc.
 
+### Mixer volumes with Midi Tracks
+
+- Go to Mixer (F3)
+- Select the Routing section above the slider
+- Select the "All Midi Input" dropdown and select a Channel that matches the Midi Track's assignment in Kontakt
+- **You need to have Audio Outputs routed in the Kontakt instrument for this to work!**
+  - MIDI channels only control which notes Kontakt listens to—they don’t affect volume sliders in Cubase’s mixer. If you want separate volume control for each instrument, you need to route each Kontakt instrument to its own audio output channel, not just a separate MIDI channel.
+  - In Kontakt, open the Outputs panel, create separate outputs for each instrument, and route each instrument there. Then, Cubase will show individual audio faders for each instrument, letting you control volume directly.
+
+### Troubleshooting no sound but right channel is selected:
+
+- Make sure the instrument track and the Midi Tracks are all Record Enabled (click the circle record button and make sure it is highlighted red)
+
 ## Optimizing RAM
 
 - Purge samples (i.e. in Kontakt)
