@@ -49,6 +49,87 @@ NOTE: You may need to restart Cubase if you do not see the new instrument create
   - i.e. select KT {instrument name}
   - these will be added to your mixer and represent each midi track so you can control volume and mix etc.
 
+## Assigning Audio Outputs in Kontakt with Cubase for an Orchestral Setup
+
+### 1. Add Kontakt in Cubase
+
+- Press `F11` (Studio > VST Instruments).
+- Click `+`, select **Kontakt 7 (16out)** (or 64out for larger setups).
+- Name it “Orchestra” in the rack.
+
+### 2. Load Instruments in Kontakt
+
+- Load instruments with articulations into slots:
+  - Slots 1–4: Strings (e.g., Violins Sustain Ch. 1, Violins Staccato Ch. 1, Violas Sustain Ch. 2, Violas Staccato Ch. 2)
+  - Slots 5–7: Brass (e.g., Trumpets Sustain Ch. 3, Trumpets Staccato Ch. 3, Horns Sustain Ch. 4)
+  - Slots 8–10: Woodwinds (e.g., Flutes Sustain Ch. 5, Oboes Staccato Ch. 6, Clarinets Sustain Ch. 7)
+  - Slots 11–13: Percussion (e.g., Timpani Ch. 8, Snares Ch. 9, Cymbals Ch. 10)
+- Use same MIDI channel for articulations within a section (e.g., all Violins on Ch. 1), different channels between sections.
+
+### 3. Configure Outputs in Kontakt
+
+- Click **Workspace** icon > **Outputs**.
+- In Outputs panel:
+  - Click `+`.
+  - Set **Quantity:** Number of unique outputs needed (e.g., 10 for Violins, Violas, Trumpets, Horns, Flutes, Oboes, Clarinets, Timpani, Snares, Cymbals).
+  - Set **Channels:** 2 (stereo).
+  - Assign outputs starting from St. 2:
+    - St. 2 [3+4] (Violins)
+    - St. 3 [5+6] (Violas)
+    - St. 4 [7+8] (Trumpets)
+    - St. 5 [9+10] (Horns)
+    - St. 6 [11+12] (Flutes)
+    - St. 7 [13+14] (Oboes)
+    - St. 8 [15+16] (Clarinets)
+    - St. 9 [17+18] (Timpani)
+    - St. 10 [19+20] (Snares)
+    - St. 11 [21+22] (Cymbals)
+  - Check **Ascending output assignment**.
+  - Click **OK**.
+- Assign outputs in Kontakt:
+  - Each instrument to its own output (e.g., Violins Sustain > St. 2, Violas Staccato > St. 3).
+
+### 4. Set Up Grouped MIDI Tracks in Cubase
+
+- Add Folder: Project > Add Track > Folder, name it “Orchestra Folder”.
+- Add MIDI Tracks (in folder) per section and articulation:
+  - “Violins Sustain” (Output: Orchestra, Ch. 1)
+  - “Violins Staccato” (Output: Orchestra, Ch. 1)
+  - “Violas Sustain” (Output: Orchestra, Ch. 2)
+  - “Trumpets Sustain” (Output: Orchestra, Ch. 3)
+  - “Horns Staccato” (Output: Orchestra, Ch. 4)
+  - “Flutes Sustain” (Output: Orchestra, Ch. 5)
+  - (Continue for all sections/articulations)
+
+### 5. Activate Outputs in Cubase
+
+- Press `F11`, click arrow next to “Orchestra”.
+- Select **Activate Outputs**.
+- Check outputs used (e.g.):
+  - Kt. St. 2 [Stereo] (Violins)
+  - Kt. St. 3 [Stereo] (Violas)
+  - Kt. St. 4 [Stereo] (Trumpets)
+  - Kt. St. 5 [Stereo] (Horns)
+  - Kt. St. 6 [Stereo] (Flutes)
+  - (Up to St. 11 or more)
+
+### 6. Verify in MixConsole
+
+- Press `F3` (MixConsole).
+- Rename channels to match instruments:
+  - Kt. St. 2 > “Violins”
+  - Kt. St. 3 > “Violas”
+  - Kt. St. 4 > “Trumpets”
+  - Kt. St. 5 > “Horns”
+  - Kt. St. 6 > “Flutes”
+  - (Continue for all outputs)
+
+### Result
+
+- MIDI tracks in “Orchestra Folder” trigger articulations in one Kontakt instance.
+- Each instrument outputs to its own Cubase mixer channel via St. 2 onward.
+- Adjust Quantity in Step 3 based on your total instruments/articulations.
+
 ### Mixer volumes with Midi Tracks
 
 - Go to Mixer (F3)
