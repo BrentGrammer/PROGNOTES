@@ -551,3 +551,132 @@ ec2-metadata -a # show AMI used to launch this instance
 ec2-metadata -z # get availability zone the instance is in
 ec2-metadata -s # show any security groups launched with the instance
 ```
+
+# Bootstrapping EC2 Instances (User data)
+
+- Starting an EC2 with scripts when an instance is first launched
+- "Bootstrapping": A system self-configures or performs some self-configuration steps
+- EC2 Bootstrapping allows for build automation (steps that occur to bring the instance into a configured state)
+  - Different from relying on an AMI in a configured state - a way to automate initial configuration tasks without requiring you to bake everything into an image beforehand (gives you a lightweight, flexible way to set up an instance on-the-fly without modifying the base AMI)
+  - AMI Baking (custom AMIs) are less flexible than user data bootstrapping
+  - Optimal configuration is to combine AMI Baking and Bootstrapping
+- Allows you to do something when the EC2 instance is launched (install software, post software install configuration)
+
+### EC2 User data
+
+- Bootstrapping is enabled using user data
+  - Injected into the instance in the same way that meta-data is
+- **Accessed via the meta-data IP** (`http://169.254.169.254/latest/user-data`)
+- User data is data you can pass into an EC2 instance
+  - The user data passed in is run as a script by the instance's operating system
+  - Anything in User Data is executed by the instance
+- **EXECUTED ONLY ONCE AT INSTANCE LAUNCH TIME**
+  - If you change/update user data and restart the instance, it is NOT executed again! It only executed on the initial launch of the instance
+  - User data can be modified (if you shut down the instance, change the user data, and start the instance up again, the new data is available inside the instance's user data). Again, it is only EXECUTED ONCE on launch and not again. This is not very useful outside of post-launch configuration and not the best way to pass data in afterwards.
+- Limited to 16KB in size
+  - Anything more complex, you need to pass in a script which will download that larger data
+
+### User Data considerations/risks
+
+- EC2 does not interpret or check the data, it simply passes it into the instance as is (no validation, etc.)
+  - The user data is passed as a block of data into the instance - it runs successfully or it still runs, but not successfully - EC2 doesn't know or care if this happens - the user data is completely opaque to EC2
+  - The instance will still be a in a RUNNING state after launch even if the user data had a problem - you will then have a bad configuration
+- A process will just run the user data passed in as the root user on that instance
+  - Software comes with an EC2 instance which is designed to look at the metadata IP (`http://169.254.169.254/latest/user-data`) for any user data present and execute it on instance launch
+- **User Data is NOT SECURE** - anyone who can access the instance can access the user data
+  - DO NOT use it for passing in long term credentials - this is bad practice
+
+### Boot-Time-To-Service-Time
+
+- The goal in launching instances is to reduce the Boot time to service to be as low as possible.
+- AMI Baking (pre-configuration): time to service from boot is measured in minutes
+- Post-launch is additional configuration needed after the Instance is launched to make it ready for service
+  - Bootstrapping is a way to reduce the post-launch time to service from potentially hours to minutes
+- Optimal way to configure launching instances is to combine user data and AMI Baking
+  - Use AMI Baking for the configuration which is time intenstive and takes longer
+  - i.e. application installation that takes the most time to install and only a short time to configure
+    - AMI Bake in the installation of the software
+    - Bootstrap the (less time intensive) final configuration of the software
+    - This reduces the Boot-Time-To-Service-Time but also allows for some flexibility and configurability
+
+### Bootstrapping with user data in AWS console
+
+[Video Demo](https://learn.cantrill.io/courses/1101194/lectures/27895409)
+
+- timestamp 7:20 shows entering user data on launching an EC2 instance
+- NOTE: EC2 accepts Base64 Encoded Data (not just plaintext)
+  - The UI in AWS console does the conversion for you automatically (so you can paste in plaintext script and it will convert it to base64 automatically)
+  - if you are already passing in base64 encoded data, check the "User data has already been base64 encoded" checkbox
+- Note that after you launch the instance with the user data script, it will show as RUNNING, but you may need to wait a little while longer while the user data script is run for it to be ready for service (there may not be any indication of this in AWS console, you just need to wait a while)
+  - You could check by ssh'ing into the instance and seeing if some kind of custom message that was setup in the user data script (i.e. with cowsay for instance) is showing - then you know the user data config completed.
+
+#### With CloudFormation:
+
+- [Video Demo of CloudFormation setup](https://learn.cantrill.io/courses/1101194/lectures/29447330) at timestamp 0:56 shows adding User Data to a CloudFormation Template
+
+```yaml
+Description: MyApp
+Parameters: #...
+Resources: #...
+  PublicEC2:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: "t2.micro"
+      ImageId: !Ref LatestAmiId
+      IamInstanceProfile: !Ref SessionManagerInstanceProfile
+      SubnetId: !Ref SubnetWEBA
+      SecurityGroupIds:
+        - !Ref InstanceSecurityGroup
+      Tags:
+        - Key: Name
+          Value: A4L-PublicEC2
+      UserData: # USER DATA definition
+        Fn::Base64:
+          !Sub | # use the fn because user data needs to be provided in base64 encoded format
+          #!/bin/bash -xe
+          ...rest of user data script in plaintext
+
+# ...
+```
+
+#### Example user data script
+
+```shell
+#!/bin/bash -xe
+
+# (you'd install software using AMI Baking and then do some final configuration here)
+# Web and DB Servers Online - and set to auto start
+systemctl enable httpd
+systemctl enable mariadb
+systemctl start httpd
+systemctl start mariadb
+
+# set permissions for software installed
+usermod -a -G apache ec2-user
+chown -R ec2-user:apache /var/www
+chmod 2775 /var/www
+find /var/www -type d -exec chmod 2775 {} \;
+find /var/www -type f -exec chmod 0664 {} \;
+
+# configure some installed software, i.e. COWSAY
+echo "#!/bin/sh" > /etc/update-motd.d/40-cow
+echo 'cowsay "Amazon Linux 2023 AMI - Animals4Life"' >> /etc/update-motd.d/40-cow
+chmod 755 /etc/update-motd.d/40-cow
+```
+
+#### Accessing the user data in the instance
+
+- Can get a token to connect to the meta-data service (AMI Linux 2023 requirement)
+  - TOKEN=`curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600"`
+- Get the user-data of the instance (it is a component of the meta-data service, so use the meta-data ip address and just append user-data instead of meta-data)
+  - curl -H "X-aws-ec2-metadata-token: $TOKEN" -v http://169.254.169.254/latest/user-data/
+  - This will print out the user-data script if present
+
+### Troubleshooting Bootstrapping problems
+
+- cd into `/var/log` on the instance
+- two folders are useful for debugging user data bootstrapping errors and problems:
+  - `/var/log/cloud-init-output.log`
+    - Shows all of the commands executed on the EC2 instance and the output of those commands
+  - `/var/log/cloud-init.log`
+    - very verbose version of cloud-init-output.log. Used for deeper debugging and provides more information than cloud-init-output.log.
