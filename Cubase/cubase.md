@@ -21,6 +21,20 @@
   - Increment the number of tracks you want and enter a name
 - Note: AFter this the Routing section in the inspector does show Any for the midi channel for the first entry, but the channel under the Instrument setting shows the number.
 
+### MIDI Channels vs. Output Channels:
+
+#### MIDI Channels (e.g., Ch. 1, Ch. 2):
+
+- What They Do: MIDI channels tell Kontakt which instrument to play when you send MIDI data from Cubase. They’re like a remote control for triggering sounds.
+- Where You Set Them: In Kontakt, you assign each instrument a MIDI channel (e.g., Violins on Ch. 1, Violas on Ch. 2) in the instrument header. In Cubase, you match this by setting your MIDI track’s channel to Ch. 1 for Violins, Ch. 2 for Violas, etc.
+- Purpose: MIDI channels handle input—they decide which instrument responds to your notes or keyswitches.
+
+#### Audio Channels (e.g., [3+4] in St. 2):
+
+- What They Do: These are the output paths Kontakt uses to send the audio from each instrument to Cubase. Think of them as pipes carrying the sound after it’s triggered.
+- Where You Set Them: In Kontakt’s Outputs panel, you define stereo pairs like St. 2 [3+4], St. 3 [5+6], etc., and assign instruments to them. Cubase then sees these as separate mixer channels.
+- Purpose: Audio channels handle output—they determine where the sound goes for mixing (e.g., Violins to one mixer channel, Violas to another).
+
 ### Outputs
 
 NOTE: You may need to restart Cubase if you do not see the new instrument created in the list!
