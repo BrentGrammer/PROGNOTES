@@ -680,3 +680,32 @@ chmod 755 /etc/update-motd.d/40-cow
     - Shows all of the commands executed on the EC2 instance and the output of those commands
   - `/var/log/cloud-init.log`
     - very verbose version of cloud-init-output.log. Used for deeper debugging and provides more information than cloud-init-output.log.
+
+## Installing Docker on an EC2 instance
+
+- [Video Demo](https://learn.cantrill.io/courses/1101194/lectures/36184903)
+
+```shell
+# Install Docker Engine on EC2 Instance
+sudo dnf install docker
+sudo service docker start
+sudo usermod -a -G docker ec2-user
+
+LOGOUT and login
+
+sudo su - ec2-user
+
+# Build Docker Image
+cd container
+docker build -t mycontainer .
+docker images --filter reference=mycontainer
+
+# Run Container from Image
+docker run -t -i -p 80:80 mycontainer
+
+# Upload Container to Dockerhub (optional)
+docker login --username=YOUR_USER
+docker images
+docker tag IMAGEID YOUR_USER/mycontainer
+docker push YOUR_USER/mycontainer:latest
+```
