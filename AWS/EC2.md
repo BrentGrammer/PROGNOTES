@@ -709,3 +709,48 @@ docker images
 docker tag IMAGEID YOUR_USER/mycontainer
 docker push YOUR_USER/mycontainer:latest
 ```
+
+## EC2 Instance Role
+
+- A specific type of an IAM Role
+- An EC2 instance can assume a role and anything running within that instance has the permissions that role grants
+- Roles have a permissions policy attached to them. The role assumer is given temporary credentials which allow them to have permissions which the attached policy/role grant
+- EC2 instances assume an instance role automatically when they are linked/attached
+- You can attach an InstanceProfile/Role to many different instances
+
+### Instance Profile
+
+- Intermediate piece of architecture that delivers the permissions inside to the instance
+- A wrapper around an IAM role
+- When an instance role is created in the AWS console, an InstanceProfile is also created with the same name
+  - NOTE: if using the CLI or CloudFormation, the role and the InstanceProfile need to be created SEPERATELY
+- **What is actually attached to the instance is the InstanceProfile** (the same name as the Role), not the Role.
+- Temporary credentials are delivered via instance meta-data
+  - An application in the instance can access these credentials and use them to access AWS resources (S3, etc.)
+  - Credentials are ALWAYS VALID - they are automatically renewed by AWS EC2 before they expire - The application just needs to keep checking the meta-data for the latest credentials (careful about caching - always check before they expire or periodically)
+  - In the meta-data on the instance there is a tree to access the credentials: `iam/security-credentials/{role-name}`
+    - Ex: `http://169.254.169.254/latest/meta-data/iam/security-credentials/A4LInstanceRole`
+- **Always use Roles rather than storing long-term credentials**
+  - Do not store access keys, etc. in an EC2 instance
+  - Don't use `aws configure` and provide access keys ever on an instance
+- Any CLI command line tools running in the instance will automatically use the Instance Role credentials as long as the role/instanceprofile is attached to the instance
+
+
+#### CLI Precedence rules
+- When using the AWS cli command line tool, it checks in this order: https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html#cli-configure-quickstart-precedence
+  - Checks these sources/namespaces in order for the credentials until it finds them in one
+  - Note that if you configure any credentials manually (`aws configure`), then those will override and be checked first before the instance role credentials
+
+### Setting up an Instance Role
+
+- [Video demo](https://learn.cantrill.io/courses/1101194/lectures/27895412) at timestamp 3:45
+- AWS Console > IAM > Roles > Create Role > select AWS Service option - select EC2 use case
+- Select permissions and next, then give a name like `A4LInstanceRole`
+  - This creates a role and InstanceProfile (this is what is actually attached to the EC2 Instance)
+  - NOTE: in the AWS Console UI you will not see 2 seperate things for the role and InstanceProfile (they are seen as the same thing)
+- In EC2 > right-click instance in list > security > Modify IAM Role > select the role you created
+  - Under the Security tab in the EC2 page, you'll see the IAM Role listed under "IAM Role" in the Security tab
+- Now back in the instance (ssh in etc), if you run something like `aws s3 ls` you will get the list and not be warned about not having credentials
+- The credentials are stored at 
+  - `curl  http://169.254.169.254/latest/meta-data/iam/security-credentials/` - first run this and then the next to see the credentials which are used
+  - `curl http://169.254.169.254/latest/meta-data/iam/security-credentials/A4LInstanceRole`
