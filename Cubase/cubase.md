@@ -77,6 +77,8 @@ NOTE: You may need to restart Cubase if you do not see the new instrument create
 
 #### Next, in Cubase select the MIDI Track, and in the Inspector on the left, under the Routing section in the select underneath the dropdown for "Kontakt 7" (should show name of Instrument track), select the KT St {number} you chose in the Kontakt instrument instance rack view for that track. (All other ones selected for other instruments will be checked as well)
 
+- NOTE: if there is no Instrument selected, then open the dropdown and select the Kontakt instance for that MIDI track and then the new dropdown will appear to select the Stereo output.
+
 <br>
 <img src="./img/assign_cubase_track_output.png" width="30%" height="30%" />
 <br>
