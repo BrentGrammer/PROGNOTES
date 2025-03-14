@@ -585,6 +585,7 @@ ec2-metadata -s # show any security groups launched with the instance
   - Software comes with an EC2 instance which is designed to look at the metadata IP (`http://169.254.169.254/latest/user-data`) for any user data present and execute it on instance launch
 - **User Data is NOT SECURE** - anyone who can access the instance can access the user data
   - DO NOT use it for passing in long term credentials - this is bad practice
+  - Should use Parameter Store/Secrets Manager instead for credentials etc.
 
 ### Boot-Time-To-Service-Time
 
@@ -754,3 +755,5 @@ docker push YOUR_USER/mycontainer:latest
 - The credentials are stored at 
   - `curl  http://169.254.169.254/latest/meta-data/iam/security-credentials/` - first run this and then the next to see the credentials which are used
   - `curl http://169.254.169.254/latest/meta-data/iam/security-credentials/A4LInstanceRole`
+
+
