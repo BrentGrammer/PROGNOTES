@@ -112,3 +112,8 @@ NOTE: You may need to restart Cubase if you do not see the new instrument create
 ## Keyboard Shortcuts
 
 - Move to beginning of track: Shift-B
+- Transpose Up 1 octave (or down): Double click part to go to editor, press CMD (Win CTRL)-A to select all notes. Press SHIFT-UP (or DOWN) to move up/down octave
+
+## Pitch in Cubase
+
+- Middle C (C4) is labeled as C3 in Cubase (Not C4 as in American Standard Notation)
