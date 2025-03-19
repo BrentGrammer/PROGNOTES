@@ -117,3 +117,9 @@ NOTE: You may need to restart Cubase if you do not see the new instrument create
 ## Pitch in Cubase
 
 - Middle C (C4) is labeled as C3 in Cubase (Not C4 as in American Standard Notation)
+
+### Recording Dynamics
+
+- Using the Mod wheel might trigger the whole track to be whatever volume you're at because MIDI interprets the last given signal
+- To record dynamics, make sure Transport > MIDI Record Mode is Merge/Mix.
+- Press Record after having played the part and move the mod wheel up and down to record the signals on the part
