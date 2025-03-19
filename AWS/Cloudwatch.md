@@ -1,7 +1,7 @@
 # CloudWatch
 
 - [Overview Video](https://learn.cantrill.io/courses/1101194/lectures/27914996)
-
+- Cloudwatch in general is for dealing with metrics (Cloudwatch logs is a sub-product of Cloudwatch)
 - Public service in the AWS Public zone
 
   - This means you can use it in VPCs or on premise environments, or other cloud platforms (with network connectivity and the right AWS Permissions)

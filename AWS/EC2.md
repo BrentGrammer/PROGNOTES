@@ -736,8 +736,8 @@ docker push YOUR_USER/mycontainer:latest
   - Don't use `aws configure` and provide access keys ever on an instance
 - Any CLI command line tools running in the instance will automatically use the Instance Role credentials as long as the role/instanceprofile is attached to the instance
 
-
 #### CLI Precedence rules
+
 - When using the AWS cli command line tool, it checks in this order: https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html#cli-configure-quickstart-precedence
   - Checks these sources/namespaces in order for the credentials until it finds them in one
   - Note that if you configure any credentials manually (`aws configure`), then those will override and be checked first before the instance role credentials
@@ -752,8 +752,104 @@ docker push YOUR_USER/mycontainer:latest
 - In EC2 > right-click instance in list > security > Modify IAM Role > select the role you created
   - Under the Security tab in the EC2 page, you'll see the IAM Role listed under "IAM Role" in the Security tab
 - Now back in the instance (ssh in etc), if you run something like `aws s3 ls` you will get the list and not be warned about not having credentials
-- The credentials are stored at 
+- The credentials are stored at
   - `curl  http://169.254.169.254/latest/meta-data/iam/security-credentials/` - first run this and then the next to see the credentials which are used
   - `curl http://169.254.169.254/latest/meta-data/iam/security-credentials/A4LInstanceRole`
 
+# Internal EC2 and Application/System Logs
 
+- Logging from within the OS on an EC2 instance
+- Cloudwatch/Cloudwatch Logs cannot capture data/metrics happening inside an EC2 instance natively
+- In order to get visibility to metrics inside EC2 instances, you need the Cloudwatch Agent
+  - The CW Agent is software that runs inside the EC2 instance on the Operating System which captures OS visible data and sends it to into Cloudwatch or Cloudwatch Logs
+  - The agent needs to have the configuration and permissions to send data into Cloudwatch products and servicesl
+
+### Setting up and Configuring the Cloudwatch Agent
+
+- Best practice is to create an IAM Role with permissions to interact with Cloudwatch Logs
+- Attach this IAM Role to the instance which allows anything running on the instance to access the CloudWatch and CloudWatch Logs services
+- Configure the Agent to define what metrics and logs you want to capture on the instance
+  - These will be injected into CloudWatch using log groups
+  - Configure one log group for every log file you want to capture
+    - Within each log group there is a log stream which represents a particular instance performing logging
+- CoudFormation can be used to include the agent configuration for every instance provisioned
+- One way to store agent configuration is using the AWS Parameter Store
+  - After configuration is created in parameter store (standard tier is free of charge), you can use Systems Manager or EC2 User-data to bootstrap it in to the instance for use with CloudWatch Agent
+
+### Viewing Metrics
+
+[Demo](https://learn.cantrill.io/courses/1101194/lectures/29448612)
+
+- In AWS Console > CloudWatch > Metrics > select the "CWAgent" namespace widget
+- Select the widgets, i.e. "InstanceId" to see Operating System level metrics you now have access to on ths instance
+  - under InstanceId group metrics you can see disk percent used and others
+  - You would not normally have access to these metrics on the instance if you didn't install the Cloudwatch Agent
+
+### Manually installing the Cloudwatch Agent onto an Ec2 Instance
+
+[Video](https://learn.cantrill.io/courses/1101194/lectures/27895417)
+
+```shell
+# Install the agent (this does not start or configure it):
+sudo dnf install amazon-cloudwatch-agent
+
+
+# CREATE THE IAM ROLE
+
+# Attach a created IAM Role to the instance to access parameter store (for config) and Cloudwatch services
+  # AWS IAM console > Roles > Create Role
+  # Select AWS Service optoin and EC2 for the Use Case
+# Add Managed Policy `CloudWatchAgentServerPolicy`
+# And `AmazonSSMFullAccess`
+# Call the role `CloudWatchRole`
+# Go to EC2 console > right-click on instance > Security option > Modify IAM Role
+
+
+############# CREATE THE AGENT CONFIGURATION #######################
+
+# start the Cloudwatch Agent:
+sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-config-wizard
+# Accept all defaults, until default metrics .. pick advanced - this captures extra metrics that might be useful.
+
+# then when asking for log files to monitor
+
+# 1 /VAR/LOG/SECURE
+/var/log/secure
+/var/log/secure # prefer using the full path instead of default "secure" for any system logs
+(Accept default instance ID)
+Accept the default retention option
+
+# 2 /var/log/httpd/access_log
+/var/log/httpd/access_log
+/var/log/httpd/access_log
+(Accept default instance ID)
+Accept the default retention option
+
+# 3 /var/log/httpd/error_log
+/var/log/httpd/error_log
+/var/log/httpd/error_log
+(Accept default instance ID)
+Accept the default retention option
+
+Answer no to any more logs
+Save config into SSM
+Use the default name.
+
+
+######## STORE THE AGENT CONFIGURATION IN PARAMETER STORE #################
+
+# Config will be stored in /opt/aws/amazon-cloudwatch-agent/bin/config.json and stored in SSM
+# This configuration created once and stored in the Parameter Store and can be re-used for other EC2 instances at scale
+
+# Standard Parameters do not incur any charges and are free
+
+# The agent expects a piece of software collectd and a database file to be installed and exist:
+# (these are needed else the agent won't start)
+sudo mkdir -p /usr/share/collectd/
+sudo touch /usr/share/collectd/types.db
+
+################ START AGENT ############################
+
+# Start the Cloudwatch Agent with the configuration stored in the Parameter Store:
+sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c ssm:AmazonCloudWatch-linux -s
+```

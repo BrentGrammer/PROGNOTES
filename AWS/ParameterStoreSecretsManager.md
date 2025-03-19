@@ -22,6 +22,7 @@
 
 ## Parameter Store
 
+- Primary use case is to store configuration information (DB connection strings, usernames, passwords, etc.) which your application uses or needs to lookup
 - Parameter Store also stores encrypted strings - good more for things like configuration info, config for cloudwatch agents, etc.
   - License Codes
   - Database Connection Strings/Host names/Ports
@@ -50,3 +51,54 @@
 - Applications, EC2 instances, or Lambda functions can request access to parameters inside the Parameter store.
 - Integrated with IAM permissions
 - Any changes to any parameter can spawn and trigger events which you can use and occur in other AWS products
+
+### Using Parameter Store
+
+- [Video Demo](https://learn.cantrill.io/courses/1101194/lectures/27895415)
+- Parameter Store is a sub product of Systems Manager (SSM)
+- AWS Console > Systems Manager > left menu Application Tools > Parameter Store option
+- click Create Parameter
+- Standard vs. Advanced option
+  - Standard meets most needs, should default to this - can make up to 10,000 parameters in the standard tier
+    - No additional charge for standard parameters unless you have more than 10k or use higher throughput options
+  - Advanced: can create more than 10k parameters, parameter length can be longer than 4KB at 8KB max length
+- Select a name, i.e. `/my-app/dbstring`
+  - NOTE: you need the forward leading slash if making heirarchical names!
+  - If you use folder syntax, that establishes a heirarchy (for grouping parameters if needed under a name space, i.e. 'my-app' here)
+  - Set the value
+- Set the type
+  - For passwords, use `SecureString` so that it encrypts the parameter value
+    - uses KMS to encrypt the parameter
+    - Need to select the key source which is the key to perform the cryptographic operations
+    - By default the key used is the default key for SSM (AWS Secrets Manager service) with the key ID `alias/aws/ssm`
+      - In most cases you can just use the default key just fine
+      - You can change that if you want to use a customer managed KMS key to configure rotation or set advanced key policies
+      - The default SSM key does not support rotation configuration
+
+### Interacting with Parameter Store via CLI`
+
+- `aws ssm get-parameters --names /your-param-namespace/dbstring`
+  - gets a list of parameters under a heirarchical namespace or the specific parameter if specified:
+  ```json
+  {
+    "Parameters": [
+      {
+        "Name": "/your-param-namespace/dbstring",
+        "Type": "String",
+        "Value": "db.thisisprettyrandom.com:3306",
+        "Version": 1,
+        "LastModifiedDate": "2025-03-18T01:35:49.080000+00:00",
+        "ARN": "arn:aws:ssm:us-east-1:905418086398:parameter/your-param-namespace/dbstring",
+        "DataType": "text"
+      }
+    ],
+    "InvalidParameters": []
+  }
+  ```
+- To get a group of parameters under a namespace, use the `--paths` option
+  - `aws ssm get-parameters-by-path --path /my-param-namespace/`
+- To get decrypted parameters add the `--with-decryption` option:
+  - `aws ssm get-parameters-by-path --path /my-param-namespace/ --with-decryption`
+  - NOTE: **The permissions to interact with the parameter store to get decrypted parameters are DIFFERENT than those for interacting with KMS**
+    - the `--with-decryption` option will decrypt ONLY if the user has KMS permissions to interact with the KMS key chosen when creating the parameter AND parameter store permissions! They need BOTH
+      - (admin users have permissions already on KMS and parameter store)
