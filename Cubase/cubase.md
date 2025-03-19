@@ -121,5 +121,12 @@ NOTE: You may need to restart Cubase if you do not see the new instrument create
 ### Recording Dynamics
 
 - Using the Mod wheel might trigger the whole track to be whatever volume you're at because MIDI interprets the last given signal
-- To record dynamics, make sure Transport > MIDI Record Mode is Merge/Mix.
+- To record dynamics, make sure Transport > MIDI Record Mode is Merge Mode
+- Try Change from Ramp to Step in Controller Lane Setup
+  <br>
+  <img src="./img/ramptostep.png" />
+  <br>
+  <br>
+- make sure you have "Record in editor" checked on(red) on top screen left of midi editor
+- Tip: what i do is delete the old dynamics so when i write the new ones they don't get merged with the older ones so i can write the curves as i want
 - Press Record after having played the part and move the mod wheel up and down to record the signals on the part
