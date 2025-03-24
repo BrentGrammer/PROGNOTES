@@ -853,3 +853,39 @@ sudo touch /usr/share/collectd/types.db
 # Start the Cloudwatch Agent with the configuration stored in the Parameter Store:
 sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c ssm:AmazonCloudWatch-linux -s
 ```
+
+# Placement Groups
+
+- A feature that allows you to influence where the EC2 Host is and the placement of the instance into a particular physical location (on the EC2 Host in that location)
+  - Normally when you launch an instance, AWS decides where to place it and on which actual EC2 host based on the region/AZ
+- Useful for placing instances physically close together
+
+### Types of Placement Groups
+
+- **Cluster Placement Groups**: Any instances in this group are physically close together
+- **Spread Placement Groups**: Ensures instances are separated and using different underlying hardware (the inverse of the above) Cluster group.
+- **Partition Placement Groups**: For distributed applications across a large area that have infrastructure awareness - groups of instances, but each group is on different hardware
+
+### Cluster Placement Groups
+
+- Used when you need the highest level of performance and lowest latency possible
+  - Use cases include scientific analaysis workloads or High perf compute
+- Best practice is to use the same type of instance in the groupa and launch all of the instances in the group at the same time
+  - Helps ensure that AWS allocates capacity for everything you require
+- Cluster groups must be launched into a single AZ
+  - When launching AWS will lock the AZ to the one that is chosen automatically when the first instance in the group is launched
+- Instances in a cluster group use the same physical rack, but often the same EC2 Host machine as well giving fast direct bandwith to all other instances in the same group.
+  - Can acheive 10GB/second vs. the usual 5GB/second transfer rate
+  - requires enhanced networking enabled on all instances and choosing a EC2 type with high network performance
+- (Little to no resilience) The con of all of this is that if the hardware fails, it could take down all instances in the cluster.
+  - Single AZ - cannot span different AZs
+- Able to span VPC peers but impacts performance negatively
+- Requires a supported instance type.
+
+### Spread Placement Groups
+- Ensures maximum amount of Availability and Resilience
+- Can span across different AZs
+  - Each instance is on a separate rack
+  - Limit of 7 instances per AZ
+
+  7:18
