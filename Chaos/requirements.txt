@@ -1,9 +1,12 @@
 # Python requirements for chaos notebooks
 attrs==23.2.0
-vtk==9.2.6 # for mayavi to prevent warning
-matplotlib==3.7.0
+vtk==9.2.6  # Pinned to match mayavi==4.8.1 compatibility
+matplotlib>=3.8.0
 mayavi==4.8.1
-numpy==1.24.2
+numpy==1.24.2  # Matches 2022 ecosystem for stability
 pandas==2.2.1
-Pillow==9.4.0
+Pillow>=10.0.0
 sympy==1.13.3
+ipykernel  # jupyter notebook req
+configobj  # required for mayavi
+PyQt5  # required for mayavi
