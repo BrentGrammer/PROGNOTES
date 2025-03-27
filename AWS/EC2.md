@@ -883,9 +883,37 @@ sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-c
 - Requires a supported instance type.
 
 ### Spread Placement Groups
+
 - Ensures maximum amount of Availability and Resilience
 - Can span across different AZs
   - Each instance is on a separate rack
   - Limit of 7 instances per AZ
 
-  7:18
+#### Exam points
+
+- Spread Placement Groups provide infrastructure isolation
+  - Gauranteed that an instance launched into a spread placement group will be entirely separated (on another physical machine/rack with it's own power source) from every other instance in that placement group
+- Dedicated instances or hosts are not supported with Spread Placement groups
+
+#### Main use case for Spread Placement Groups:
+
+- When you have a small number of critical instances that need to be kept physically separated from each other
+  - mirror instances of a file server
+  - different domain controllers within an organization
+- Ensures there is high availability for that component (if one instance fails there is reduced chance the others will)
+  - Maximizes the availability of an app
+
+### Partition Placement Groups
+
+- **Designed for Huge scale parallel processing systems to increase and provide resiliency in case of failures and replication**
+  - need to create groupings of instances and have them separated
+  - allows you to control which instances are in which partition so you can design your own resilient architecture
+  - made for more complex apps to get same resilience as you get for spread placement groups and has awareness of own topology - DSFS, HBase and Cassandra
+  - **Main difference**: With spread placement groups more is handled for you, but there is the 7 instance per AZ limit. with partition groups you have more control for more than that limit but your app needs to manage and administer partition placement overhead.
+- Use case for when you have more than 7 instances per AZ (limit for Spread Placement Groups), but you still need physical separation and high availability
+- Can be created across multiple Availability Zones in a region
+- each partition has it's own rack (isolated power and networking resources)
+  - no sharing of infrastructure between the partitions
+- Unlike limit of 7 per AZ with spread placement groups, you can have as many instances as you want and specify the partition or have EC2 split them up automatically
+  - If you launch all instances into one partition and it fails - you lose all instances
+  - If you put one instance per partition then you get behavior similar to spread placement groups
