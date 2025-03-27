@@ -917,3 +917,25 @@ sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-c
 - Unlike limit of 7 per AZ with spread placement groups, you can have as many instances as you want and specify the partition or have EC2 split them up automatically
   - If you launch all instances into one partition and it fails - you lose all instances
   - If you put one instance per partition then you get behavior similar to spread placement groups
+
+## Enhanced Networking
+
+- High performance for features such as EC2 Cluster placement groups or apps that need high performance networking speed
+  - Ideal for transferring lots of small packets around a small isolated network
+- Uses SR-IOV - Single Route I/O Virtualization. Makes it so the physical hardware (i.e. a network card) is aware of virtualization
+- Without Enhanced Networking: multiple Ec2 instances use the single physical network card or device on the machine host to communicate
+  - The single card is not aware of virtualization so the host has to sit in the middle controlling which instance has access to the physical network card at one time (via software)
+    - This is slower and can use more CPU cycles, and when the host is under heavy load performance drops can occur, more latency and bandwidth fluctuation
+  - With enhanced networking the physical card divides itself into logical cards so that the host does not have to juggle and manage which instances can access at a time
+  - The physical card handles this management without consuming CPU and host resources
+- Higher I/O across all instances on the host and lower CPU power requirements -- more bandwidth with faster networking speeds and CONSISTENT LOW LATENCY
+
+- Available BY DEFAULT or no extra charge on most modern EC2 instance types!
+
+### EBS Optimized Instances
+
+- Option is set on a per instace basis - ON or OFF
+  - Generally enabled by default and you don't have to set it
+- Dedicated capacity from a EBS storage instanceis provided for a particular EC2 instance for EBS usage
+  - Faster speeds using EBS
+- Usually this is supported and enabled by default on most newer EC2 instances
