@@ -6,6 +6,13 @@
 - AWS will take care of starting and stopping containers
 - Accepts containers and instructions you provide. ECS then orchestrates where and how to run those containers
 
+### When should a business use ECS?
+
+- If you use containers for anything (for production usage with a container)
+- When using EC2 natively for an app (as a virtual machine)
+- Using ECS in EC2 Cluster mode
+- Using a containerized app but in Fargate mode
+
 ### ECS Modes
 
 - **EC2 Mode**: uses EC2 instances as conatiner hosts
@@ -21,6 +28,18 @@
 - The images you want ECS to run must be located on a registry
   - Docker Hub or ECR (Elastic Container Registry)
 - Tasks and/or Services are deployed into an ECS Cluster (EC2 or Fargate based)
+
+### When to use EC2 Mode or Fargate
+
+- EC2 mode:
+
+  - Pick EC2 cluster mode when the business has a large consistent workload/heavily using containers and the business is price conscious
+    - Less price, but more effort (look at spot pricing or reserve pricing)
+
+- Fargate Mode:
+  - If you want to minimize overhead and admin, then Fargate makes more sense to use
+    - Especially makes sense for small or burst workloads, or batch workloads, since you only pay for the container during usage
+    - Having to manage a fleet of EC2 instances running for non-consistent workloads does not make sense in this scenario
 
 ### Container Definition
 
@@ -59,12 +78,82 @@
 - You can have one "service" for task
 - A "cluster" is a network for grouping multiple containers logically into one task/service so they can talk to each other.
 
+# Cluster Modes
+
+### Management Components
+
+- These are components that are common to both EC2 and fargate cluster modes
+- Handle high level tasks:
+  - SchedulingandOrchestration
+  - ClusterManager
+  - PlacementEngine (which container hosts to host containers)
+- Task and service definitions are also common to both cluster modes
+  - (define the images, ports and resources to be used, etc.)
+
+## EC2 Cluster Mode
+
+- Not serverless (like Fargate) and requires some management (capacity awareness and availability of the cluster)
+- Use if you need to host containers, but need to manage the capacity, availability.
+  - i.e. if you have reserved EC2 instances or spot pricing deals, then you can use those EC2 instances to host your containers.
+- You are expected to manage the container hosts (EC2 instances) in a EC2 Cluster
+- Good middleground if you need some flexibility vs. a serverless option
+
+### EC2 Cluster Mode notes
+
+- An EC2 Mode Cluster runs within a VPC in your account
+  - Benefits from multiple Availability Zones available in a VPC
+- EC2 Instances are used to run containers in EC2 Cluster Mode
+  - When creating a cluster, the initial size you choose controls the number of instances used (handled by an ASG (Auto-Scaling Group))
+  - You can see the EC2 instances used in the account, you'll be billed for them and you can ssh into them, etc.
+    - **NOTE**: You are billed for the instances REGARDLESS if there are containers running on them or not!
+  - ECS provisions the instances for hosting your containers but YOU are responsible for managing them (typically via ECS tooling)
+- Container images are stored in ECS container registries (Docker hub or ECR etc.)
+- Basic arch:
+  - Tasks and services use images (hosted on registries)
+  - ECS deploys the images as containers into container hosts (EC2 instances)
+  - If you use services and service definitions, ECS will handle the number of tasks deployed for you
+
 # Fargate
 
 - Also used to launch docker containers
 - Fully managed, serverless with no provisioning or infrastructure setup rquired
 - Much simpler, runs and spins up instances and containers for you based on CPU/RAM you need
   - You don't need to start EC2 instances yourslef to host the containers
+  - The resources defined in your task/service definitions are allocated to the Shared Fargate Platform
+  - These resources are "injected" into your VPC from a networking perspective (even though they are running on dedicated Fargate internal infra)
+  - Each Task is injected into the VPC and given a Elastic Network Interface which has an IP address within the VPC which can be accessed from within the VPC or from the public internet if the VPC is configured that way.
+  - Key takeway: **Tasks and Services are running on the shared Fargate infrastructure platform, but they are injected into your VPC (given network interfaces in your vpc) - you access these resources via the network interface**
+- You only pay for containers you're actually using on the shared Fargate infra based on the resources they consume (only if they have containers running on them, etc.)
+  - There is no visibility to you for host costs and you don't need to manage hosts, provision hosts or think about capacity or availability, etc.
+
+## Fargate Cluster Mode
+
+- You don't have to manage EC2 instances like with EC2 Cluster mode for hosts
+  - This eliminates the possibility of paying for EC2 instances whether you're running containers on them or not.
+- Your containers are hosted on a dedicated Fargate Shared Infrastructure (unlike with EC2 mode where you are running on EC2 instances)
+  - This is separate and separates customers in that infrastructure just like you can be separated from other customers using EC2 instances.
+-
+
+### Creating a Fargate Cluster
+
+[Deploying a container into a Fargate Cluster Demo](https://learn.cantrill.io/courses/1101194/lectures/36185027)
+
+- Note: if creating a Fargate cluster for the first time in an AWS account you'll probably get an error. There is an approval process that must take place the first time, so just wait a few minutes and recreate the cluster the same way again and it should work the second time
+- ECS > Clusters (left side menu) > Create Cluster
+- Create a task - Task Definitions in the left menu > Create a new Task Definition (dropdown option)
+- After creating the task definition go to Clusters > Tasks tab > Run Task to deploy the image
+  - Make sure Fargate is selected in the Launch Type Dropdown (select Launch type first)
+  - Set the Task Definition Family to what you named the cluster you created
+  - Select the LATEST revision (1) to use the latest version
+- When created an Elastic Network Interface will be created in the VPC and it will have a security group
+  - Make sure the Security Group is appropriate and allows you to access the container
+    - Select create a new security group - name and description should be the same - `somename-SG`
+    - Add a rule (i.e. Type = HTTP, Source = Anywhere) to allow access publicly
+    - Make sure the Public IP is toggled on for public internet access
+
+### Stopping a container and deleting a cluster
+
+- See timestamp 11:59 in https://learn.cantrill.io/courses/1101194/lectures/36185027
 
 # ECR - Elastic Container Registry
 
