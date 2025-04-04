@@ -157,5 +157,18 @@
 
 # ECR - Elastic Container Registry
 
-- Private Container registry on AWS
-- Store images so they can be run by ECS or Fargate
+- Managed Container Registry Service (like Docker Hub but for AWS)
+  - Hosts images
+- Private Container registry on AWS - Permissions are required for any Read or Write operation (unlike public registries where Reads are open to the public)
+  - In public image registries (docker hub) anyone can read, but they need permissions to push and write to the repos.
+- Store images so they can be run by ECS, EKS or Fargate
+- In a ECR you can have numerous repos (similar to repos in a version control system)
+  - In a repo you can have many container images
+  - Images can have numerous tags (each tag must be unique within the repository)
+- Integrated with IAM for permissions
+- Basic Image Scanning
+- Enhanced Image scanning (Inspector product) - can scan for issues in both the operating system and software packages
+- Offers near real time metrics delivered to Cloudwatch (pull push operations are logged etc.)
+- Delivers Events delivered to Event Bridge (can form part of an event driven workflow with images)
+- Provides Replication across regions and across accounts
+- For using ECR, all you need to do is specify the Amazon ECR repository in your task or pod definition for Amazon ECS or Amazon EKS to retrieve the appropriate images for your applications.
