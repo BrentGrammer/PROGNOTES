@@ -172,3 +172,38 @@
 - Delivers Events delivered to Event Bridge (can form part of an event driven workflow with images)
 - Provides Replication across regions and across accounts
 - For using ECR, all you need to do is specify the Amazon ECR repository in your task or pod definition for Amazon ECS or Amazon EKS to retrieve the appropriate images for your applications.
+
+# Containers
+
+### EC2 vanilla (no containers):
+
+- EC2 Host on the AWS Hypervisor (NITRO)
+  - This facilitates running multiple virtual machines on one host
+- Each Virtual Machine is an Operating System with its own allocated resources
+  - The Operating system takes a large amount of each VMs resources
+  - Each virtual machine has it's own Operating System which could be the same as other VM operating system's on the host causing duplication
+
+### Using Containers
+
+- With containers on the other hand, a container engine runs on top of the Host Operating System and runs as a process in that host operating system
+  - This is different from Virtualization using the NITRO Hypervisor where each VM has its own complete operating system
+  - The container engine can isolate containers but use the host operating system for many things like networking and File I/O
+- Each container has its own File System and can spawn its own child processes
+- A container uses much less resources and is much lighter than a virtual machine on NITRO hypervisor because they do not need to run their own Operating Systems. All it needs is memory and disk for the application and the application's specific dependencies, i.e. runtime libraries and dependencies
+  - **You can run many more containers on the same host and hardware than you can run virtual machines**
+- Containers are very fast to start and stop
+
+### Docker Image Construction
+
+- Each line in a Dockerfile creates a new File System Layer inside the Docker image being created by it
+  - For example, the base image is the first layer, and then installation of software is another subsequent layer stacked on top of it when that line in the Dockerfile runs
+- Layers can be thought of as partitions and are Read Only and they contain the differences made when creating that Layer (only the changes for that layer are in that layer created)
+- The end result is an image which consists of individual File System Layers
+- Containers are just a running copy of an image, but it has an **additional Read/Write File System Layer**
+  - The layers of the Image itself are Read Only and never change after they're created.
+  - Docker containers have this additional layer added so it can run. Anything that happens like logs being written or I/O is all stored in this layer of the Docker container File System
+  - All of the layers stacked up make what the container sees as a File System
+  - Each container has its own individual Read/Write layer added when it's created from the same image and is what's keep things separate and isolated.
+- Disk usage is minimized using layers (the common layers are shared except the read/write layer)
+  - Many containers made from an image could be sharing the same base file system layer, for example
+  - Large environments can benefit with less cost by using containers
