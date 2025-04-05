@@ -29,9 +29,26 @@
 
 ### Checking Tomcat Status
 
+#### List all services:
+
+```bash
+sudo service --status-all
+
+# list service units
+systemctl list-units
+
+# check for more services
+ls /etc/systemd/system/multi-user.target.wants
+```
+
+#### tomcat status
+
 ```bash
 # check processes
 ps -ef | grep tomcat
+
+# catalina process:
+pgrep -f 'catalina'
 
 # install net tools
 sudo apt install net-tools
@@ -51,7 +68,29 @@ ls /opt/tomcat/webapps/
 # there should be .cfc files etc. in the lucee directory
 ```
 
+### Starting and stopping Tomcat
+
+- bin path has a list of scripts you can run
+
+```bash
+sh /opt/tomcat/bin/{script_name}.sh
+
+# stopping tomcat:
+sudo /opt/tomcat/bin/shutdown.sh
+# or main catalina script:
+sudo /opt/tomcat/bin/catalina.sh stop
+
+
+# starting tomcat:
+sudo /opt/tomcat/bin/startup.sh
+# or main catalina script:
+sudo /opt/tomcat/bin/catalina.sh start
+
+```
+
 ### Tomcat logs
+
+- generally in `/opt/tomcat/logs/`
 
 ```bash
 sudo tail -f /opt/tomcat/logs/catalina.out
