@@ -5,6 +5,13 @@
 ### Checking Tomcat server configuration
 
 - Tomcat config: `/opt/tomcat/conf/server.xml`
+  - Find which directory is mapped to `/` home route:
+
+```bash
+cat /opt/tomcat/conf/server.xml | grep -A 5 '<Host'
+# This will tell us where Tomcat is expecting to serve your app from.
+```
+
 - Tomcat systemd service file: `/etc/systemd/system/tomcat.service`
 
   - Example:
@@ -59,6 +66,37 @@ netstat -lnp | grep 8080
 curl http://localhost:{tomcatport} # usually 8080 is the port or 80 etc. if apache proxying
 
 ```
+
+### Check where tomcat is serving the app from:
+
+- `/opt/tomcat/webapps/ROOT` is the default directory where web apps (index.html etc) are served from.
+
+```bash
+ cat /opt/tomcat/conf/server.xml | grep -A 5 '<Host'
+ # this should match where you copy your application cfml files to
+```
+
+- There is also a welcome file list entry in the tomcat web.xml configuration that should include index.cfm
+
+```xml
+ <!-- cat /opt/tomcat/conf/web.xml | grep welcome -->
+ 
+  <!--                       is no welcome file in this directory?  [false] -->
+  <!-- for a "welcome file" within that directory and, if present, to the   -->
+  <!-- If no welcome files are present, the default servlet either serves a -->
+  <!-- If you define welcome files in your own application's web.xml        -->
+    <welcome-file-list>
+        <welcome-file>index.html</welcome-file>
+        <welcome-file>index.htm</welcome-file>
+        <welcome-file>index.jsp</welcome-file>
+    </welcome-file-list>
+```
+
+### BEWARE EDITING IN WINDOWS VIA PUTTY!!!
+
+- Using PuTTy on windows may enter invisible characters that could cause syntax errors if editing config files like /opt/tomcat/conf/web.xml
+
+  - Invisible Character: An empty line shouldn’t break XML, but a hidden byte-order mark (BOM) or non-printable char from editing (e.g., in Nano on Windows via PuTTY) could confuse Tomcat’s XML parser.
 
 - **Lucee runs as a war file in Tomcat:**
 

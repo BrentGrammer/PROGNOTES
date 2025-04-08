@@ -205,3 +205,72 @@ services:
 
 - See [video](https://www.youtube.com/watch?v=8tnd3RQZy0w) at 53:59
 - Archive bundles (like zip files) packaging java based apps in a single file.
+
+### Lucee Logs
+
+- Lucee logs are part of a WEB-INF directory which is a expected built-in dir.
+- If the WEB-INF directory does not exist you need it - it will have logs folder
+
+```bash
+ls /opt/tomcat/webapps/lucee/WEB-INF/lucee/logs/
+# exception.log or application.log
+
+# for class loading errors
+tail -f /opt/tomcat/logs/catalina.out
+
+# curl the port serving lucee (not the proxy to port 80, but 8080 or 8888 etc.)
+curl http://localhost:8080 # should get back dumps or the cfm output from lucee
+```
+
+# Adding Classpaths to Lucee
+
+Add JARs to Lucee’s Classpath
+Lucee needs to know where these JARs are. You have two options:
+Option A: Lucee Admin (Recommended)
+Open the Lucee Admin (e.g., http://localhost:8888/lucee/admin/server.cfm).
+
+Go to “Archives & Resources” > “Class Paths” (or “Java Settings” depending on version).
+
+Add the full path to your libs/ folder (e.g., C:\path\to\your-project\libs\).
+
+Restart Lucee (via the admin or server restart) to reload the classpath.
+
+Test your CFML code again.
+
+Option B: JVM Arguments
+Locate Lucee’s JVM config file (e.g., lucee.toml or jvm.config in your Lucee installation, often under lib/ or bin/).
+
+Edit the -cp (classpath) argument to include your libs/ folder. Example:
+
+-cp "C:\lucee\lib\*;C:\path\to\your-project\libs\*"
+
+Restart Lucee (e.g., net stop Lucee and net start Lucee in Command Prompt as admin).
+
+### Default directory for JARs:
+
+#### On EC2 Ubuntu 20:
+
+- Use this on EC2 Ubuntu box: `/opt/tomcat/webapps/ROOT/WEB-INF/lib`
+
+#### Other Notes:
+
+- `serverHome/WEB-INF/lib` is where classes go. Look for docker logs that say "Found WEB-INF"
+- Server-Level Classpath (Applicable to all web applications):
+
+  - Lucee's lib directory: This is the primary location for .JAR files that you want to be available to all Lucee web contexts. The typical path is:
+
+  - `/opt/lucee/lib/` or sometimes within the Tomcat installation managed by Lucee:
+  - `/opt/lucee/tomcat/lib/`
+
+- Web Application-Specific Classpath:
+
+`WEB-INF/lib` within your web application: If you only need the .JAR files for a specific Lucee web application, you can place them in the lib directory within that application's WEB-INF folder. For example, if your web application is in `/var/www/mywebsite`, the path would be:
+`/var/www/mywebsite/WEB-INF/lib/`
+
+## Finding missing classes in JARs
+
+- Use jar tf and grep for the missing item:
+
+```bash
+jar tf ./libjars/aws-java-sdk-ssm-1.11.273.jar | grep com/amazonaws/services/simplesystemsmanagement/AWSSimpleSystemsManagementClientBuilder
+```

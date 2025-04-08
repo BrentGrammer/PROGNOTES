@@ -80,3 +80,495 @@
   - Success, Failed, Cancelled
   - Can perform actions triggered by these events, notifications, etc.
 - Can use Cloudtrail or Console UI for interaction
+
+# Implementing CodeDeploy
+
+## Prerequisites
+
+- Docker Desktop
+- For Some EC2 instances you need to install AWS CLI. ex: `sudo apt install awscli`
+  - Should bake this into your custom AMI
+- AWS account
+- AWS S3 Bucket to store the application zipped artifact
+- AWS EC2 instance configured with Java, Tomcat and Lucee
+- AWS IAM Role attached to the EC2 instance with these permissions:
+  - `AWSCodeDeployRole` -- Required for the instance to have this permission
+  - `AmazonEC2RoleforAWSCodeDeploy`
+  - `AmazonS3ReadOnlyAccess` (optional, but useful for pulling from a bucket)
+  - `AmazonSSMManagedInstanceCore` (recommended for CodeDeploy & EC2 mgmt)
+- Required Classes: For SDK version 1.11.273 you NEED
+  - `aws-java-sdk-ssm-1.11.273.jar`
+  - `aws-java-sdk-core-1.11.273.jar`
+
+### Install the Code Deploy Agent on the EC2 instance
+
+- you can bake this into a custom AMI if you don't have a lot of short-lived instances, but be aware that if there are major updates to code deploy your custom AMI will be outdated.
+  - Rebake custom AMI periodically to update software to stay up to date
+
+```bash
+# Example agent installation on an EC2 instance
+
+#!/bin/bash
+
+sudo apt update
+sudo apt install ruby-full wget
+
+# --- Configuration ---
+REGION="us-east-1"
+INSTALLER_URL="https://aws-codedeploy-${REGION}.s3.${REGION}.amazonaws.com/latest/install"
+TMP_DIR="/tmp/codedeploy-install"
+
+# --- Setup ---
+mkdir -p "$TMP_DIR"
+cd "$TMP_DIR"
+
+# --- Download & Install ---
+wget "$INSTALLER_URL" -O install
+chmod +x install
+sudo ./install auto
+
+# --- Enable & Start the Service ---
+sudo systemctl enable codedeploy-agent
+sudo systemctl start codedeploy-agent
+
+# --- Verify ---
+sudo systemctl status codedeploy-agent
+
+# --- Cleanup ---
+cd /
+rm -rf "$TMP_DIR"
+```
+
+### Create an Application in Code Deploy
+
+- Create a Deployment Group in CodeDeploy (named the same as in your deployment pipeline configuration or script).
+- Associate your EC2 instances with the Deployment Group
+  - You can do this by tagging the EC2 instances or by using an Auto Scaling group.
+    <br>
+    <img src="./img/codedeploycreateapp.png" />
+    <br>
+    <br>
+
+## Creating a Deployment Group in AWS CodeDeploy
+
+#### Step1 Go to the CodeDeploy Console:
+
+- In the AWS Management Console, search for **CodeDeploy** and open the service.
+
+**Select The Application**:
+
+- On the left sidebar under **Applications**, click the **application** you created earlier (e.g., `your-app-name`).
+
+#### Step2: Create a Deployment Group
+
+1. **Click Create Deployment Group**:
+   - Once you're inside the application, you'll see an option to **Create deployment group**. Click on it.
+
+#### Step3: Configure Deployment Group Settings
+
+1. **Deployment Group Name**:
+
+   - Choose a name for the deployment group (e.g., `test-lucee-deploy-group`).
+
+2. **Service Role**:
+
+   - Select or create a service role that has permissions to interact with EC2 instances and CodeDeploy.
+   - Typically, create or use a role like `CodeDeployServiceRole` which includes permissions for CodeDeploy to manage EC2 instances.
+     - Go to IAM Role in AWS console to create and select CodeDeploy for the use case of the role
+     - `AWSCodeDeployRole`: This policy grants the necessary permissions for CodeDeploy to interact with EC2 and other resources.
+
+3. **Environment Configuration**:
+
+   - **Deployment Type**: Choose **In-place deployment** if you want to update your existing EC2 instances (this is the most common).
+
+4. **Specify EC2 Instances**:
+
+   - **Deployment Type**: You can select instances by either **tags** or **Auto Scaling groups**.
+     - **Tag-based selection**: You can tag your EC2 instance with a key-value pair and then specify that tag in the deployment group. This makes it easier to deploy to multiple instances with the same tag.
+     - **Manual Selection**: Alternatively, you can select individual instances manually.
+   - Example for tagging EC2 instances: You could tag your EC2 instance with a key `Name` and value `lucee-test-instance`, and use this tag when defining the deployment group to target that specific EC2 instance.
+
+5. **Additional Options**:
+
+   - **Load Balancer (optional)**: If you are using a load balancer, you can configure it in this step to allow the deployment group to register and deregister instances from the load balancer during deployments.
+   - **Deployment Configuration**: You can choose **CodeDeployDefault.AllAtOnce** (default) for immediate deployment or **CodeDeployDefault.HalfAtOnce** for staggered deployments (if you have multiple instances).
+
+6. **Complete the Setup**:
+   - After you've filled out the details, click **Create deployment group** to complete the process.
+
+#### Step4: Tag Your EC2 Instance
+
+If you chose to use tags for selecting EC2 instances, you need to make sure your EC2 instance has the correct tag.
+
+1. **Go to the EC2 Console**:
+
+   - In the AWS Management Console, search for **EC2**.
+
+2. **Select Your Instance**:
+
+   - In the EC2 dashboard, find the instance you want to deploy to and select it.
+
+3. **Add the Tag**:
+   - Under the **Tags** tab, click **Add/Edit Tags** and add a key-value pair (e.g., `Name=lucee-test-instance`).
+
+Once created the deployment group and tagged your EC2 instance accordingly, your CodeDeploy deployment should automatically target this instance when triggered.
+
+#### Step5: Trigger a Deployment
+
+When running `deploy.sh` script, it will trigger the deployment, and AWS CodeDeploy will deploy to the EC2 instances in your deployment group.
+
+## Basic Flow
+
+[CODE DEPLOY APP + DEPLOYMENT GROUP]
+↓
+[ZIP + PUSH APP TO S3]
+↓
+[DEPLOY APP TO EC2 INSTANCE]
+↓
+[RUN HOOK SCRIPTS]
+↓
+[LUCEE APP IS LIVE]
+
+### Deployment Groups
+
+- The deployment process in AWS CodeDeploy is connected to specific EC2 instances through deployment groups. A deployment group is essentially a set of EC2 instances that are targeted for deployment.
+- When you create an application in CodeDeploy, you give it a name (e.g., lucee-test-app in deploy.sh script in this case)
+- This application acts as a logical container for your deployments, which can include multiple deployment groups.
+- CodeDeploy takes the bundle (your tar.gz file) from the S3 bucket, identifies the deployment group, and deploys the files to all instances associated with that group.
+
+### Tagging instances
+
+Tagging Instances: You can use EC2 instance tags to associate specific instances with a deployment group. For example, you could tag instances with Name=MyLuceeInstance and then specify that your deployment group targets all instances with that tag.
+
+Auto Scaling Groups: If you are using an Auto Scaling group, you can configure CodeDeploy to deploy to all instances in that Auto Scaling group.
+
+### CodeDeploy Logs
+
+```bash
+/var/log/aws/codedeploy-agent/
+
+# Check the logs
+sudo tail -f /var/log/aws/codedeploy-agent/codedeploy-agent.log
+
+# specific logs (if they exist)
+cd /opt/codedeploy-agent/deployment-root/deployment-logs/
+```
+
+### Check for CodeDeploy Agent Updates
+
+```bash
+sudo yum update codedeploy-agent  # For Amazon Linux/RedHat-based systems
+sudo apt-get update && sudo apt-get install codedeploy-agent  # For Ubuntu/Debian-based systems
+```
+
+- After updating IAM roles, etc. if needed, restart the CodeDeploy agent to ensure it picks up any new changes.
+
+```bash
+sudo systemctl restart codedeploy-agent
+
+# check logs
+sudo tail -f /var/log/aws/codedeploy-agent/codedeploy-agent.log
+```
+
+#### CodeDeploy Events:
+
+- You can check the lifecycle events in the AWS console under CodeDeploy > Applications > Your Deployment Group > Deployment History.
+
+# Cleaning up old Deployments
+
+- `/opt/codedeploy-agent/deployment-root/`
+
+## Instructions for scripting and cleanup
+
+Identify Old Deployments: List the contents to see the deployment group directories:
+Bash
+
+ls -l
+Then, go into a deployment group directory and list the deployment ID directories:
+Bash
+
+cd <deployment-group-ID>
+ls -l
+You can usually identify older deployments by their timestamps.
+Delete Old Deployment Directories: Use the rm -rf command to recursively remove the directories of the deployments you want to delete. Be extremely careful with this command to avoid accidentally deleting the currently deployed version or other important files.
+Bash
+
+sudo rm -rf /opt/codedeploy-agent/deployment-root/<deployment-group-ID>/<old-deployment-ID>
+Repeat this for other old deployments you want to remove. 3. Scripted Cleanup:
+
+For a more controlled and potentially automated approach, you could write a simple shell script to identify and delete old deployment directories based on their modification time.
+
+Rollback: Ensure you won't need to roll back to any of the deployments you delete. Once the files are gone from the instance, a rollback to that specific version will fail.
+Currently Deployed Version: Never delete the directory of the currently deployed version. You can usually identify this by checking the CodeDeploy console or by the most recent deployment timestamp.
+Permissions: You'll likely need sudo privileges to delete files in the CodeDeploy agent directories.
+Testing: If you create a script, test it thoroughly in a non-production environment before running it on your production instances.
+Backup (Optional but Recommended): Before performing any manual cleanup, consider backing up the instance or at least the deployment root directory if you're unsure.
+How to Identify the Currently Deployed Version:
+
+CodeDeploy Console: The AWS CodeDeploy console will clearly show the "Status" of each deployment, including "Succeeded" for the currently deployed version. You can also see the deployment ID and timestamp.
+Instance Metadata (Potentially): Depending on your application and setup, you might have a file or environment variable on the instance that indicates the currently deployed version or deployment ID.
+
+The safest and most manageable approach is to configure the :max_revisions: setting in the CodeDeploy agent configuration file. This allows CodeDeploy to handle the cleanup automatically as new deployments occur. Manual deletion should be used cautiously and only when necessary.
+
+```bash
+#!/bin/bash
+
+# --- Configuration ---
+DEPLOYMENT_ROOT="/opt/codedeploy-agent/deployment-root/"
+DEPLOYMENT_GROUP_ID_PATTERN="*" # Adjust if you have specific group ID patterns
+RETENTION_COUNT=3             # Keep the N most recent deployments (excluding current)
+EXCLUDE_CURRENT=true            # Exclude the most recent deployment based on timestamp
+LOG_FILE="/var/log/cleanup_old_deployments.log"
+
+# --- Functions ---
+log_info() {
+  echo "$(date '+%Y-%m-%d %H:%M:%S') [INFO] $1" >> "$LOG_FILE"
+}
+
+log_warn() {
+  echo "$(date '+%Y-%m-%d %H:%M:%S') [WARN] $1" >> "$LOG_FILE"
+}
+
+log_error() {
+  echo "$(date '+%Y-%m-%d %H:%M:%S') [ERROR] $1" >> "$LOG_FILE"
+}
+
+identify_old_deployments() {
+  local deployment_group="$1"
+  local deployments
+  local -a sorted_deployments
+
+  deployments=($(find "$DEPLOYMENT_ROOT/$deployment_group" -maxdepth 1 -type d -printf '%T@ %p\n' | sort -nr | cut -d' ' -f2))
+
+  local count="${#deployments[@]}"
+  local to_delete=()
+
+  if [[ "$count" -gt "$RETENTION_COUNT" ]]; then
+    local start_index
+    if "$EXCLUDE_CURRENT"; then
+      start_index="$RETENTION_COUNT"
+    else
+      start_index="$RETENTION_COUNT"
+    fi
+
+    for ((i=start_index; i<count; i++)); do
+      to_delete+=("${deployments[$i]}")
+    done
+  fi
+  echo "${to_delete[@]}"
+}
+
+# --- Main Script ---
+log_info "Starting old deployment cleanup."
+
+if [[ ! -d "$DEPLOYMENT_ROOT" ]]; then
+  log_error "Deployment root directory '$DEPLOYMENT_ROOT' not found. Exiting."
+  exit 1
+fi
+
+deployment_groups=($(find "$DEPLOYMENT_ROOT" -maxdepth 1 -type d -name "$DEPLOYMENT_GROUP_ID_PATTERN" -printf '%f\n'))
+
+if [[ -z "$deployment_groups" ]]; then
+  log_info "No deployment groups found matching pattern '$DEPLOYMENT_GROUP_ID_PATTERN'. Exiting."
+  exit 0
+fi
+
+for deployment_group in "${deployment_groups[@]}"; do
+  if [[ "$deployment_group" == "." || "$deployment_group" == ".." ]]; then
+    continue
+  fi
+
+  log_info "Processing deployment group: $deployment_group"
+  old_deployments=$(identify_old_deployments "$deployment_group")
+
+  if [[ -z "$old_deployments" ]]; then
+    log_info "No old deployments found to delete in group '$deployment_group'."
+  else
+    log_warn "Identified old deployments in group '$deployment_group' for deletion: $old_deployments"
+    log_warn "DRY RUN MODE: To actually delete these deployments, uncomment the 'rm -rf' command below."
+
+    # --- UNCOMMENT THE FOLLOWING LINE TO ACTUALLY DELETE THE DEPLOYMENTS ---
+    # for deployment_path in $old_deployments; do
+    #   log_warn "Deleting: $deployment_path"
+    #   sudo rm -rf "$deployment_path"
+    #   if [ $? -eq 0 ]; then
+    #     log_info "Successfully deleted: $deployment_path"
+    #   else
+    #     log_error "Failed to delete: $deployment_path"
+    #   fi
+    # done
+  fi
+done
+
+log_info "Finished old deployment cleanup."
+
+exit 0
+```
+
+## Automating the script with a Cron job
+
+```Bash
+
+#!/bin/bash
+
+# --- Configuration ---
+
+DEPLOYMENT_ROOT="/opt/codedeploy-agent/deployment-root/"
+DEPLOYMENT_GROUP_ID_PATTERN="\*" # Adjust if you have specific group ID patterns
+RETENTION_COUNT=3 # Keep the N most recent deployments (excluding current)
+EXCLUDE_CURRENT=true # Exclude the most recent deployment based on timestamp
+LOG_FILE="/var/log/cleanup_old_deployments.log"
+
+# --- Functions ---
+
+log_info() {
+echo "$(date '+%Y-%m-%d %H:%M:%S') [INFO] $1" >> "$LOG_FILE"
+}
+
+log_warn() {
+echo "$(date '+%Y-%m-%d %H:%M:%S') [WARN] $1" >> "$LOG_FILE"
+}
+
+log_error() {
+echo "$(date '+%Y-%m-%d %H:%M:%S') [ERROR] $1" >> "$LOG_FILE"
+}
+
+identify_old_deployments() {
+local deployment_group="$1"
+local deployments
+local -a sorted_deployments
+
+deployments=($(find "$DEPLOYMENT_ROOT/$deployment_group" -maxdepth 1 -type d -printf '%T@ %p\n' | sort -nr | cut -d' ' -f2))
+
+local count="${#deployments[@]}"
+local to_delete=()
+
+if [["$count" -gt "$RETENTION_COUNT"]]; then
+local start_index
+if "$EXCLUDE_CURRENT"; then
+      start_index="$RETENTION_COUNT"
+else
+start_index="$RETENTION_COUNT"
+fi
+
+    for ((i=start_index; i<count; i++)); do
+      to_delete+=("${deployments[$i]}")
+    done
+
+fi
+echo "${to_delete[@]}"
+}
+
+# --- Main Script ---
+
+log_info "Starting old deployment cleanup."
+
+if [[! -d "$DEPLOYMENT_ROOT"]]; then
+log_error "Deployment root directory '$DEPLOYMENT_ROOT' not found. Exiting."
+exit 1
+fi
+
+deployment_groups=($(find "$DEPLOYMENT_ROOT" -maxdepth 1 -type d -name "$DEPLOYMENT_GROUP_ID_PATTERN" -printf '%f\n'))
+
+if [[-z "$deployment_groups"]]; then
+log_info "No deployment groups found matching pattern '$DEPLOYMENT_GROUP_ID_PATTERN'. Exiting."
+exit 0
+fi
+
+for deployment_group in "${deployment_groups[@]}"; do
+  if [[ "$deployment_group" == "." || "$deployment_group" == ".." ]]; then
+continue
+fi
+
+log_info "Processing deployment group: $deployment_group"
+  old_deployments=$(identify_old_deployments "$deployment_group")
+
+if [[-z "$old_deployments"]]; then
+log_info "No old deployments found to delete in group '$deployment_group'."
+  else
+    log_warn "Identified old deployments in group '$deployment_group' for deletion: $old_deployments"
+log_warn "DRY RUN MODE: To actually delete these deployments, uncomment the 'rm -rf' command below."
+
+    # --- UNCOMMENT THE FOLLOWING LINE TO ACTUALLY DELETE THE DEPLOYMENTS ---
+    # for deployment_path in $old_deployments; do
+    #   log_warn "Deleting: $deployment_path"
+    #   sudo rm -rf "$deployment_path"
+    #   if [ $? -eq 0 ]; then
+    #     log_info "Successfully deleted: $deployment_path"
+    #   else
+    #     log_error "Failed to delete: $deployment_path"
+    #   fi
+    # done
+
+fi
+done
+
+log_info "Finished old deployment cleanup."
+
+exit 0
+
+```
+
+How to Use This Script:
+
+Save the script: Save the code above to a file on your EC2 instance, for example, cleanup_old_deployments.sh.
+Make it executable:
+
+```Bash
+chmod +x cleanup_old_deployments.sh
+Review and Configure:
+DEPLOYMENT_ROOT: Verify that /opt/codedeploy-agent/deployment-root/ is the correct root directory for your CodeDeploy deployments.
+DEPLOYMENT_GROUP_ID_PATTERN: This uses _ to match all deployment group directories. If you have a specific naming convention, you can adjust this (e.g., my-app-_).
+RETENTION_COUNT: Set the number of most recent deployments you want to keep within each deployment group. This script keeps the RETENTION_COUNT most recent based on the directory's modification timestamp.
+EXCLUDE_CURRENT: If set to true, the script will exclude the very latest deployment (based on timestamp) from being considered for deletion, even if it exceeds the RETENTION_COUNT. This is a safety measure.
+LOG_FILE: The script will log its actions to /var/log/cleanup_old_deployments.log.
+```
+
+Run the script (Dry Run First!):
+
+```Bash
+./cleanup_old_deployments.sh
+```
+
+The script is initially set to run in dry run mode. It will identify the old deployments and log what would be deleted without actually deleting anything. Review the log file (/var/log/cleanup_old_deployments.log) carefully to ensure it's identifying the correct deployments for deletion.
+Enable Deletion (After Review): Once you are confident that the script is identifying the correct old deployments, uncomment the for loop that contains the sudo rm -rf command. Remove the # at the beginning of those lines:
+
+````Bash
+# --- UNCOMMENT THE FOLLOWING LINE TO ACTUALLY DELETE THE DEPLOYMENTS ---
+```bash
+for deployment_path in $old_deployments; do
+  log_warn "Deleting: $deployment_path"
+  sudo rm -rf "$deployment_path"
+if [ $? -eq 0 ]; then
+log_info "Successfully deleted: $deployment_path"
+else
+log_error "Failed to delete: $deployment_path"
+fi
+done
+````
+
+Run the script again to perform the deletion:
+
+```Bash
+./cleanup_old_deployments.sh
+```
+
+This time, the script will actually delete the identified old deployment directories.
+Automating the Script (Optional):
+
+You can automate this script to run periodically using cron. For example, to run it daily at 3:00 AM:
+
+Open the crontab for editing:
+
+```Bash
+crontab -e
+Add the following line to the crontab file:
+Code snippet
+
+0 3 * * * /bin/bash /path/to/your/cleanup_old_deployments.sh
+```
+
+Replace /path/to/your/cleanup_old_deployments.sh with the actual path to the script.
+Important Security Warning:
+
+Be extremely cautious when using rm -rf. Ensure you understand what the script is doing before uncommenting the deletion part. Incorrectly configured scripts can lead to accidental data loss. Always test in a non-production environment first.
