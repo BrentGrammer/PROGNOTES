@@ -1,11 +1,27 @@
 # CloudFormation
 
 - Create update and delete AWS Infrastructure using templates.
+- Its purpose is to keep Logical and Physical resources in sync
 - Written in YAML or JSON
 
 ## Components of a Template
 
 ### Resources
+
+- **Logical Resources**: What you want to create (not how you want them created)
+- CouldFormation Templates create Stacks
+  - One template can create many Stacks
+  - Templates should be portable - you can use them in many regions and accounts
+    - Example of a non-portable template is hard coding a bucket name: the second template creation action will fail because Bucket names are unique!!!
+    - Hard coding a AMI Image ID (they are unique per region, so if you move the stack to create in another region, it will fail because the ID does not exist in that region)
+    - Use Template or psuedo parameters and do not hard code things!
+  - Contained and defined in the `Resources` section of a CloudFormation Template (yaml file)
+- The STACK creates physical resources based on the logical resources defined in the template
+
+  - The Stack keeps the physical and logical resources in sync (if the logical resource in the template changes, the stack makes sure the physical resources are updated to it)
+  - If the Stack is deleted, the physical resources are also deleted.
+  - Once the logical resources enter a Create Complete state, other logical resources can reference physical properties on them (their ID etc.)
+  - If the Stack is updated, the physical resources will be added or deleted automatically to keep in sync with it.
 
 - lists resources to create, if they are removed then they are deleted
 - The only mandatory part of a template
@@ -13,9 +29,9 @@
 
 ```yaml
 Resources:
-  EC2Instance:
-    Type: AWS::EC2::Instance
-    Properties:
+  EC2Instance: # Name of the logical resource - you can name this anything you want!
+    Type: AWS::EC2::Instance # the physical type of the logical resource
+    Properties: # resources will have properties which are what is used to configure them
       InstanceType: "t2.micro"
       ImageId: !Ref LatestAmiId
       IamInstanceProfile: !Ref SessionManagerInstanceProfile
@@ -114,10 +130,15 @@ Outputs:
 
 ## Template basics
 
+- NOTE: it is rare that you create a template from scratch - usually you will consult resources
+  - AWS has a CloudFormation [User Guide](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/Welcome.html) which includes lots of Template definitions for re-use or examples
+    - Type the name of the resource you want to configure in the search box to get examples, etc.
+    - Wrapping values in single quotes is safer
 - **Logical Resources**: Resources inside a CloudFormation template.
   - i.e. `Instance`
   - have properties that are used to configure them in a certain way
 - **Stack**: When a template is given to CloudFormation it creates a stack which contains all the logical resources that the template tells it to contain.
+  - The purpose of a Stack is to keep logical and physical resources in sync
   - A stack can contain zero or more other stacks
   - If a stack is deleted then all logical/physical resources are deleted.
 - Templates can be stored for change management.
@@ -146,3 +167,53 @@ Outputs:
 ### Deleting a Template
 
 - If you delete a template stack, AWS will delete it and the physical resources specified in it.
+
+## Troubleshooting
+
+- To find errors in the CloudFormation process, in the CloudFormation dashboard/page, click the Events Tab and then click the L9ogical ID (Stack name) > Click the Events tab and look at the Status reason column for the time you want to see what failed.
+- ![alt text](cloudformationdebugging.png)
+
+## Template and Psuedo Parameters
+
+- Used to prevent hard coding values in templates so the templates remain portabile
+- Parameters accept input
+  - Input can be provided via the console or CLI when a Stack is updated or created and is used in these parameters
+    - Env for the template (Dev, Test, Prod), the Size of the instances, etc.
+- Can define constraints or configuration for the parameters:
+  - `Defaults`: what to use if input is missing
+  - `AllowedValues`: a list of valid inputs, i.e. a list of instance types that are accepted
+  - Restrictions such as `Min` and `Max` lengths of input allowed or `AllowedPatterns`
+  - `NoEcho` for passwords or secrets to hide the input when it's being typed
+  - `Type`: the type of the input - String, Number, List, or AWS specific types (you can populate this so you can have an interactive prompt to choose the type from a list of types)
+
+### Template Parameters Example
+
+```yaml
+Parameters: # params go under this section in the template yml
+  InstanceType: # name of the parameter
+    Type: String # type of the param
+    Default: "t3.micro" # define a default if no input
+    AllowedValues: # only allow these values for the param
+      - "t3.micro"
+      - "t3.medium"
+      - "t3.large"
+    Description: "Pick a supported Instance Type." # could be useful for UI or hint to a user when loaded into the AWS Console UI or console etc.
+  InstanceAmiId: # another name of another parameter
+    Type: String # this parameter has no validation or restrictions as above so it is free text (anything can be entered for the AMI ID)
+    Description: "AMI ID for Instances"
+```
+
+### Pseudo Parameters
+
+- [AWS Documentation - Pseudo Parameters](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/pseudo-parameter-reference.html)
+- Provided by AWS (instead of input like Template Parameters above)
+  - These parameters exist even if you don't define them and are built-in. They can be referenced in the Template at will. They are injected by AWS into the Template/Stack
+    - `AWS:Region` - the value of this always matches whichever region the template is being applied in.
+    - `AWS:StackId`: populated with the ID of the Stack being applied
+    - `AWS:StackName`: The name of the stack being applied
+    - `AWS:AccountId`: populated with the account number the stack is being created in
+
+## CloudFormation Intrinsic Functions
+
+- Allow you to gain access to data at Run Time
+- Allows you to take action based on how things are when a template is being used to create a stack
