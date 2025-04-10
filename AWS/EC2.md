@@ -361,6 +361,28 @@
 - If you associate an elastic IP with a primary network interface on an instance, the current Public IPv4 address for that instance is removed and replaced with the Elastic IP address in its place
   - If you remove the Elastic IP Address, the instance will gain a new public IPv4 address (there is no way to get the first public IP address back)
 
+### Setting up Elastic IP address for an EC2 instance
+
+- Go to EC2 > Network and Security (left side menu) > Elastic IPs
+  <br>
+  <img src="./img/elasticipsidemenu.png" width="35%" />
+  <br>
+  <br>
+
+- Click Allocate Elastic IP address > Allocate.
+- Select the new EIP, click Actions > Associate Elastic IP address.
+  <br>
+  <img src="./img/associateip.png" width="35%" />
+  <br>
+  <br>
+
+- Choose your EC2 instance and associate.
+  - typically don't need to specify a private IP address unless your instance has multiple network interfaces or private IPs. Can leave blank.
+  - If the EIP is already in use (e.g., associated with another instance), checking "Allow this Elastic IP address to be reassociated" will disassociate it from the current resource and associate it with the new instance you're selecting. If unchecked and the EIP is already associated, the association will fail with an error.
+- Update your Route53 A record(s) to point to the EIP (only needed once).
+- **Cost: EIPs are free when associated with a running instance.** If the EIP **is unassociated**, AWS **charges a small fee** (~$0.005/hour, ~$3.60/month).
+- If your EC2 instance is terminated (not just stopped), the EIP will become unassociated, but you can associate it with a new instance
+
 ### Use cases for Network Interfaces
 
 - Licensing via a MAC address can be moved to different hosts/instances via just moving the interface that has that MAC address
