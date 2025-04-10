@@ -207,3 +207,54 @@
 - Disk usage is minimized using layers (the common layers are shared except the read/write layer)
   - Many containers made from an image could be sharing the same base file system layer, for example
   - Large environments can benefit with less cost by using containers
+
+# Comparison of ECS (EC2 Mode) with Containers vs. Direct EC2 Instance usage:
+
+- Direct EC2 usage vs. using ECS in EC2 mode should be about the same cost, but you get more benefits using containers with ECS with less admin overhead and maintenance
+
+#### ECS (EC2 Launch Type):
+
+- ECS manages your Docker containers—handles deployment, restarts, and health checks automatically.
+- You define a task definition (e.g., your Lucee app container) and ECS ensures it runs on your m5.large instance ([web:1]).
+
+#### Direct EC2:
+
+- You manually manage the Lucee app deployment—installing Tomcat, Apache, and Lucee, handling updates, and restarting services yourself (e.g., `sudo /opt/tomcat/bin/shutdown.sh` and `startup.sh` as you mentioned).
+
+### Scaling:
+
+#### ECS (EC2 Launch Type):
+
+- ECS can scale containers based on demand (e.g., run multiple Lucee containers on the same m5.large instance or add more instances via Auto Scaling).
+- You define scaling policies (e.g., CPU usage > 70%) ([web:1]).
+
+#### Direct EC2:
+
+- Scaling requires manually launching new instances, configuring them, and updating load balancers—more error-prone and time-consuming.
+
+### Updates and Rollbacks:
+
+#### ECS (EC2 Launch Type):
+
+- Rolling updates are built-in.
+- You update the task definition with a new container image, and ECS deploys it with zero downtime, rolling back if the new version fails ([web:0]).
+
+#### Direct EC2:
+
+- You manually deploy updates (e.g., copy new WAR files, restart Tomcat), risking downtime if something fails, with no automatic rollback.
+
+### Monitoring and Recovery:
+
+#### ECS (EC2 Launch Type):
+
+- ECS monitors container health and restarts failed containers automatically.
+- You can integrate with CloudWatch for logs and metrics ([web:1]).
+
+#### Direct EC2:
+
+- You must set up monitoring (e.g., CloudWatch) and recovery (e.g., scripts to restart Tomcat) yourself, which is more effort.
+
+#### Why ECS EC2 is Same Cost:
+
+- You’re using the same m5.large instance (~$71.62/month, as calculated earlier).
+- ECS itself doesn’t add cost with the EC2 launch type ([web:1]).
