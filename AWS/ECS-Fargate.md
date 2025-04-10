@@ -215,18 +215,18 @@
 #### ECS (EC2 Launch Type):
 
 - ECS manages your Docker containers—handles deployment, restarts, and health checks automatically.
-- You define a task definition (e.g., your Lucee app container) and ECS ensures it runs on your m5.large instance ([web:1]).
+- You define a task definition (e.g., your Lucee app container) and ECS ensures it runs on your m5.large instance.
 
 #### Direct EC2:
 
-- You manually manage the Lucee app deployment—installing Tomcat, Apache, and Lucee, handling updates, and restarting services yourself (e.g., `sudo /opt/tomcat/bin/shutdown.sh` and `startup.sh` as you mentioned).
+- You manually manage the Lucee app deployment—installing Tomcat, Apache, and Lucee, handling updates, and restarting services yourself (manual startup scripts, etc.).
 
 ### Scaling:
 
 #### ECS (EC2 Launch Type):
 
 - ECS can scale containers based on demand (e.g., run multiple Lucee containers on the same m5.large instance or add more instances via Auto Scaling).
-- You define scaling policies (e.g., CPU usage > 70%) ([web:1]).
+- You define scaling policies (e.g., CPU usage > 70%).
 
 #### Direct EC2:
 
@@ -237,7 +237,7 @@
 #### ECS (EC2 Launch Type):
 
 - Rolling updates are built-in.
-- You update the task definition with a new container image, and ECS deploys it with zero downtime, rolling back if the new version fails ([web:0]).
+- You update the task definition with a new container image, and ECS deploys it with zero downtime, rolling back if the new version fails.
 
 #### Direct EC2:
 
@@ -248,7 +248,7 @@
 #### ECS (EC2 Launch Type):
 
 - ECS monitors container health and restarts failed containers automatically.
-- You can integrate with CloudWatch for logs and metrics ([web:1]).
+- You can integrate with CloudWatch for logs and metrics.
 
 #### Direct EC2:
 
@@ -256,5 +256,5 @@
 
 #### Why ECS EC2 is Same Cost:
 
-- You’re using the same m5.large instance (~$71.62/month, as calculated earlier).
-- ECS itself doesn’t add cost with the EC2 launch type ([web:1]).
+- You’re using the same m5.large instance (~$71.62/month).
+- ECS itself doesn’t add cost with the EC2 launch type.
