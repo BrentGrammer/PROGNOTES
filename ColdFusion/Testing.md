@@ -255,3 +255,127 @@ component extends="DBTestCase"{
     }
 }
 ```
+
+## Setup and Teardown
+
+- `setUp()` and `tearDown()`: Use these methods within your test suites to set up the necessary context for your integration tests.
+  - This might involve instantiating a subset of your application's object graph that is relevant to the integration boundary you are testing. You might still need to manually create some dependencies, but you can focus on the key collaborators.
+- `beforeAll()` and `afterAll()`: If the setup for a group of integration tests is expensive (e.g., setting up database connections or external service stubs at a higher level), you can use `beforeAll()` and `afterAll()` to perform these actions once per test suite. Be cautious with `beforeAll()` as it can introduce state between tests if not managed carefully.
+
+```java
+component extends="testbox.system.BaseSpec" {
+
+    variables.myObject = ""; // The thing we are testing
+
+    /** Runs BEFORE EACH test (`it`). Setup fresh conditions. */
+    function setUp() {
+        variables.myObject = new path.to.MyComponent();
+        // OR, setup test data:
+        // variables.testData = { ... };
+    }
+
+    /** Runs AFTER EACH test (`it`). Clean up anything changed. */
+    function tearDown() {
+        variables.myObject = ""; // Reset the tested object
+        // OR, clean up created files/data:
+        // fileDelete(variables.tempFile);
+    }
+
+    function run() {
+        describe("MyComponent", function() {
+            it("should do something with initial state", function() {
+                // 'variables.myObject' is fresh here
+                variables.myObject.doAction(argument="initial");
+                expect(variables.myObject.getResult()).toBeTrue();
+            });
+
+            it("should do something different after setup", function() {
+                // 'variables.myObject' is a new, clean instance again
+                variables.myObject.doAction(argument="different");
+                expect(variables.myObject.getCount()).toBe(1);
+            });
+        });
+    }
+
+}
+```
+
+### Detailed Example
+
+```java
+component extends="testbox.system.BaseSpec" {
+
+    variables.componentUnderTest = "";
+    variables.testFilePath = getTempDirectory() & "/test_file.txt";
+    variables.initialFileContent = "Initial content in the file.";
+
+    /**
+     * Runs before each individual 'it' block in this test suite.
+     * Use this to set up the necessary conditions for each test.
+     */
+    function setUp() {
+        // Create the test file with some initial content before each test
+        fileWrite(variables.testFilePath, variables.initialFileContent);
+        variables.componentUnderTest = new path.to.FileService(); // Instantiate the component under test
+    }
+
+    /**
+     * Runs after each individual 'it' block in this test suite.
+     * Use this to clean up any resources or state that might have been modified by the test.
+     */
+    function tearDown() {
+        // Delete the test file after each test to ensure a clean state for the next test
+        if (fileExists(variables.testFilePath)) {
+            fileDelete(variables.testFilePath);
+        }
+        variables.componentUnderTest = ""; // Release the component instance
+    }
+
+    function run() {
+
+        describe("FileService", function() {
+
+            it("should read the initial content of the file", function() {
+                // Arrange (setup is done in setUp())
+                local.content = variables.componentUnderTest.readFile(variables.testFilePath);
+
+                // Act & Assert
+                expect(local.content).toBe(variables.initialFileContent);
+            });
+
+            it("should append new content to the file", function() {
+                // Arrange (setup is done in setUp())
+                local.newContent = "Appended content.";
+                variables.componentUnderTest.appendToFile(variables.testFilePath, local.newContent);
+                local.updatedContent = fileRead(variables.testFilePath);
+
+                // Act & Assert
+                expect(local.updatedContent).toBe(variables.initialFileContent & local.newContent);
+            });
+
+            it("should overwrite the existing content of the file", function() {
+                // Arrange (setup is done in setUp())
+                local.newContent = "Overwritten content.";
+                variables.componentUnderTest.writeFile(variables.testFilePath, local.newContent);
+                local.updatedContent = fileRead(variables.testFilePath);
+
+                // Act & Assert
+                expect(local.updatedContent).toBe(local.newContent);
+            });
+
+            it("should handle a non-existent file gracefully (example with mocking)", function() {
+                // Arrange
+                local.nonExistentPath = getTempDirectory() & "/non_existent_file.txt";
+                variables.componentUnderTest = mock("path.to.FileService");
+                variables.componentUnderTest.expects("readFile").withArgs(local.nonExistentPath).throws(new Exception("File not found"));
+
+                // Act & Assert
+                expect(function() { variables.componentUnderTest.readFile(local.nonExistentPath); }).toThrow("File not found");
+            });
+
+        });
+
+    }
+
+}
+```
