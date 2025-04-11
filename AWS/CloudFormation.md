@@ -347,3 +347,31 @@ Subnet2:
     CidrBlock: !Select ["1", !Cidr [!GetAtt VPC.CidrBlock, "16", "12"]]
     VpcId: !Ref VPC
 ```
+
+## CloudFormation Mappings
+
+- `Mappings` is a top level key in a CloudFormation template (along with `Resources` and `Parameters` for ex.)
+- Useful for making Cloudformation Templates portable
+- Contains many mappings of logical resources
+  - Each mapping maps keys to values allowing information lookup
+  - i.e. map 'Production' environment to a particular database configuration or specific SSH key
+- Can have top or second level keys
+  - ex: mapping of AMI IDs which have `region` and `architecture` keys
+- Use `!FindInMap` instrinsic function to lookup a value in the Mapping
+  - `!FindInMap [ MapName, ToplevelKey, SendlevelKey]`
+- Typical use case is to store an AMI lookup table you can use to use a particular AMI for a given AWS region and architecture/app/environment type etc.
+- Example of `RegionMap` in a cloudformation template under the `Mappings` top level key
+
+```yaml
+Mappings:
+  RegionMap:
+    us-east-1:
+      HVM64: "ami-12345"
+      HVMG2: "ami-456789"
+    us-west-1:
+      HVM64: "ami-j1k2j3"
+      HVMG2: "ami-udih33"
+
+# Use FindInMap to get the value:
+!FindInMap [ "RegionMap", !Ref 'AWS::Region', 'HVM64'] # retrieves the ami id in us-east-1 using HVM64 arch for example
+```
