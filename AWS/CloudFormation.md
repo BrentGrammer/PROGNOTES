@@ -215,5 +215,135 @@ Parameters: # params go under this section in the template yml
 
 ## CloudFormation Intrinsic Functions
 
+[List of Functions](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/intrinsic-function-reference.html)
+
 - Allow you to gain access to data at Run Time
-- Allows you to take action based on how things are when a template is being used to create a stack
+  - Allows you to take action based on how things are when a template is being used to create a stack
+
+### Commonly Used Functions
+
+- `Ref` and `Fn:GetAtt` (Get Attribute): Allows you to reference a logical resource from another one
+  - Ex: making sure that a subnet goes into a specific VPC, you can reference it
+  - Can use `GetAtt` to access Primary and Secondary values returned from logical resources (i.e. their Physical IDs)
+- `Fn::Join` and `Fn::Split`: Join or split strings
+  - Ex: Can take the name/IP of an EC2 instance to create a web url for people to access it (?)
+- `Fn::GetAZs` and `Fn::Select`: Get a list of Availability Zones and Select one from that list (i.e. get AZs from a region and pick one out)
+- `IF`, `And`, `Equals`, `Not`, `Or`: Conditionals you can use
+  - Ex: If the environment is Production, then deploy a bigger instance type or if Development, then deploy smaller ones etc.
+- `Fn::Base65`: Accepts non-encoded text and outputs base64 encoded text
+  - Many inputs to AWS need to be in Base64 (ex: user data scripts)
+- `Fn::Sub`: Allows you to substitute things in text based on runtime information.
+  - Ex: Passing build information into EC2 and you want to provide a value from the Template Parameters
+- `Fn::Cidr`: build CIDR ranges for networking
+- `Fn::ImportValue`
+- `Fn::FindInMap`
+- `Fn::Transform`
+
+### Using The Functions
+
+- Place a bang `!` before the function name
+
+#### Ref
+
+- Every logical resource and parameter has a main value that it returns
+  - i.e. the main value returned from creating a logical EC2 instance resource is it's ID
+  - Note: The Physical ID for a resource is usually returned as its primary value which can be accessed with the `GetAtt` function
+  - Some resources have both primary values and secondary values that they return
+- The `Ref` function can be used to reference this main value of a parameter or a logical resource
+
+```yaml
+Resources:
+  Instance:
+    Type: "AWS::EC2::Instance"
+    Properties:
+      ImageId: !Ref LatestAmiId # using ref with a parameter
+      InstanceType: "t3.micro"
+      KeyName: "A4L"
+```
+
+#### GetAtt
+
+- When an instance reaches Create Complete state, it makes available a range of data (including the primary value it returns - it's ID)
+- `!GetAtt LogicalResource.Attribute`
+  - i.e. `PublicIp` or `PublicDnsName` attributes
+
+#### GetAZs
+
+- Environmental Awareness function - useful for avoiding hard-coding AZ names you want to deploy resources into so that your template is portable
+- Ex: get a List of AZ names for a specified region, or use the Region pseudo parameter, or leave the region blank (will default to using the current region used to create the current stack)
+  - `!GetAZs "us-east-1"` - returns a list of AZ names that exist in the region
+  - **NOTE**: The list of AZs is only those where the Default VPC has subnets in that AZ
+    - Normally, this is fine unless you have configured or deleted subnets from your Default VPC (those AZs with no subnets will not be returned in the list!) - also, you NEED a default VPC!
+- After retrieving the list, use the `!Select` function to get one from the list returned
+  - Accepts a list and a index number (0-based) and will select the numbered index from the list
+
+```yaml
+Instance:
+  Type: "AWS::EC2::Instance"
+  Properties:
+    ImageId: !Ref LatestAmiId
+    InstanceType: "t3.micro"
+    AvailabilityZone: !Select [0, !GetAZs ""] # Get the list, pass it into Select and specify the index
+```
+
+#### Split
+
+- Accepts a delimiter to split on and a single string value. Returns a list
+
+```yaml
+!Split ["|", "str1|str2|str3|str4"] # returns ["str1", "str2", "str3", "str4"]
+```
+
+#### Join
+
+- Accepts a delimiter and a list of values
+
+```yaml
+WordpressURL:
+  Description: Instance Web  URL
+  Value: !Join ["", ["http://", !GetAtt Instance.DNSName]] # returns 'http://dnsname.com
+```
+
+#### Base64 with Sub
+
+- Base64 needed for things like user data scripts to convert the plain text to the accepted required base64 encoded text
+- Sub can be used to interject parameters into the text by wrapping them in `${paramName}`
+  - **YOU CANNOT SELF REFERENCE WITH SUB** - i.e. you can't reference the Instance.InstanceId for example since that resource is not created yet
+
+```yaml
+UserData:
+  Fn::Base64: !Sub |
+    #!/bin/bash -xe
+    yum -y update
+    yum -y install httpd
+    echo "${someParameter}"
+```
+
+#### Cidr
+
+- Can reference a CIDR range of a VPC (`!GetAtt VPC.CidrBlock`), tell it how many subnets to allocate and the size of the subnets and you will get an output of a list of CIDR ranges which you can use within subnets within a VPC (this way you don't have to manually allocate the ranges otherwise)
+  - Combine this with the `!Select` function to allocate those ranges to subnets individually
+- Allows you to assign CIDR ranges to subnets in a automated portable way
+- Limitations:
+  - Cannot allocate or unallocate ranges (advanced techniques can get around this)
+    - Based on the Parent VPC CIDR Range
+
+```yaml
+VPC:
+  Type: AWS::EC2::VPC
+  Properties:
+    CidrBlock: "10.16.0.0/16"
+Subnet1:
+  Type: AWS::EC2::Subnet
+  Properties:
+    # Pass Cidr function the CIDR range of the VPC, tell it 16 ranges total, with a range size of 12
+    # Use Select to pick out the first range returned in the list of possible ranges we can use
+    CidrBlock: !Select ["0", !Cidr [!GetAtt VPC.CidrBlock, "16", "12"]]
+    VpcId: !Ref VPC
+Subnet2:
+  Type: AWS::EC2::Subnet
+  Properties:
+    # for subnet 2 select the second CIDR range we can use from the list
+    CidrBlock: !Select ["1", !Cidr [!GetAtt VPC.CidrBlock, "16", "12"]]
+    VpcId: !Ref VPC
+```
