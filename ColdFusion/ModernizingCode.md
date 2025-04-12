@@ -156,6 +156,20 @@ if vite is just compiling all those js files together into dist files, it's prob
 - You can name your test files simply with `.test.js`
   - These files are only executed in a node.js runtime environment and use it's native import/export module capability
 
+### Using ES Modules natively
+
+- The `type="module"` on the `<script></script>` tag tells the browser to treat the JavaScript file as an ES Module
+- Using `.mjs` extension (as naming convention) and `<script type="module">` converts your file to an ES Module
+  - note: The file extension alone (.mjs) is not enough to make a script be treated as a module by the browser. The browser's behavior is determined by the `<script>` tag's type attribute.
+  - If you rename a file to script.mjs but do not use `<script type="module">` in your HTML, the browser will not treat it as an ES Module. It will likely try to execute it as a regular JavaScript script. This will lead to errors if you have import or export statements in your script.mjs file, because those are syntax that the browser only expects to find inside a module.
+
+```
+    .mjs + `<script type="module">` = ES Module (Correct)
+    .mjs + `<script src="script.mjs">` = (no type="module") = NOT an ES Module (Error if using import/export)
+    .js + `<script type="module">` = ES Module (Also correct)
+    .js + `<script src="script.js">` = NOT an ES Module (Standard script)
+```
+
 ### script defer
 
 - why no “document.addEventListener” for DOMContentLoaded? As it turns out, in browsers, you can load with `<script defer>` and get the same effect.
