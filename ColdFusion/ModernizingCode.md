@@ -156,6 +156,147 @@ if vite is just compiling all those js files together into dist files, it's prob
 - You can name your test files simply with `.test.js`
   - These files are only executed in a node.js runtime environment and use it's native import/export module capability
 
+### Using IIFEs to Confine Scope
+
+- Try wrapping the javascript in the files in an IIFE to prevent variable collisions
+
+```javascript
+// js/script1.js
+(function (globalApp) {
+  // All your script1.js code goes here
+
+  // can register globally available things for other scripts to see optionally
+  globalApp.something = "available to other scripts";
+
+  var localVariable1 = "value1";
+  function myFunction1() {
+    // ...
+  }
+  // No variables or functions are directly in the global scope anymore
+})(globalApp);
+
+// js/script2.js
+(function (globalApp) {
+  // All your script2.js code goes here
+
+  console.log(globalApp.something);
+  var localVariable2 = "value2";
+  function myFunction2() {
+    // ...
+  }
+})(globalApp);
+
+// ... and so on for all your .js files
+```
+
+### Testing Legacy JS
+
+- If your testing environment (Vitest) has access to the Node.js `fs` module (which it typically does), you can read the contents of your script files directly.
+
+```javascript
+import { test, expect, beforeEach } from "vitest";
+import { JSDOM } from "jsdom";
+import * as fs from "fs"; // Import the file system module
+import * as path from "path";
+
+let dom;
+let window;
+
+beforeEach(() => {
+  dom = new JSDOM(`<!DOCTYPE html><html><body></body></html>`);
+  window = dom.window;
+
+  // Simulate the global variable from the HTML
+  window.someGlobalVarUsedInScripts = "globalvalue";
+
+  // Simulate script1.js
+  const script1Path = path.join(__dirname, "js", "script1.js"); // Construct the path
+  const script1Content = fs.readFileSync(script1Path, "utf8"); // Read the file
+  new window.Function(script1Content)();
+
+  // Simulate script2.js
+  const script2Path = path.join(__dirname, "js", "script2.js");
+  const script2Content = fs.readFileSync(script2Path, "utf8");
+  new window.Function(script2Content)();
+});
+
+test("script1Func should return the correct string", () => {
+  expect(window.script1Func()).toBe("Script1: script1value");
+});
+
+test("script2Func should return the correct string with global var", () => {
+  expect(window.script2Func()).toBe("Script2: script2value and globalvalue");
+});
+```
+
+- **Changes:**
+
+  - Imported the `fs` module.
+  - Used `path.join` to construct the correct file paths (important for portability). `__dirname` is the directory of the test file.
+  - Used `fs.readFileSync` to read the file contents into a string.
+
+- **Pros:** Avoids hardcoding the script content in the test file. More maintainable.
+- **Cons:** Relies on Node.js `fs` module.
+
+* Alternative example more closely simulating how the scripts load in the DOM:
+
+```javascript
+import { test, expect, beforeEach } from "vitest";
+import { JSDOM } from "jsdom";
+import * as fs from "fs";
+import * as path from "path";
+
+let dom;
+let window;
+let document;
+
+beforeEach(async () => {
+  // Make beforeEach async
+  dom = new JSDOM(`<!DOCTYPE html><html><body></body></html>`, {
+    runScripts: "dangerously", // Needed to execute scripts in JSDOM
+    url: "http://localhost/", // Important for resolving relative paths
+  });
+  window = dom.window;
+  document = dom.window.document;
+
+  // Simulate the global variable from the HTML
+  window.someGlobalVarUsedInScripts = "globalvalue";
+
+  // Function to load and execute a script
+  const loadScript = (filePath: string): Promise<void> => {
+    return new Promise((resolve, reject) => {
+      const script = document.createElement("script");
+      script.src = filePath;
+      script.onload = () => resolve();
+      script.onerror = (err) => reject(err);
+      document.body.appendChild(script);
+    });
+  };
+
+  // Simulate loading script1.js and script2.js
+  await loadScript(path.join(__dirname, "js", "script1.js"));
+  await loadScript(path.join(__dirname, "js", "script2.js"));
+});
+
+test("script1Func should return the correct string", () => {
+  expect(window.script1Func()).toBe("Script1: script1value");
+});
+
+test("script2Func should return the correct string with global var", () => {
+  expect(window.script2Func()).toBe("Script2: script2value and globalvalue");
+});
+```
+
+- **Changes:**
+
+  - `runScripts: 'dangerously'` is added to the JSDOM constructor. This is _essential_ for JSDOM to execute the code in the `<script>` tags.
+  - A `loadScript` function is created to dynamically add `<script>` tags to the JSDOM document. This function returns a Promise to handle the asynchronous nature of script loading.
+  - `beforeEach` is made `async` to use `await` and ensure the scripts are loaded before the tests run.
+  - Instead of `new window.Function()`, we're using `document.createElement('script')` and setting the `src`.
+
+- **Pros:** More closely simulates how the browser loads and executes scripts, which can be important for testing complex scenarios or libraries.
+- **Cons:** More complex code, especially with the asynchronous script loading. `runScripts: 'dangerously'` has security implications if you're not careful (but it's generally safe in a testing environment where you control the code).
+
 ### Using ES Modules natively
 
 - The `type="module"` on the `<script></script>` tag tells the browser to treat the JavaScript file as an ES Module
