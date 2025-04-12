@@ -414,7 +414,7 @@ Resources:
 Parameters:
   LatestAmiId: # Parameter name referenced under Instance block
     Description: "AMI for EC2"
-    Type: "AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>" # GOOD: provide Defaults
+    Type: "AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>" # GOOD: provide Defaults and reference Parameters (can be set by users or fallback to default defined below)
     Default: "/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2" # Good Practice to include defaults so user does not have to input parameters
 Resources:
   Bucket:
