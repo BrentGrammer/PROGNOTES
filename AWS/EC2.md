@@ -576,7 +576,7 @@ ec2-metadata -s # show any security groups launched with the instance
 
 # Bootstrapping EC2 Instances (User data)
 
-- Starting an EC2 with scripts when an instance is first launched (every time it Starts)
+- Starting an EC2 with scripts when an instance is first launched (not necessarily every time it stops/starts - you need to enable that explicitly somehow)
 - "Bootstrapping": A system self-configures or performs some self-configuration steps
 - EC2 Bootstrapping allows for build automation (steps that occur to bring the instance into a configured state)
   - Different from relying on an AMI in a configured state - a way to automate initial configuration tasks without requiring you to bake everything into an image beforehand (gives you a lightweight, flexible way to set up an instance on-the-fly without modifying the base AMI)
@@ -592,7 +592,7 @@ ec2-metadata -s # show any security groups launched with the instance
 - User data is data you can pass into an EC2 instance
   - The user data passed in is run as a script by the instance's operating system
   - Anything in User Data is executed by the instance
-- **EXECUTED ONLY ONCE AT INSTANCE LAUNCH TIME (every time it starts. This includes stopping and starting the instance)**
+- **EXECUTED ONLY ONCE AT INSTANCE LAUNCH TIME**
   - If you change/update user data and restart the instance, it is NOT executed again! It only executed on the initial launch of the instance
   - User data can be modified (if you shut down/stop the instance, change the user data, and start the instance up again, the new data is available inside the instance's user data). Again, it is only EXECUTED ONCE on launch and not again. This is not very useful outside of post-launch configuration and not the best way to pass data in afterwards.
 - Limited to 16KB in size
@@ -600,8 +600,10 @@ ec2-metadata -s # show any security groups launched with the instance
 
 ### Checking User Data Error logs
 
-- logs are in /var/cloud-init-output.log
+- logs are in /var/cloud-init-output.log and /var/log/cloud-init.log
 - `cat /var/log/cloud-init-output.log | grep user`
+- Logs are also at `cat /var/log/cloud-init.log`
+- Check the user data loaded at `curl http://169.254.169.254/latest/user-data`
 
 ### User Data considerations/risks
 

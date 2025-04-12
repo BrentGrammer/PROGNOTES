@@ -375,3 +375,53 @@ Mappings:
 # Use FindInMap to get the value:
 !FindInMap [ "RegionMap", !Ref 'AWS::Region', 'HVM64'] # retrieves the ami id in us-east-1 using HVM64 arch for example
 ```
+
+### CloudFormation Outputs
+
+- Optional section with information output information about resources created
+- Declare values in this section which will be visible as outputs when using the CLI or AWS Console UI
+- **Accessible from a parent stack when you use nesting**
+- **Can be exported to allow cross-stack referencing of them**
+
+```yaml
+Outputs:
+  WordPressURL: # define an output (you name this)
+    Description: "Instance Web URL" # Description is visible in the CLI/UI Console and passed back to the parent stack when nesting is used
+    Value: !Join ["", ["https://", !GetAtt Instance.DNSName]] # Value is what you want to be exposed by the stack once it is in a Create Complete state. This allows us to access the url that was created from this template
+```
+
+## CloudFormation Best Practices
+
+- Where possible do not name anything in your template to keep it portable
+  - **Allow AWS to create Physical resource IDs and names for you**
+- Do not use anything Regional Specific - AMI IDs or key names (get these as parameter values with a suitable default to start with)
+- Use built in CloudFormation references to dynamically get latest and regional appropriate values automatically
+
+```yaml
+Resources:
+  Bucket:
+    Type: "AWS::S3::Bucket"
+    Properties:
+      BucketName: "accatpics1333333337" # BAD: not Poratable!
+  Instance:
+    Type: "AWS::EC2::Instance"
+    Properties:
+      InstanceType: "t2.micro"
+      ImageId: "ami-090fa75af13c156b4" # Bad: do not provide specific IDs to your template
+```
+
+```yaml
+Parameters:
+  LatestAmiId: # Parameter name referenced under Instance block
+    Description: "AMI for EC2"
+    Type: "AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>" # GOOD: provide Defaults
+    Default: "/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2" # Good Practice to include defaults so user does not have to input parameters
+Resources:
+  Bucket:
+    Type: "AWS::S3::Bucket" # GOOD: Do not specify a bucket name, leave Properties.BucketName out and let AWS create a physical resource name/ID for you automatically!
+  Instance:
+    Type: "AWS::EC2::Instance"
+    Properties:
+      InstanceType: "t2.micro"
+      ImageId: !Ref "LatestAmiId" # This will give you a physical ID as defined in the LatestAMIId default above, for example, for the latest AMazon AMI in the region you are creating the stack in
+```
