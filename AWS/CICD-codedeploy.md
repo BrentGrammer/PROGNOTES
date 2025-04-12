@@ -12,8 +12,12 @@
   - https://docs.aws.amazon.com/codebuild/latest/userguide/build-spec-ref.html
   - Can be part of your source code commited or defined when you create a build project in AWS
 - `appspec.yml` or `appspec.json` - spec for CodeDeploy
+
   - https://docs.aws.amazon.com/codedeploy/latest/userguide/reference-appspec-file.html
   - Influences how the deployment of code occurs
+
+- NOTE: the location field for hooks (e.g., scripts) points to files in the deployment bundle, which CodeDeploy extracts to a staging directory (e.g., `/opt/codedeploy-agent/deployment-root/.../yourscript.sh`) before running any hooks.
+- CodeDeploy runs your script files from the staging directory
 
 ## CodeDeploy
 
@@ -58,6 +62,8 @@
 - `ApplicationStop` (used to prepare for the deployment itself), `DonwloadBundle` (when code deploy agent copies app down to temporary location), `BeforeInstall` (pre-installation tasks, create backups, etc.), `Install` (code deploy agent copies app files from temp location to destination folder, cannot run any scripts during this step), `AfterInstall` (perform post install steps, app specific config or changing file permissions, etc.), `ApplicationStart` (restart or start services stopped during the `ApplicationStop` event), `ValidateService` (verify deployment completed successfully, check logs etc.)
   - For EC2 deployment, runs one or more scripts for each of the hooks
   - If deploying to lambda or ECS, each hook specifies lambda functions to run on the event
+- **NOTE:** the location field for hooks (e.g., scripts) points to files in the deployment bundle, which CodeDeploy extracts to a staging directory (e.g., `/opt/codedeploy-agent/deployment-root/.../yourscript.sh`) before running any hooks.
+- CodeDeploy runs your script files from the staging directory
 
 ## Code Commit
 
