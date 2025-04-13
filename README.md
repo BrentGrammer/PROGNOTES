@@ -2,7 +2,7 @@
 
 ## Table of Contents
 
-- [A.I](./AI)
+- [A.I.](./AI)
   - [LLMs](./AI/LLMs.md)
 - [Architecture](./Architecture/)
   - [Component Design](./Architecture/ComponentDesign/)
