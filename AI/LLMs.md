@@ -17,10 +17,10 @@
 - Imagine you're building a chatbot to help people with cooking questions. You want it to give accurate, specific answers based on a collection of 50 recipe PDFs you've got. Here's how you could set up a basic RAG system:
 
 1. Setup: You start by turning those 50 recipe PDFs into a searchable format. You use a tool to extract the text and break it into chunks (like paragraphs or recipes). Then, you store these chunks in a database with a search feature—something like a vector database that can find text based on meaning, not just keywords.
-   - User Asks a Question: Someone types, `"How do I make a quick pasta sauce?"` The chatbot takes this question as the prompt.
-   - Retrieval Step: The system searches the database of recipe chunks for anything relevant to "quick pasta sauce." It might find a chunk from one PDF that says, "For a fast marinara, simmer canned tomatoes with garlic and olive oil for 10 minutes." The search picks this because it matches the meaning of the question.
-2. Pass to the LLM: That retrieved chunk ("simmer canned tomatoes...") gets added to the prompt. So now, instead of just seeing `"How do I make a quick pasta sauce?"` the LLM gets something like: `"Using this info—‘For a fast marinara, simmer canned tomatoes with garlic and olive oil for 10 minutes'—answer: How do I make a quick pasta sauce?"`
-3. Generation Step: The LLM reads the prompt with the extra context and generates an answer: "To make a quick pasta sauce, simmer canned tomatoes with garlic and olive oil for 10 minutes. Add salt or herbs if you like!"
+   - **User Asks a Question:** Someone types, `"How do I make a quick pasta sauce?"` The chatbot takes this question as the prompt.
+2. **Retrieval Step:** The system searches the database of recipe chunks for anything relevant to "quick pasta sauce." It might find a chunk from one PDF that says, "For a fast marinara, simmer canned tomatoes with garlic and olive oil for 10 minutes." The search picks this because it matches the meaning of the question.
+3. Pass to the LLM: That retrieved chunk ("simmer canned tomatoes...") gets added to the prompt. So now, instead of just seeing `"How do I make a quick pasta sauce?"` the LLM gets something like: `"Using this info—‘For a fast marinara, simmer canned tomatoes with garlic and olive oil for 10 minutes'—answer: How do I make a quick pasta sauce?"`
+4. Generation Step: The LLM reads the prompt with the extra context and generates an answer: "To make a quick pasta sauce, simmer canned tomatoes with garlic and olive oil for 10 minutes. Add salt or herbs if you like!"
 
 #### Step 1: Turning Text into Vectors (Associating Meaning)
 
