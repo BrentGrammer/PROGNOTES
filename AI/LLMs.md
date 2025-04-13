@@ -20,12 +20,12 @@
    - **User Asks a Question:** Someone types, `"How do I make a quick pasta sauce?"` The chatbot takes this question as the prompt.
 2. **Retrieval Step:** The system searches the database of recipe chunks for anything relevant to "quick pasta sauce." It might find a chunk from one PDF that says, "For a fast marinara, simmer canned tomatoes with garlic and olive oil for 10 minutes." The search picks this because it matches the meaning of the question.
 3. Pass to the LLM: That retrieved chunk ("simmer canned tomatoes...") gets added to the prompt. So now, instead of just seeing `"How do I make a quick pasta sauce?"` the LLM gets something like: `"Using this info—'For a fast marinara, simmer canned tomatoes with garlic and olive oil for 10 minutes'—answer: How do I make a quick pasta sauce?"`
-4. Generation Step: The LLM reads the prompt with the extra context and generates an answer: "To make a quick pasta sauce, simmer canned tomatoes with garlic and olive oil for 10 minutes. Add salt or herbs if you like!"
+4. Generation Step: The LLM reads the prompt with the extra context and generates an answer: `"To make a quick pasta sauce, simmer canned tomatoes with garlic and olive oil for 10 minutes. Add salt or herbs if you like!"`
 
 #### Step 1: Turning Text into Vectors (Associating Meaning)
 
 A vector database doesn't store plain text—it stores numbers that represent the meaning of the text.
-Tool: You use something like a pre-trained model (e.g., a simple one from the sentence-transformers library in Python) to convert each snippet into a vector.
+Tool: You use something like a pre-trained model (e.g., a simple one from the `sentence-transformers` library in Python) to convert each snippet into a vector.
 
 - **VECTOR**: A **vector** is just a list of numbers (like [0.1, -0.5, 0.8, ...]) that captures the "meaning" of the text based on patterns it's learned from tons of data.
 - Example:
@@ -33,6 +33,15 @@ Tool: You use something like a pre-trained model (e.g., a simple one from the se
   - Snippet 2 `("bake chicken...")` might be `[0.5, -0.3, 0.9, ...]`.
   - Snippet 3 `("creamy soup...")` might be `[-0.1, 0.4, 0.6, ...]`.
 - How Meaning Works: The model makes similar ideas (like "marinara" and "pasta sauce") have vectors that are close together in this number space, while unrelated ideas (like "chicken" and "soup") are farther apart. It's not about exact words—it's about concepts.
+
+### Visualizing the Vector Space
+
+Imagine a giant 3D cloud (really 384D, for ex.):
+Each word or sentence is a dot.
+
+- Dots cluster based on how they're used in real text—like `"apple"` near `"orange," `far from `"truck."`
+- The model learns this layout by seeing billions of examples, not by human hands plotting it.
+- So, in the code example, `model.encode("quick pasta sauce")` spits out a vector because the model already knows—from its training—where `"pasta sauce"` fits in the meaning-space relative to everything else.
 
 #### Step 2: Storing in a Vector Database
 
@@ -141,11 +150,4 @@ They end up close because the model's training taught it that "pasta sauce" and 
   - Compare Vectors: If two vectors are close (using math like cosine similarity), the model assumes the meanings are similar. That's how FAISS found `"marinara"` for `"pasta sauce."`
   - Generate Text: The LLM uses the vectors as input to produce an answer
 
-### Visualizing the Vector Space
 
-Imagine a giant 3D cloud (really 384D, for ex.):
-Each word or sentence is a dot.
-
-- Dots cluster based on how they're used in real text—like `"apple"` near `"orange," `far from `"truck."`
-- The model learns this layout by seeing billions of examples, not by human hands plotting it.
-- So, in the code example, `model.encode("quick pasta sauce")` spits out a vector because the model already knows—from its training—where `"pasta sauce"` fits in the meaning-space relative to everything else.
