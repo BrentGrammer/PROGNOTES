@@ -19,7 +19,7 @@
 1. Setup: You start by turning those 50 recipe PDFs into a searchable format. You use a tool to extract the text and break it into chunks (like paragraphs or recipes). Then, you store these chunks in a database with a search feature—something like a vector database that can find text based on meaning, not just keywords.
    - **User Asks a Question:** Someone types, `"How do I make a quick pasta sauce?"` The chatbot takes this question as the prompt.
 2. **Retrieval Step:** The system searches the database of recipe chunks for anything relevant to "quick pasta sauce." It might find a chunk from one PDF that says, "For a fast marinara, simmer canned tomatoes with garlic and olive oil for 10 minutes." The search picks this because it matches the meaning of the question.
-3. Pass to the LLM: That retrieved chunk ("simmer canned tomatoes...") gets added to the prompt. So now, instead of just seeing `"How do I make a quick pasta sauce?"` the LLM gets something like: `"Using this info—‘For a fast marinara, simmer canned tomatoes with garlic and olive oil for 10 minutes'—answer: How do I make a quick pasta sauce?"`
+3. Pass to the LLM: That retrieved chunk ("simmer canned tomatoes...") gets added to the prompt. So now, instead of just seeing `"How do I make a quick pasta sauce?"` the LLM gets something like: `"Using this info—'For a fast marinara, simmer canned tomatoes with garlic and olive oil for 10 minutes'—answer: How do I make a quick pasta sauce?"`
 4. Generation Step: The LLM reads the prompt with the extra context and generates an answer: "To make a quick pasta sauce, simmer canned tomatoes with garlic and olive oil for 10 minutes. Add salt or herbs if you like!"
 
 #### Step 1: Turning Text into Vectors (Associating Meaning)
@@ -55,7 +55,7 @@ Tool: Use a simple vector database like FAISS (a free library from Facebook) or 
 #### Step 4: Fetch and Pass to LLM
 
 - Result: The database returns Snippet 1: `"For a fast marinara, simmer canned tomatoes with garlic and olive oil for 10 minutes."`
-- Prompt: You feed this to the LLM with the question: `"Using ‘For a fast marinara, simmer canned tomatoes with garlic and olive oil for 10 minutes,' answer: How do I make a quick pasta sauce?"`
+- Prompt: You feed this to the LLM with the question: `"Using 'For a fast marinara, simmer canned tomatoes with garlic and olive oil for 10 minutes,' answer: How do I make a quick pasta sauce?"`
 - Answer: The LLM says, `"Simmer canned tomatoes with garlic and olive oil for 10 minutes for a quick pasta sauce."`
 
 ```python
@@ -132,7 +132,7 @@ They end up close because the model's training taught it that "pasta sauce" and 
     The model tweaks the vectors so `cat` = `[0.1, 0.5, -0.2, ...]` and `car` = `[0.8, -0.3, 0.9, ...]` end up far apart, while `cat` and `kitten` = `[0.15, 0.45, -0.25, ...]` are close. It's all automatic, driven by processes like gradient descent over millions of examples.
 - Not Word-by-Word Numbers
   - **Here's the key:** the individual numbers in a vector (like `0.1` or `-0.2`) don't directly "represent" specific words or features in a way which can be decoded by hand. Instead:
-    Each Number Is Part of a Team: The meaning comes from the whole vector—all 384 numbers (or however many) working together. You can't say "0.1 means ‘noun'" or "-0.2 means ‘animal.'" It's more abstract.
+    Each Number Is Part of a Team: The meaning comes from the whole vector—all 384 numbers (or however many) working together. You can't say "0.1 means 'noun'" or "-0.2 means 'animal.'" It's more abstract.
 - Context Matters: Early models (like Word2Vec) gave one vector per word, but modern ones (like `sentence-transformers`) adjust vectors based on the sentence. So "bank" in "river bank" gets a different vector than "bank" in "money bank," because it learns from context.
 - Humans don't assign coordinates or place words in the vector space. there are millions of words and phrases, and meanings shift subtly. Instead:
 - The model starts with random vectors and refines them over time, using math to minimize prediction errors. After training, "dog" and "puppy" naturally end up close because they're used similarly in the data.
