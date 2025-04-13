@@ -34,7 +34,7 @@ Tool: You use something like a pre-trained model (e.g., a simple one from the `s
   - Snippet 3 `("creamy soup...")` might be `[-0.1, 0.4, 0.6, ...]`.
 - How Meaning Works: The model makes similar ideas (like "marinara" and "pasta sauce") have vectors that are close together in this number space, while unrelated ideas (like "chicken" and "soup") are farther apart. It's not about exact words—it's about concepts.
 
-### Visualizing the Vector Space
+#### Visualizing the Vector Space
 
 Imagine a giant 3D cloud (really 384D, for ex.):
 Each word or sentence is a dot.
