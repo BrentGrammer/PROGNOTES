@@ -8,7 +8,7 @@
 
 - RAG is a way to make an AI look up extra info before answering you.
 - instead of just relying on what the llm already knows, it can grab relevant facts from a pile of documents or data and use that to give you a better answer.
-- simple example: you ask, "What's the best way to cook a potato?" Without RAG, the LLM would just use general knowledge and say something like, "Boil it or bake it." With RAG, it could first search a recipe database, find a specific tip like "Bake it at 400°F for 45 minutes with salt and oil for crispy skin," and then tell you that.
+- simple example: you ask, `"What's the best way to cook a potato?"` Without RAG, the LLM would just use general knowledge and say something like, `"Boil it or bake it."` With RAG, it could first search a recipe database, find a specific tip like `"Bake it at 400°F for 45 minutes with salt and oil for crispy skin,"` and then tell you that.
   - The retrieval part is fetching that extra info, and the generation part is it turning it into a clear answer for you.
 - RAG is about passing context to an LLM, but it's specifically about fetching that context from somewhere (like a search) rather than just having it handed over in the prompt.
 
@@ -29,9 +29,9 @@ Tool: You use something like a pre-trained model (e.g., a simple one from the se
 
 - **VECTOR**: A **vector** is just a list of numbers (like [0.1, -0.5, 0.8, ...]) that captures the "meaning" of the text based on patterns it's learned from tons of data.
 - Example:
-  - Snippet 1 ("fast marinara...") might become a vector like [0.2, 0.7, -0.1, ...] (say, 384 numbers long).
-  - Snippet 2 ("bake chicken...") might be [0.5, -0.3, 0.9, ...].
-  - Snippet 3 ("creamy soup...") might be [-0.1, 0.4, 0.6, ...].
+  - Snippet 1 `("fast marinara...")` might become a vector like `[0.2, 0.7, -0.1, ...]` (say, 384 numbers long).
+  - Snippet 2 `("bake chicken...")` might be `[0.5, -0.3, 0.9, ...]`.
+  - Snippet 3 `("creamy soup...")` might be `[-0.1, 0.4, 0.6, ...]`.
 - How Meaning Works: The model makes similar ideas (like "marinara" and "pasta sauce") have vectors that are close together in this number space, while unrelated ideas (like "chicken" and "soup") are farther apart. It's not about exact words—it's about concepts.
 
 #### Step 2: Storing in a Vector Database
@@ -39,18 +39,18 @@ Tool: You use something like a pre-trained model (e.g., a simple one from the se
 Tool: Use a simple vector database like FAISS (a free library from Facebook) or Chroma (another easy option).
 
 - Process: You load the vectors into the database with labels pointing back to the original snippets. So:
-  - Vector [0.2, 0.7, -0.1, ...] → Snippet 1.
-  - Vector [0.5, -0.3, 0.9, ...] → Snippet 2.
-  - Vector [-0.1, 0.4, 0.6, ...] → Snippet 3.
+  - Vector `[0.2, 0.7, -0.1, ...]` → Snippet 1.
+  - Vector `[0.5, -0.3, 0.9, ...]` → Snippet 2.
+  - Vector `[-0.1, 0.4, 0.6, ...]` → Snippet 3.
 - Think of the database as a big 3D map (though it's really 384D or more). Each vector is a dot, and dots with similar meanings are clustered together.
 
 #### Step 3: Querying with a Question
 
 - User Asks: `"How do I make a quick pasta sauce?"`
-- Convert to Vector: The same model turns this question into a vector, say [0.25, 0.65, -0.05, ...].
+- Convert to Vector: The same model turns this question into a vector, say `[0.25, 0.65, -0.05, ...]`.
 - Search: The vector database (e.g., FAISS) compares this question vector to all stored vectors using math (like cosine similarity).
   - It finds the closest match:
-    - [0.25, 0.65, -0.05, ...] (question) is closest to [0.2, 0.7, -0.1, ...] (Snippet 1), because "quick pasta sauce" and "fast marinara" have similar meanings.
+    - `[0.25, 0.65, -0.05, ...]` (question) is closest to `[0.2, 0.7, -0.1, ...]` (Snippet 1), because "quick pasta sauce" and "fast marinara" have similar meanings.
 
 #### Step 4: Fetch and Pass to LLM
 
@@ -111,34 +111,34 @@ They end up close because the model's training taught it that "pasta sauce" and 
 - the model looks at tons of text examples and notices that words (or phrases) repeatedly used with the same context—the same surrounding words or patterns—get assigned vectors that are close together in the vector space. It's all about spotting those consistent relationships in the data.
 
   - For instance:
-    If "dog" and "puppy" keep showing up near words like "bark," "leash," or "pet" across millions of sentences, their vectors end up close.
-    Meanwhile, "dog" and "car" don't share much context (one's with "fetch," the other's with "drive"), so their vectors drift apart.
+    If `"dog"` and `"puppy"` keep showing up near words like `"bark," "leash,"` or `"pet"` across millions of sentences, their vectors end up close.
+    Meanwhile, `"dog"` and `"car"` don't share much context (one's with `"fetch,"` the other's with `"drive"`), so their vectors drift apart.
     The model doesn't need anyone to tell it what's similar—it figures that out by crunching the numbers on how words hang out together in real-world text.
 
 - Think of the vector space like a stretchy, infinite 3D map (really 384D or more):
-- No Fixed Dots for Combos: There aren't separate dots for (dog, fetch) or (dog, leash). Instead, "dog" is like a dot that moves a little depending on its neighbors in the sentence.
-- Clusters by Meaning: Sentences or words with similar vibes (like "dog fetches" and "puppy retrieves") end up in nearby regions, but the exact spot is calculated fresh each time based on the input.
-- One Dot per Input: For example, in a recipe related query and RAG context, each recipe snippet (e.g., "fast marinara...") gets one vector, and the question prompt about a recipe gets one vector. The database finds the closest match—no need to predefine every possible pair or trio.
+- No Fixed Dots for Combos: There aren't separate dots for (`dog`, `fetch`) or (`dog`, `leash`). Instead, `"dog"` is like a dot that moves a little depending on its neighbors in the sentence.
+- Clusters by Meaning: Sentences or words with similar vibes (like `"dog fetches"` and `"puppy retrieves"`) end up in nearby regions, but the exact spot is calculated fresh each time based on the input.
+- One Dot per Input: For example, in a recipe related query and RAG context, each recipe snippet (e.g., `"fast marinara..."`) gets one vector, and the question prompt about a recipe gets one vector. The database finds the closest match—no need to predefine every possible pair or trio.
 
 ### Assembling Vector Spaces and Trained Vector Sets
 
 - The vectors in models like `sentence-transformers` (or bigger ones like `BERT`) aren't built by humans sitting down and assigning coordinates to words. Instead, they're created through training using machine learning.
 - Training Data: The model is fed massive amounts of text—like books, websites, or Wikipedia. billions of sentences.
 - Learning Patterns: The model (a neural network) is trained to predict things, like `"What word comes next?"` or `"Does this sentence make sense?"` As it does this, it adjusts millions of internal parameters to get better at guessing.
-- Meaning Emerges: While training, the model learns to represent words (and later sentences) as vectors—lists of numbers (how many dimensions, i.e. 384D etc.). It figures out that words with similar meanings (like "cat" and "kitten") should have similar vectors, and unrelated ones (like "cat" and "car") should be different. This happens because similar words tend to appear in similar contexts in the training data.
+- Meaning Emerges: While training, the model learns to represent words (and later sentences) as vectors—lists of numbers (how many dimensions, i.e. 384D etc.). It figures out that words with similar meanings (like `"cat"` and `"kitten"`) should have similar vectors, and unrelated ones (like `"cat"` and `"car"`) should be different. This happens because similar words tend to appear in similar contexts in the training data.
 - Vector Space: The result is a "vector space" where each word or sentence gets a unique spot (a vector). The distances between these spots reflect how related the meanings are—close for similar, far for different. No human decides this; the model learns it from the patterns in the data.
 - Example of How It Learns
-  - In the training data, "cat" often appears near words like "purr," "meow," or "pet," while "car" shows up near "drive," "road," or "engine."
-    The model tweaks the vectors so cat = [0.1, 0.5, -0.2, ...] and car = [0.8, -0.3, 0.9, ...] end up far apart, while cat and kitten = [0.15, 0.45, -0.25, ...] are close. It's all automatic, driven by processes like gradient descent over millions of examples.
+  - In the training data, "cat" often appears near words like `"purr," "meow,"` or `"pet,"` while `"car"` shows up near `"drive," "road,"` or `"engine."`
+    The model tweaks the vectors so `cat` = `[0.1, 0.5, -0.2, ...]` and `car` = `[0.8, -0.3, 0.9, ...]` end up far apart, while `cat` and `kitten` = `[0.15, 0.45, -0.25, ...]` are close. It's all automatic, driven by processes like gradient descent over millions of examples.
 - Not Word-by-Word Numbers
-  - **Here's the key:** the individual numbers in a vector (like 0.1 or -0.2) don't directly "represent" specific words or features in a way which can be decoded by hand. Instead:
+  - **Here's the key:** the individual numbers in a vector (like `0.1` or `-0.2`) don't directly "represent" specific words or features in a way which can be decoded by hand. Instead:
     Each Number Is Part of a Team: The meaning comes from the whole vector—all 384 numbers (or however many) working together. You can't say "0.1 means ‘noun'" or "-0.2 means ‘animal.'" It's more abstract.
 - Context Matters: Early models (like Word2Vec) gave one vector per word, but modern ones (like `sentence-transformers`) adjust vectors based on the sentence. So "bank" in "river bank" gets a different vector than "bank" in "money bank," because it learns from context.
 - Humans don't assign coordinates or place words in the vector space. there are millions of words and phrases, and meanings shift subtly. Instead:
 - The model starts with random vectors and refines them over time, using math to minimize prediction errors. After training, "dog" and "puppy" naturally end up close because they're used similarly in the data.
 - Pre-Trained Models: Libraries like `sentence-transformers` give you a model already trained by experts on huge datasets. You just use it "as is" to turn your text into vectors—no need to train it yourself unless you want to tweak it.
-- You don't really "decode" what each number means—it's not like a codebook where 0.5 = "food." The decoding happens when you:
-  - Compare Vectors: If two vectors are close (using math like cosine similarity), the model assumes the meanings are similar. That's how FAISS found "marinara" for "pasta sauce."
+- You don't really "decode" what each number means—it's not like a codebook where `0.5` = `"food."` The decoding happens when you:
+  - Compare Vectors: If two vectors are close (using math like cosine similarity), the model assumes the meanings are similar. That's how FAISS found `"marinara"` for `"pasta sauce."`
   - Generate Text: The LLM uses the vectors as input to produce an answer
 
 ### Visualizing the Vector Space
@@ -146,6 +146,6 @@ They end up close because the model's training taught it that "pasta sauce" and 
 Imagine a giant 3D cloud (really 384D, for ex.):
 Each word or sentence is a dot.
 
-- Dots cluster based on how they're used in real text—like "apple" near "orange," far from "truck."
+- Dots cluster based on how they're used in real text—like `"apple"` near `"orange," `far from `"truck."`
 - The model learns this layout by seeing billions of examples, not by human hands plotting it.
-- So, in the code example, `model.encode("quick pasta sauce")` spits out a vector because the model already knows—from its training—where "pasta sauce" fits in the meaning-space relative to everything else.
+- So, in the code example, `model.encode("quick pasta sauce")` spits out a vector because the model already knows—from its training—where `"pasta sauce"` fits in the meaning-space relative to everything else.
