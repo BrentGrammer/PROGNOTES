@@ -51,7 +51,6 @@ Tool: Use a simple vector database like FAISS (a free library from Facebook) or 
   - Vector `[0.2, 0.7, -0.1, ...]` → Snippet 1.
   - Vector `[0.5, -0.3, 0.9, ...]` → Snippet 2.
   - Vector `[-0.1, 0.4, 0.6, ...]` → Snippet 3.
-- Think of the database as a big 3D map (though it's really 384D or more). Each vector is a dot, and dots with similar meanings are clustered together.
 
 #### Step 3: Querying with a Question
 
@@ -59,7 +58,7 @@ Tool: Use a simple vector database like FAISS (a free library from Facebook) or 
 - Convert to Vector: The same model turns this question into a vector, say `[0.25, 0.65, -0.05, ...]`.
 - Search: The vector database (e.g., FAISS) compares this question vector to all stored vectors using math (like cosine similarity).
   - It finds the closest match:
-    - `[0.25, 0.65, -0.05, ...]` (question) is closest to `[0.2, 0.7, -0.1, ...]` (Snippet 1), because "quick pasta sauce" and "fast marinara" have similar meanings.
+    - `[0.25, 0.65, -0.05, ...]` (question) is closest to `[0.2, 0.7, -0.1, ...]` (Snippet 1), because `"quick pasta sauce"` and `"fast marinara"` have similar meanings.
 
 #### Step 4: Fetch and Pass to LLM
 

@@ -4,6 +4,39 @@
 
 - Works out of the box. No setup or config needed for WWW http requests sent from a container
 
+#### NOTE and WARNING on Exposing Ports:
+
+Never expose ports via docker containers like this
+
+```yaml
+ports:
+  - "3000:3000"
+```
+
+Doing so allows the container to bypass any firewall rules set on the host. If you must have external access to a container, do it like this:
+
+```yaml
+ports:
+  - "127.0.0.1:3000:3000"
+```
+
+This configuration binds the service to localhost, preventing access via ip:3000 from outside your server.
+
+- You can also disable this behavior by passing this flag to the docker daemon and it won't mess with your iptables rules.
+
+```shell
+--iptables=false
+```
+
+There is an equivalent setting for
+`/etc/docker/daemon.json`, which is probably easier (eg if using the systemd service)
+
+```json
+"iptables": false
+```
+
+(there are other commands for forwarding, ipmasq, etc)
+
 ## Communicating with non-containerized Services on the host machine (localhost)
 
 - Replace requests to `localhost` with `host.docker.internal`
