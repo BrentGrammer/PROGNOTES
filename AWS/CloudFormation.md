@@ -425,3 +425,170 @@ Resources:
       InstanceType: "t2.micro"
       ImageId: !Ref "LatestAmiId" # This will give you a physical ID as defined in the LatestAMIId default above, for example, for the latest AMazon AMI in the region you are creating the stack in
 ```
+
+## CloudFormation Conditions
+
+- Allows you to deploy what resources are created and how they're created based on conditions
+  - PROD or DEV environments, etc.
+  - Whether a parameter passed in is a certain value
+- part of the optional `Conditions` section of a cloudformation template
+- Conditions are evaluated in the end as TRUE or FALSE
+- Conditions are evaluated BEFORE logical and physical resources are created in a CloudFormation template process
+  - Conditions are evaluated first and any resources that reference those conditions will be influenced
+  - Any logical resource can have a Condition associated with them and that condition decides whether they are created or not, if the condition is TRUE or FALSE
+- Conditions can be nested and evaluate to TRUE or FALSE depending on whether other conditions are TRUE or FALSE
+
+### The Condition Functions
+
+- `AND`
+- `EQUALS`
+- `IF`
+- `NOT`
+- `OR`
+
+### Condition example
+
+- 3 components to using conditions: Parameters, Conditions, Resources.Condition
+
+```yaml
+# Parameter to use for the condition
+Parameters:
+  EnvType:
+    Default: "dev"
+    Type: String
+    AllowedValued:
+      - "dev"
+      - "prod"
+
+# Conditions
+Conditions:
+  IsProd: !Equals # name the condition and use an intrinsic function
+    - !Ref EnvType # reference the parameter value
+    - "prod" # specify EnvType must equal 'prod' for this condition to return True
+
+# Resources.condition:
+Resources:
+  Wordpress: # this resource has no condition so it is ALWAYS created regardless
+    Type: "AWS::EC2::Instance"
+    Properties:
+      ImageId: "ami-12345"
+  Wordpress2:
+    Type: "AWS::EC2::Instance"
+    Condition: IsProd # reference the condition name - this resource will be created if TRUE
+    Properties:
+      ImageId: "ami-12345"
+```
+
+## Depends On
+
+- By default, CloudFormation tries to create, update and delete resources in Parallel
+- The order of dependencies is inferred initially based on references
+  - If a EC2 instance references a Subnet and a Subnet references a VPC, it knows to create the VPC first, then the subnet and then the EC2 instance
+  - **You cannot reference a resource until it's in a create complete state**, so if there are `!Ref` entries then CloudFormation assumes those resources ref'd must be created first - **implicit dependency**
+- `DependsOn` allows you to explicitly tell CloudFormation to wait on creating resources if they depend on others
+
+### Common use case for DependsOn
+
+- Most of the time, the **implicit dependency** order works in CloudFormation, but there are some cases where it doesn't
+- Common case is creating an Elastic IP associated with a EC2 instance in a subnet - this requires an Internet Gateway to be created FIRST
+  - This can cause cases where creating or deleting stacks sometimes works and sometimes it doesn't
+  - If the Elastic IP is created before the Internet Gateway attachment is created, you'll get an error
+- You need to explicitly define `DependsOn` in this scenario to avoid random errors due to the random parallel creation order
+  - This will not only gaurantee correct order in creation, but also in updating and deleting in the correct order
+  - Note: you can have a list of DependsOn resources or a single resource specified
+
+```yaml
+WPEIP:
+  Type: AWS::EC2::EIP
+  DependsOn: InternetGatewayAttachment # Explicitly depend on the internet gateway attachment being created
+  Properties:
+    InstanceId: !Ref WordPressEC2
+InternetGatewayAttachment: # definition of what EIP depends on
+  Type: "AWS::EC2::VPCGatewayAttachment"
+  Properties:
+    VpcId: !Ref VPC
+    IntergetGatewayId: !Ref InternetGateway
+VPC: # referenced with !Ref, so implicit dependency and will be created before InternetGatewayAttachment
+  ...
+InternetGateway: # referenced with !Ref, so will be created before InternetGatewayAttachment
+  ...
+```
+
+## Creation Policies, Wait Conditions, CloudFormation Signals (cfn-signals)
+
+- When a logical resource is provisioned initially it goes into a CREATE_COMPLETE state and tells CloudFormation that it is created.
+  - The resource may have to perform further bootstrapping processes (custom bootstrapping or user-data scripts, etc.) in order to be in a true complete state, though, but there is no built-in way to tell CloudFormation about when that is done
+- Creation Policies, Wait Conditions and cfn-signals allow us to send more signals to Cloudformation to tell it whether the resource really is done and in a create complete state or not.
+- Generally recommended to use CreationPolicies over WaitConditions since they are simpler to manage, but sometimes you need the extra functionality of WaitConditions
+
+### CloudFormation Signals
+
+- Sent via the cfn-signal command (included in the aws-cfn-bootstrap package)
+- Configures cloudformation to pause/hold depending on a certain number of `success` signals
+- Can configure a logical resource to wait for a Timeout - `Hours:Minutes:Seconds` - 12 hour max - during which those signals can be received
+- If the number of success signals is received within the Timeout period, the status of the logical resource changes to `CREATE_COMPLETE`
+  - You configure `cfn-signal` utility on an instance to send these signals to CloudFormation
+- If a Failure signal is sent or timeout is exceeded, then the entire stack fails
+- The thing being signaled is a logical resource (EC2, Autoscaling groups, etc.) using a CreatePolicy or a
+
+#### Creation Policy vs. Wait Condition
+
+- separate logical resource called a WaitCondition resource
+  - For signaling EC2 instances, you should use a `CreationPolicy` since it's tied to a specific resource
+- If you have other requirements to signal outside of a specific resource (integrating CloudFormation with an external IT system), then use a `WaitCondition`
+
+### Creation Policy Example
+
+- Autoscaling Group that depends on 3 EC2 instances being finished bootstrapping (installing the application, etc):
+
+```yaml
+AutoScalingGroup:
+  Type: AWS::AutoScaling::AutoScalingGroup
+  Properties:
+    ...
+  DesiredCapacity: '3' # ASG for 3 EC2 instances - they all need to be ready before moving the ASG into CREATE_COMPLETE state
+  MinSize: '1'
+  MaxSize: '4'
+  CreationPolicy: # Creation policy directive
+    ResourceSignal:
+      Count: '3' # how many success signals are required - matches num EC2 instances desired
+      Timeout: PT15M # timeout of 15 minutes
+
+# The EC2 instances
+LaunchConfig:
+  Type: AWS::AutoScaling::LaunchConfiguration
+  Properties:
+    ...
+    UserData: "Fn::Base64": !Sub |
+      #!/bin/bash -xe
+      yum update -y aws-cfn-bootstrap # install/update the package that comes with cfn-signal
+      (...your bootstrapping stuff...)
+      # Send the signal with the cfn-signal utility:
+      /opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackName} --resource AutoScalingGroup --region ${AWS::Region}
+```
+
+### WaitCondition example
+
+- A `WaitCondition` is a logical resource, not something defined in another resource
+- A `WaitCondition` can depend on other resources, or other resources can depend on it
+- Useful as a more general gate which can't be passed until signals are received
+  - A `WaitCondition` will not proceed to CREATE_COMPLETE until it gets signals or timeout reached
+- WaitCondition relies on a `WaitHandle` which is another logical resource
+  - the `WaitHandle`'s sole purpose is to generate a pre-signed URL which is used to send signals to
+  - It's pre-signed so that whatever is using it does not need to use any AWS credentials (they're included in the pre-signed URL)
+- You can pass back a generated JSON file, or whatever data to the pre-signed URL created by the `WaitHandle` as the signal
+  - **NOTE**: The data passed back can be referenced in the CloudFormation template using the `!GetAtt` function to query the `WaitCondition` resource to get details from it: `!GetAtt WaitCondition.Data` gets the Data property from the JSON object sent back as part of the signal
+    - This allows data exchange from whatever is signaling between it and the CloudFormation stack to get additional information about the event from the external system, for ex.
+- Used if you want to pass data back to CloudFormation or want to put general Wait Statements into your template until a signal is received.
+
+```yaml
+WaitHandle: # makes a pre-signed url to send data/signal to
+  Type: AWS::CloudFormation::WaitConditionHandle
+WaitCondition:
+  Type: AWS::CloudFormation::WaitCondition
+  DependsOn: "someresource"
+  Properties:
+    Handle: !Ref "WaitHandle" # reference the WaitHandle
+    Timeout: "300"
+    Count: "1" # wait for one success signal
+```
