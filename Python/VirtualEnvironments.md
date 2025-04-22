@@ -86,6 +86,11 @@ To create an environment with a specific version of Python and multiple packages
   - `conda activate C:\anaconda3`
   - `conda activate <your-env>`
 
+If that still doesn't work, then in bash try:
+
+- `which conda activate` - use this dir for below command
+- `source c:/anaconda3/Scripts/activate yourenv`
+
 ### Installing a virtual environment with venv:
 
 create directory temp and cd into it.
