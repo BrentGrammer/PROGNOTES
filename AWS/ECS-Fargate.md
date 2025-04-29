@@ -258,3 +258,26 @@
 
 - You’re using the same m5.large instance (~$71.62/month).
 - ECS itself doesn’t add cost with the EC2 launch type.
+
+# Elastic Container Registry (ECR)
+
+- Managed Container Image Registry service (like DockerHub)
+- Each AWS Account is provided with one **Public Registry** and one **Private Registry**
+  - Public Registry: Anyone has read-only access to anything in that Registry (Read/Write requires permissions to allow)
+  - Private Registry: Permissions are required for any Read or any Write operation
+- Inside each Registry you can have many **Repositories** (similar to GitHub repos)
+- In each Repository you can have many **Images**
+  - Each Image can have many **Tags**
+  - Tags must be unique within the Repository
+
+### Benefits of using ECR
+
+- Integrated with IAM
+- Offers security scanning on images
+  - basic
+  - enhanced: uses the Inspector product - - can look for OS issues or any software packages within your container
+- Built-in near real-time metrics delivered into CloudWatch
+  - metrics on authentication or push/pull operations against any of the container images
+- All API actions are logged into CloudTrail
+- Can generate Events delivered into EventBridge
+- Offers replication of container images - both cross-region and cross-account
