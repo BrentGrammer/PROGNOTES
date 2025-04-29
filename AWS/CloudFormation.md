@@ -20,7 +20,7 @@
 - [Deletion Policies](#deletion-policies)
 - [Depends On](#depends-on)
 - [Logical Resources](#resources)
-- [Mappings](#mappings)
+- [Mappings](#cloudformation-mappings)
 - [Multi-stack Architecture - Stack Sets and Cross-stack References](#multi-stack-architecture)
 - [Stack Roles](#cloudformation-stack-roles)
 - [Troubleshooting/Debugging](#troubleshooting-cloudformation-issues)
