@@ -13,8 +13,10 @@
 - [cfn-init](#cfn-init-cloudformation-init)
 - [cfn-hup](#cfn-hup)
 - [cfn-signal](#cfn-signal-cloudformation-signals)
+- [Change Sets](#change-sets)
 - [Conditions](#conditions)
 - [Creation Policies](#creation-policies-wait-conditions-cloudformation-signals-cfn-signal)
+- [Custom Resources](#custom-resources)
 - [Deletion Policies](#deletion-policies)
 - [Depends On](#depends-on)
 - [Logical Resources](#resources)
@@ -1087,3 +1089,218 @@ Instance:
     <br>
     <br>
   - Run `sudo cat /var/log/cfn-init.log` to see the changes made in cfn-init (it is a desired state tool, so only the changes from the previous state will be updated and applied leaving the rest of the state as is)
+
+# Change Sets
+
+Useful for rigorous change management within a business.
+
+### The types of change behavior
+
+- No Interruption: no services are interrupted
+- Some Interruption: like an EC2 instance rebooting, can impact service but not servere
+- Replacement: A new copy of the physical resource is created and the old one is removed.
+  - **This is the most disruptive and can result in data loss**
+
+### Where Change Sets come in
+
+- Change sets allow you to preview changes to the stack before they are applied.
+- You can create many change sets for the same stack
+  - This means you can preview many different sets of changes for different versions of the new template
+- Of the various change sets created, you can review them and pick one to apply by executing it on the stack - creates a `StackUpdate` operation
+
+### Change sets are distinct
+
+- A change set is a distinct object which represents changes from the current stack to the new version of the template
+- This gives us more control and visibility of the changes which is useful for large and complex templates
+
+### Making a change set
+
+- AWS Console > CloudFormation > select a Stack > Change Sets tab > Create Change set option (dropdown or button)
+- choose `replace template` option and upload a yaml template file representing the change set (is just an updated template with the resources removed or added as you need for the change)
+- Name the change set something like `<Stackname>-version2`
+- When created the Change Set goes into `CREATE_COMPLETE` state and it is a completely separate object which has not actually updated the stack yet.
+- The Change Set details page for the one you made will show a list of changes of all the updates detected by CloudFormation which will be applied for review
+- Click `Execute` to apply the change set to the template and actually update the Stack
+
+# Custom Resources
+
+- CloudFormation lags behind supporting the latest services or features and resources
+- Custom resources gives you a way to make CloudFormation do something you want that it does not support natively
+- Also useful for integration with external systems
+
+### Use Cases
+
+- **Delete objects from a Bucket when that bucket is being deleted** ( you cannot delete a stack with a bucket that has objects in it - it will error by default )
+- Populate S3 buckets with objects when they are created
+  - Custom resource can be backed by a AWS Lambda which is passed the bucket name from the stack in an event and uses that to download objects and put them into that bucket
+- Request information from an external system as part of setting up an EC2 instance
+- Custom resources can be used to provision non-AWS resources
+
+### Usage
+
+- CloudFormation passes data and sends an event to an endpoint that you define within that Custom Resource
+  - Could be a Lambda function
+  - could be an SNS Topic
+- Anytime the resource is updated, created or deleted CloudFormation sends event data with the operation that is happening and any property information as well.
+- the custom resource can respond to CloudFormation letting it know of Success or Failure and can also pass back data to CloudFormation which is made available to anything else in the CloudFormation Template
+  - The event passed to the custom resource by CloudFormation has a `Response URL` on it which tells the customer resource how it can respond back to CF.
+- When deleting a stack CloudFormation will follow the reverse of any dependencies
+  - If you made a custom resource backed by a AWS Lambda function which is passed a bucket name and populates it with objects, then when deleting the stack, CloudFormation knows that the Lambda depends on the Bucket being in existence first and depends on it. So the Custom Resource (the Lambda) is deleted BEFORE the S3 Bucket is deleted
+  - So when the stack is deleted another event is sent to the Custom Resource with the Delete Operation as the action being taken - the Custom Resource can use that to run something like emptying the bucket in this case, signal to CF that it was successful and then when the bucket is deleted next it will be empty and not cause the Stack Deletion to fail.
+  - Once the Custom Resource signals success it will be deleted and then the Resource like the S3 bucket that depended on it in reverse will be able to be deleted
+
+### Example using Custom Resource in a Template
+
+- In this example, we use a custom resource backed by a AWS Lambda function which populates and empties an S3 Bucket.
+- It empties the bucket during the Delete Stack operation so that the Stack Deletion will not fail because there are objects in the bucket when it tries to delete it
+
+```yaml
+Description: S3 Bucket Using a custom Resource
+Resources:
+  animalpics:
+    Type: AWS::S3::Bucket
+  copyanimalpics: ###### THIS IS THE CUSTOM LOGICAL RESOURCE #########
+    Type: "Custom::S3Objects" # The type is Custom::<anyNameYouWant>
+    Properties: # these are passed in the event sent to the Lambda backing the custom resource
+      ServiceToken: !GetAtt CopyS3ObjectsFunction.Arn # This is a REQUIRED property - it tells CF how you back this custom resource (in this case it is the ARN name of a AWS Lambda function). This is what CF sends data to in order to use the Custom Resource
+      SourceBucket: "lessonbucketname" # this is the bucket with objects to get and populate with our new bucket
+      SourcePrefix: "customresource" # the folder inside the bucket above
+      Bucket: !Ref animalpics # This a ref to the bucket logical resource which resolves to the bucket name string we want to populate
+  S3CopyRole: # This Role is needed by the Lambda to have access to all the below resources
+    Type: AWS::IAM::Role
+    Properties:
+      Path: /
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: S3Access
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Sid: AllowLogging
+                Effect: Allow
+                Action:
+                  - "logs:CreateLogGroup"
+                  - "logs:CreateLogStream"
+                  - "logs:PutLogEvents"
+                Resource: "*"
+              - Sid: ReadFromLCBucket
+                Effect: Allow
+                Action:
+                  - "s3:ListBucket"
+                  - "s3:GetObject"
+                Resource:
+                  - !Sub "arn:aws:s3:::lessonbucketname"
+                  - !Sub "arn:aws:s3:::lessonbucketname/*"
+              - Sid: WriteToStudentBuckets
+                Effect: Allow
+                Action:
+                  - "s3:ListBucket"
+                  - "s3:GetObject"
+                  - "s3:PutObject"
+                  - "s3:PutObjectAcl"
+                  - "s3:PutObjectVersionAcl"
+                  - "s3:DeleteObject"
+                  - "s3:DeleteObjectVersion"
+                  - "s3:CopyObject"
+                Resource:
+                  - !Sub "arn:aws:s3:::${animalpics}"
+                  - !Sub "arn:aws:s3:::${animalpics}/*"
+  CopyS3ObjectsFunction: # This the name of the Lambda referenced in the custom resource at the top. Note the implicit dependencies on S3 bucket, IAM Role which CF knows must be created first because they are referenced
+    Type: AWS::Lambda::Function # This is the lambda function that backs the Custom Resource
+    Properties:
+      Description: Copies objects into buckets
+      Handler: index.handler
+      Runtime: python3.9
+      Role: !GetAtt S3CopyRole.Arn # reference the role created to access the buckets and interact with them
+      Timeout: 120
+      Code: # the lambda code (python)
+        ZipFile: |
+          import os 
+          import json
+          import  # used to send back to the Response URL - builtin helper for python
+          import boto3
+          import logging
+
+          from botocore.exceptions import ClientError
+          client = boto3.client('s3')
+          logger = logging.getLogger()
+          logger.setLevel(logging.INFO)
+
+          def handler(event, context):
+
+            ####################################################################################
+            #
+            # HERE WE RECEIVE AN EVENT WITH BUCKET DETAILS FOR WHAT BUCKET TO POPULATE/EMPTY
+            #
+            ####################################################################################
+
+
+            logger.info("Received event: %s" % json.dumps(event))
+            source_bucket = event['ResourceProperties']['SourceBucket']
+            source_prefix = event['ResourceProperties'].get('SourcePrefix') or ''
+            bucket = event['ResourceProperties']['Bucket']
+            prefix = event['ResourceProperties'].get('Prefix') or ''
+
+            result = cfnresponse.SUCCESS
+
+            #########################################################################################
+            #
+            # HERE WE DO DIFFERENT THINGS DEPENDING ON THE TYPE OF ACTION (CREATE OR DELETE STACK)
+            #
+            #########################################################################################
+            
+            try:
+              if event['RequestType'] == 'Create' or event['RequestType'] == 'Update':
+                result = copy_objects(source_bucket, source_prefix, bucket, prefix) # populate
+              elif event['RequestType'] == 'Delete':
+                result = delete_objects(bucket, prefix) # empty the bucket on delete stack
+            except ClientError as e:
+              logger.error('Error: %s', e)
+              result = cfnresponse.FAILED
+
+            cfnresponse.send(event, context, result, {})
+
+          def copy_objects(source_bucket, source_prefix, bucket, prefix):
+            paginator = client.get_paginator('list_objects_v2')
+            page_iterator = paginator.paginate(Bucket=source_bucket, Prefix=source_prefix)
+            for key in {x['Key'] for page in page_iterator for x in page['Contents']}:
+              dest_key = os.path.join(prefix, os.path.relpath(key, source_prefix))
+              if not key.endswith('/'):
+                print 'copy {} to {}'.format(key, dest_key)
+                client.copy_object(CopySource={'Bucket': source_bucket, 'Key': key}, Bucket=bucket, Key = dest_key)
+            return cfnresponse.SUCCESS
+
+          def delete_objects(bucket, prefix):
+            paginator = client.get_paginator('list_objects_v2')
+            page_iterator = paginator.paginate(Bucket=bucket, Prefix=prefix)
+            objects = [{'Key': x['Key']} for page in page_iterator for x in page['Contents']]
+            client.delete_objects(Bucket=bucket, Delete={'Objects': objects})
+            return cfnresponse.SUCCESS
+```
+
+### Examining Event Data sent from CloudFormation to the Custom Resource Lambda
+
+- You can look at CloudWatch logs for the Lambda by going to AWS Console > CloudWatch > Logs > Log Groups
+- Look for the Log group for the custom resource lambda function, i.e. `/aws/lambda/S3BUCKETCUSTOM-CopyS3ObjectsFunction-123` and click on it
+- There will be a log stream you can click on `2025/04/29/[$LATEST]1234567890`
+- This will show the invocation of the Lambda caused by the Custom Resource in CloudFormation
+
+  - In the first INFO line you can see the Event sent to the Lambda with the `ResponseURL` representing what the lambda can use to send a response back to CloudFormation
+  - The `RequestType` shows the Stack action i.e. `"Create"` or `"Delete"`
+  - You can also see the data passed from CloudFormation to the lambda in the `ResourceProperties` key which holds the same object as `Properties` from the template:
+    <br>
+    <img src="img/event.png" />
+    <br>
+    <br>
+
+  - You can also see the Reponse Body in the log stream which shows what is sent back to the ResponseURL to CloudFormation by the Lambda to tell CF whether it was successful:
+    <br>
+    <img src="img/lambdaresponse.png" />
+    <br>
+    <br>
