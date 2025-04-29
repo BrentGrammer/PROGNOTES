@@ -4,6 +4,25 @@
 - Its purpose is to keep Logical and Physical resources in sync
 - Written in YAML or JSON
 
+## Table of Contents
+
+- [Best Practices/Portability](#cloudformation-best-practices)
+- [Templates](#components-of-a-template)
+  - [Parameters](#template-and-psuedo-parameters)
+  - [Complete example using cfn-init cfn-hup and cfn-signal together](#complete-template-example-with-cfn-hup-cfn-init-and-cfn-signal)
+- [cfn-init](#cfn-init-cloudformation-init)
+- [cfn-hup](#cfn-hup)
+- [cfn-signal](#cfn-signal-cloudformation-signals)
+- [Conditions](#conditions)
+- [Creation Policies](#creation-policies-wait-conditions-cloudformation-signals-cfn-signal)
+- [Deletion Policies](#deletion-policies)
+- [Depends On](#depends-on)
+- [Logical Resources](#resources)
+- [Mappings](#mappings)
+- [Multi-stack Architecture - Stack Sets and Cross-stack References](#multi-stack-architecture)
+- [Stack Roles](#cloudformation-stack-roles)
+- [Troubleshooting/Debugging](#troubleshooting-cloudformation-issues)
+
 ## Components of a Template
 
 ### Resources
@@ -167,11 +186,6 @@ Outputs:
 ### Deleting a Template
 
 - If you delete a template stack, AWS will delete it and the physical resources specified in it.
-
-## Troubleshooting
-
-- To find errors in the CloudFormation process, in the CloudFormation dashboard/page, click the Events Tab and then click the L9ogical ID (Stack name) > Click the Events tab and look at the Status reason column for the time you want to see what failed.
-- ![alt text](cloudformationdebugging.png)
 
 ## Template and Psuedo Parameters
 
@@ -514,22 +528,66 @@ InternetGateway: # referenced with !Ref, so will be created before InternetGatew
   ...
 ```
 
-## Creation Policies, Wait Conditions, CloudFormation Signals (cfn-signals)
+## Creation Policies, Wait Conditions, CloudFormation Signals (cfn-signal)
 
-- When a logical resource is provisioned initially it goes into a CREATE_COMPLETE state and tells CloudFormation that it is created.
+- When a logical resource is provisioned initially it goes into a **CREATE_COMPLETE** state and tells CloudFormation that it is created.
   - The resource may have to perform further bootstrapping processes (custom bootstrapping or user-data scripts, etc.) in order to be in a true complete state, though, but there is no built-in way to tell CloudFormation about when that is done
 - Creation Policies, Wait Conditions and cfn-signals allow us to send more signals to Cloudformation to tell it whether the resource really is done and in a create complete state or not.
 - Generally recommended to use CreationPolicies over WaitConditions since they are simpler to manage, but sometimes you need the extra functionality of WaitConditions
 
-### CloudFormation Signals
+### cfn-signal (CloudFormation Signals)
 
-- Sent via the cfn-signal command (included in the aws-cfn-bootstrap package)
+[DEMO](https://learn.cantrill.io/courses/1101194/lectures/28333069) at timestamp 10:00
+
+- Sent via the `cfn-signal` command (included in the aws-cfn-bootstrap package)
 - Configures cloudformation to pause/hold depending on a certain number of `success` signals
 - Can configure a logical resource to wait for a Timeout - `Hours:Minutes:Seconds` - 12 hour max - during which those signals can be received
 - If the number of success signals is received within the Timeout period, the status of the logical resource changes to `CREATE_COMPLETE`
   - You configure `cfn-signal` utility on an instance to send these signals to CloudFormation
 - If a Failure signal is sent or timeout is exceeded, then the entire stack fails
-- The thing being signaled is a logical resource (EC2, Autoscaling groups, etc.) using a CreatePolicy or a
+- The thing being signaled is a logical resource (EC2, Autoscaling groups, etc.) using a CreatePolicy or a WaitCondition
+
+#### Use Case for cfn-signal
+
+- Explicitly notify CloudFormation that userdata bootstrapping is complete by sending a signal with the tool via a command: `/opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackName} --resource AutoScalingGroup --region ${AWS::Region}`
+- This helps UX because when you launch a template, the EC2 instance will go into a running state before bootstrapping completes and if bootstrapping takes a longer time, the site will be down during that time.
+- The signal will cause CloudFormation to wait until the signal is received and only then will it move into a CREATE_COMPLETE state and resources are ready for service
+
+```yaml
+Instance:
+  Type: "AWS::EC2::Instance"
+  CreationPolicy: # creates an endpoint to be signaled when the instance is really in a created state (after all bootstrapping is done)
+    ResourceSignal:
+      Timeout: PT15M # Expects a signal and will wait 15 minutes for a success signal via cfn-signal, after which the signal is considered failed
+  Properties:
+    InstanceType: "t2.micro"
+    ImageId: !Ref "LatestAmiId"
+    SecurityGroupIds:
+      - !Ref InstanceSecurityGroup
+    Tags:
+      - Key: Name
+        Value: A4L-UserData Test
+    UserData:
+      Fn::Base64: !Sub |
+        #!/bin/bash -xe
+        yum -y update
+        yum -y upgrade
+        # simulate some other processes here
+        sleep 300
+        # Continue
+        yum install -y httpd
+        systemctl enable httpd
+        systemctl start httpd
+        echo "<html><head><title>Amazing test page</title></head><body><h1><center>${Message}</center></h1></body></html>" > /var/www/html/index.html
+        /opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackId} --resource Instance --region ${AWS::Region}
+      # THIS IS SENDING THE SIGNAL ^
+```
+
+- After sending the signal, you will see the SUCCESS message in the Events tab in CloudFormation details page:
+  <br>
+  <img src="img/signaloutput.png" />
+  <br>
+  <br>
 
 #### Creation Policy vs. Wait Condition
 
@@ -592,3 +650,440 @@ WaitCondition:
     Timeout: "300"
     Count: "1" # wait for one success signal
 ```
+
+# Multi-stack Architecture
+
+- All resources within one CloudFormation stack share a life cycle - they are all created together, updated together and they are all deleted together
+- There are limits for a stack
+  - Max of 500 resources per stack
+  - A stack is by design **isolated** - if you create a VPC in a stack it's not practical to reference it in another stack
+- For complex projects you will need to use multiple stacks - there are two ways to do this: Nested and Cross-stack references
+
+## CloudFormation Nested Stacks
+
+### The Root Stack
+
+- Start with one stack the **ROOT STACK**
+- The root stack is the parent stack and the only stack that is created manually by a entity (i.e. a IAM user or software process, etc.)
+  - Parent Stack: a stack which is the parent of any stack which it immediately creates
+  - a way to refer to any stack that has nested stacks under it. The root stack is also a parent stack
+- The Root Stack can have parameters and outputs
+- A nested stack is another logical resource in the CloudFormation template:
+
+```yaml
+VPCSTACK:
+  Type: AWS::CloudFormation::Stack # the type of logical resource for a nested stack
+  Properties:
+    Template: https://someurl.com/template.yml # normal cloudformation template with it's own logical resources, etc.
+    Parameters: # provide parameters to the nested stack template if needed - this passes them to it
+      Param1: !Ref SomeParam1
+      Param2: !Ref SomeParam2
+```
+
+- when the nested stack moves into a CREATE_COMPLETE state, any output is returned to the root stack
+  - These are referenced in the root stack with `VPCSTACK.Outputs.someoutput`
+  - You can only reference Outputs in nested stacks, you can't reference any of the logical resources created in the nested stacks
+
+### Why use Nested Stacks
+
+- **Use Nested Stacks when everything is lifecycle linked** (everything needs to be created, updated and deleted together)
+  - If you anticipate needing one part long term and another short term, then do NOT use Nested Stacks!
+  - If you need to make changes to one part of the application, but not another, then do NOT use Nested Stacks, better to have individual non-nested stacks in that case
+- Breaking up resources into modular templates means that they can be reused
+  - For example, a VPC Stack could probably be reused by many other deployments, so you can updload it somewhere and reference its url as a nested stack in many other templates
+  - **This means you are re-using the Infrastructure Code in the template, NOT the stack itself, i.e. the same physical VPC etc.**. If you need to use the same VPC across stacks, then cross-reference stacks are the better option
+- The main reason is to reuse templates to create new physical resources from them
+- Also useful to overcome the 500 resource limit for one stack if you need more than that
+
+## Cross-Stack References
+
+- Used when you want to reuse resources from one stack in other stacks and reference them (i.e. the same VPC, for example from another stack)
+- Normally, outputs from stacks are only visible in a user interface or command line - you can't use !Ref to reference anything from one stack in another
+- Useful when you have one long running resource like a VPC, but other short-lived resources that want to use that VPC (so they are not lifecycle linked)
+
+### Exporting Outputs
+
+- You can export Outputs from a stack which makes them visible to other stacks
+  - The outputs are put under an Export Name in an exports list in one region of your account (every region has an exports list)
+  - The export name must be unique per region of your account
+  - Cross-region referencing is not supported
+- Use `Fn:ImportValue` with the `Ref` function to get the exports by name
+
+```yaml
+Outputs:
+  SHAREDVPCID:
+    Description: Shared Services VPC
+    Value: !Ref VPC
+    Exports:
+      Name: SHAREDVPCID # Reference the logical resource in this stack to export
+```
+
+```yaml
+!ImportValue SharedVPCID
+```
+
+### Use cases for Cross-Stack References
+
+- Service Oriented Architectures - where you have to provide resources from one stack to another
+- Short-lived parts of an application which all consume from a shared services VPC
+- When you have long and short life cycled resources which you want to separate into different stacks
+- Used when you want to reuse resources themselves, not just the template as in Nested Stacks
+
+## Stack Sets
+
+Allows you to Deploy and manage, delete or update many stacks in many regions across many different AWS accounts.
+
+- Prevents you having to switch accounts and regions and authenticate, etc.
+- Stack Sets are treated separately from stacks
+  - If a stack fails to create, the stack instance will remain to keep a record of what happened (why the stack failed to create)
+
+### Stack Instances
+
+- Stack Sets contain Stack Instances which reference stacks which run in a particular region and AWS account
+  - you can think of a Stack Instance as a conatiner for an individual stack
+- The Stack Instances are containers which record what happens in each stack that's created in each stack of the Stack Set
+
+### Target Accounts
+
+- Stack instances and stacks are create in **Target Accounts**
+  - Target accounts are AWS Accounts which stack sets target to deploy resources into
+- A stack set is of an Admin Account which references Stack Instances and Stacks which are in target accounts and regions you choose
+- The stacks created by a Stack Set are normal stacks in one region or account. The Stack Set uses a self-managed or service-managed Role to create these stacks across multiple regions or accounts on your behalf
+  - Service managed Roles are used in conjuction with AWS Organizations. This is less overhead and lets the product manage the role/permissions for you over self-managed roles
+- When setting up a stack set, you indicate with Organization Units or AWS Accounts you want to use as Targets, you specify the regions and then CloudFormation will interact with those accounts using Role permissions.
+  - Will create Stack Instances within each region and target account you specify
+    - One stack per region specified in each target account
+
+### Stack Set Configuration Options
+
+- `Term: Concurrent Accounts`: defines how many accounts you can deploy into at one time. If you have 10 stacks across 10 accounts and you set this to `2`, then that means there will be 5 sets of deployments. The higher you set this, the faster the deployment (in theory)
+- `Term: Failure Tolerance`: the number of stacks that can fail before the entire Stack Set is considered failed.
+- `Term: Retain Stacks`: By default if you remove stack instances from a Stack Set, these stacks will be deleted. You can use this option to override that behavior and retain stacks even if they are removed from the Set.
+
+### Use Cases for Stack Sets
+
+- Enabling AWS configuration across a large range of AWS Accounts
+- Configuring config rules like MFA Authentication, Elastic IPs or EBS Encryption
+- Create IAM Roles for cross-account access at scale - instead of having to create these in individual accounts one by one, you can define a CloudFormation template to create an IAM role, and then deploy it as part of a Stack Set
+
+## Deletion Policies
+
+- By default, if you remove a logical resource from a template and then deploy that stack, that resource will be deleted
+  - This default behavior can cause data loss in some instances (i.e. if you are deleting RDS databases or EC2 instances with attached EBS Volumes)
+- You can apply a deletion policy on a resource to specify an action that should be taken when that resource is being deleted
+  - `Delete`: the default action which is to delete the physical resource
+  - `Retain`: CloudFormation will not delete the resource if the corresponding logical resource is removed
+  - `Snapshot`: supported for resources like EBS Volumes, Elasticache, Neptune, RDS, RedShift. Will take a snapshot of the resource before it's deleted.
+    - NOTE: the snapshots exceed the stack lifetime, so you need to clean them up manually if you don't want them to remain and incur storage costs
+
+#### IMPORTANT: Deletion policies only apply to Delete actions
+
+- Delete actions are only:
+  - The logical resource is removed from the stack template and then you apply that change the stack
+  - The stack is deleted
+- If you subtley CHANGE the logical resource instead of removing it or deleting the stack, that is a **REPLACE** operation and **the Deletion policy WILL NOT APPLY**!
+  - Data for that resource will be LOST in this case and even a delete policy of retain/snapshot etc. will not be applied
+
+## CloudFormation Stack Roles
+
+- By default, Cloudformation uses the permissions of the Identity of the logged in user to create the resources in the Stack.
+  - Note: AWS has zero permissions as a starting point
+- So, your user needs permissions to:
+  - Create, Update or Delete Stacks
+  - Create, Update or Delete any resources in the stacks
+- This can be problematic because usually there are some teams that can create resources and separate teams which are allowed to update those resources
+- Stack Roles allow CloudFormation to assume a role which allows it to create, delete or update resources
+- Role Separation
+  - One team can create Stacks, and the permission sets required to implement them
+  - The entity creating, updating or modifying a stack only needs permissions on that stack and hte `PassRole` permissions
+  - so for role separation, for example, an identity that's interacting with a stack using Stack Roles does not need the permissions to interact directly with the resources themselves.
+    - This means that a non-admin user could be given permissions to interact with a stack using a role which would still not allow them to interact or modify the actual resources in that stack
+
+### Use Case
+
+- This is useful if users who need to use CloudFormation to do things that they wouldn't otherwise be allowed to do outside of CloudFormation, Stack Roles are a great solution to allow this.
+- You can have an Admin IAM user provision a role with the permissions required, and then give the identity with reduced access only the rights to pass that role into CloudFormation in combination with the permissions to interact with Stacks in CloudFormation and then they can perform actions on the AWS account in a safe and controlled way that they otherwise wouldn't have permissions to do.
+
+## cfn-init (CloudFormation Init)
+
+- A helper tool that runs on EC2 instances during bootstrapping.
+- This loads metadata stored from a logical resource in a cloudformation stack. It applies a desired state to an EC2 instance based on the metadata of that instance's resource
+- ONLY RUN ONCE!!!
+
+  - If you change the Cloudformation template and update the stack, cfn-init is NOT RERUN and the configuration is not re-applied!
+
+- Configuration management system which is a CloudFormation native feature separate from something like user data scripts, which has configuration directives stored in a CloudFormation template
+- `AWS::CloudFormation::Init` part of a logical resource
+  - Here, you can specify what you want to happen on an instance
+- The main difference between User Data script and `Cloudformation::Init` is that User Data is procedural - you are specifying HOW you want things to be done
+  - CloudFormation::Init is a **Desired State** - WHAT you want to occur, not HOW
+  - Only applies changes to the previous state on updates, not the whole thing again
+  - This means that it can be CROSS-PLATFORM and work across different flavors of Linux or even Windows
+  - CloudFormation::Init is **idempotent** - if it is already in the desired state, CloudFormation will leave it in that state. (i.e. if you specify to install Apache, but Apache is already installed, then nothing will happen) - this cuts off the need to define logic for what would happen if something is already the case as you would in custom scripts.
+
+### the tool
+
+- Accessing the CloudFormation::Init data is done via a helper script called `cfn-init`
+  - This is installed within the EC2 operating systems.
+  - Executed via User Data script
+- Generally pointed to a logical resource name, generally the EC2 instance that it is running on, loads the configuration directives and makes them execute and so
+- The cfn-init configuration is stored under the `MetaData.AWS::CloudFormation::Init` block in the template
+- Example: a logical resource, such as an EC2 instance, will have a special `MetaData` component:
+
+```yaml
+EC2Instance:
+  Type: AWS::EC2::Instance
+  CreationPolicy: ...
+  MetaData: # special Metadata property on a logical resource
+    AWS::CloudFormation::Init: # Where the config directives are stored under
+      configSets: ... # you can pick from keys listed below and bundle them into a config set which defines which config keys to use and in which order
+      # Config Keys:
+      install_cfn: ... # These keys are containers of configuration directives which contain the same sections
+      packages: # which packages to install
+      groups: # directives to control local group management on the instance operation system
+      users: # define directives for local user management
+      sources: # define archives which can be downloaded and extracted
+      files: # allows us to configure files to create on the local operating system
+      commands: # specify commands we want to execute
+      services: # define services which should be enabled on the operating system
+      software_install: ...
+      install_wordpress: ...
+      configure_wordpress: ...
+```
+
+#### Complete example with cfn-init directives filled in:
+
+```yaml
+Instance: # Instance - the name of this logical resource referenced in cfn-init
+  Type: "AWS::EC2::Instance"
+  Metadata: # Property for metadata we use for cfn-init
+    "AWS::CloudFormation::Init": # THIS IS A DESIRED STATE CONFIGURATION tool - alternative way to bootstrap
+      config: # under config are the configuration directives used by cfn-init
+        packages: # under packages init will install any packages listed here
+          yum:
+            httpd: []
+        files: # init creates any files contained within this files section
+          /var/www/html/index.html: # file path
+            content: !Sub |
+              <html><head><title>Amazing test page</title></head><body><h1><center>${Message}</center></h1></body></html>
+        commands: # init runs any commands in this section
+          simulatebootstrap:
+            command: "sleep 300"
+        services: # cfn-init adjusts the configuration of services specified in this section
+          sysvinit:
+            httpd:
+              enabled: "true" # makes sure the service starts when the instance restarts
+              ensureRunning: "true" # makes sure service is running
+              files:
+                - "/var/www/html/index.html"
+  CreationPolicy:
+    ResourceSignal:
+      Timeout: PT15M
+  Properties:
+    InstanceType: "t2.micro"
+    ImageId: !Ref "LatestAmiId"
+    SecurityGroupIds:
+      - !Ref InstanceSecurityGroup
+    Tags:
+      - Key: Name
+        Value: A4L-UserData Test
+    UserData: # in here is the cfn-init command where pass in the stack, the resource and the region to it. The cfn-init command applies the desired state defined above
+      Fn::Base64: !Sub |
+        #!/bin/bash -xe
+        echo "running cfn-init below..."
+        /opt/aws/bin/cfn-init -v --stack ${AWS::StackId} --resource Instance --region ${AWS::Region}
+        echo "done with cfn-init bootstrapping, send a success signal with cfn-signal based on the status code returned of cfn-init run above..."
+        /opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackId} --resource Instance --region ${AWS::Region}
+```
+
+### cfn-init helper tool
+
+- the tool is executed from the EC2 user data script
+- We use `cfn-init` command line directive to execute the configuration (keeping the user data script minimal) and `cfn-signal` to signal that the Cloudformation Init is complete
+- The variables `AWS::StackId` and `AWS::Region` are replaced with the actual values automatically becauce the instance is being created by CloudFormation
+  - The region is the region that the stack is created in and the StackId is the id of the stack we're currently using - these are automatically passed to the `cfn-init` helper tool (they are passed in via User Data by CloudFormation)
+
+```yaml
+UserData: # cloudformation init directives happen inside User Data Script
+  Fn::Base64: !Sub |
+    #!/bin/bash -xe
+    yum -y update
+    /opt/aws/bin/cf-init -v --stack ${AWS::StackId} --resource EC2Instance --configsets <configSet to use: wordpress_install> --region ${AWS::Region}
+    /opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackId} --resource EC2Instance --region ${AWS::Region}
+```
+
+- Note: this command: ` /opt/aws/bin/cf-init -v --stack ${AWS::StackId} --resource EC2Instance --configsets wordpress_install --region ${AWS::Region}` uses a specific config set called `wordpress_install` which uses all the config keys defined in the above template example:
+
+```
+install_cfn,
+packages,
+groups,
+users,
+sources,
+files,
+commands,
+services,
+software_install,
+install_wordpress,
+configure_wordpress
+```
+
+## cfn-hup
+
+- Used together with `cfn-init` any update stack operations which change the metadata can also update the EC2 instance's operating system configuration
+- A helper tool (daemon) that can be installed on an EC2 instance
+- You are responsible for installing and configuring it, but that can be handled with any other configuration that is normally done during the bootstrapping process when the instance is launched.
+- `cfn-hup` is pointed at a logical resource in a stack and it monitors it to detect changes in the resource's metadata
+  - Changes occur when you update the template (change the metadata and then perform an Update Stack operation)
+  - When a change is detected, `cfn-hup` can run configurable actions (for example, you could re-run `cfn-init` to reapply the instances desired state - since `cfn-init` only runs once by default)
+
+### Usage
+
+- Install `cfn-init` and `cfn-hup` on an instance as part of the bootstrapping process
+- Configure `cfn-hup` to monitor the logical resource for that instance
+- `cfn-hup` monitors periodically for changes in the metadata for that resource
+- Change a template userdata script and run a `UpdateStack` operation
+- `cfn-hup` will detect a change and we have configured it to run `cfn-init` which downloads the new metadata for that instance and applies the new configuration
+  - For example if you updated the metadata/cfn-init to install a new application or software
+  - Userdata by default is not run again on update operations - it is run once during launch, so if you need to run init setup/bootstrapping again, this is how you do it with cfn-hup.
+
+### Note on Updates
+
+- [Docs AWS](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/using-cfn-updating-stacks-update-behaviors.html)
+- **Update with Disruption**: When the stack is updated and the instance is automatically stopped and started.
+  - This can occur if you reference a Parameter in a userdata script for example in the template and update the Parameter via a StackUpdate operation. The instance will stop (it loses its IPv4 address) and start
+
+### Complete template example with cfn-hup, cfn-init and cfn-signal
+
+```yaml
+Parameters: # if these change, because they're referenced in the bootstrapping metadata, cfn-hup will detect it and run cfn-init again to bootstrap with the updated metadata (otherwise userdata only runs once)
+  LatestAmiId:
+    Description: "AMI for EC2"
+    Type: "AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>"
+    Default: "/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2"
+  Message:
+    Description: "Message for HTML page"
+    Default: "Cats are the best"
+    Type: "String"
+Resources:
+  InstanceSecurityGroup:
+    Type: "AWS::EC2::SecurityGroup"
+    Properties:
+      GroupDescription: Enable SSH and HTTP access via port 22 IPv4 & port 80 IPv4
+      SecurityGroupIngress:
+        - Description: "Allow SSH IPv4 IN"
+          IpProtocol: tcp
+          FromPort: "22"
+          ToPort: "22"
+          CidrIp: "0.0.0.0/0"
+        - Description: "Allow HTTP IPv4 IN"
+          IpProtocol: tcp
+          FromPort: "80"
+          ToPort: "80"
+          CidrIp: "0.0.0.0/0"
+  Bucket:
+    Type: "AWS::S3::Bucket"
+  Instance:
+    Type: "AWS::EC2::Instance"
+    Metadata:
+      "AWS::CloudFormation::Init": # Using cfn-init helper to define a desired state to bootstrap to
+        config: # configuration directives for cfn-init
+          packages:
+            yum:
+              httpd: []
+          files: # create config files to configure cfn-hup
+            /etc/cfn/cfn-hup.conf: # creating cfn-hup config file to use for cfn-hup to monitor updates and run cfn-init on changes again
+              # specify the stack, region and interval in minutes for how often cfn-hup checks for configuration changes
+              content: !Sub |
+                [main]
+                stack=${AWS::StackName}
+                region=${AWS::Region}
+                interval=1
+                verbose=true
+              mode: "000400" # set permissions for the conf file
+              owner: "root"
+              group: "root"
+            # In this second configuration file created, we define what should happen when an update occurs:
+            # The `triggers` is when the stack is updated, the `path` is the metadata it's monitoring for changes, and `action` is what happens on a detected change to the metadata occurs
+            # the action just runs cfn-init again to redo bootstrapping with the updated metadata
+            /etc/cfn/hooks.d/cfn-auto-reloader.conf:
+              content: !Sub |
+                [cfn-auto-reloader-hook]
+                triggers=post.update
+                path=Resources.Instance.Metadata.AWS::CloudFormation::Init
+                action=/opt/aws/bin/cfn-init -v --stack ${AWS::StackId} --resource Instance --region ${AWS::Region}
+                runas=root
+              mode: "000400"
+              owner: "root"
+              group: "root"
+            /var/www/html/index.html:
+              content: !Sub |
+                <html><head><title>Amazing test page</title></head><body><h1><center>${Message}</center></h1></body></html>
+          commands:
+            simulatebootstrap:
+              command: "sleep 300"
+          services:
+            sysvinit:
+              cfn-hup:
+                enabled: "true" # make sure cfn-hup starts when instance boots every time
+                ensureRunning: "true"
+                files: # point to the configuration files for this service you created above
+                  - /etc/cfn/cfn-hup.conf
+                  - /etc/cfn/hooks.d/cfn-auto-reloader.conf
+              httpd:
+                enabled: "true"
+                ensureRunning: "true"
+                files:
+                  - "/var/www/html/index.html"
+    CreationPolicy: # creation policy to wait for 15 minutes for a success signal from cfn-signal or fail the stack
+      ResourceSignal:
+        Timeout: PT15M
+    Properties:
+      InstanceType: "t2.micro"
+      ImageId: !Ref "LatestAmiId"
+      SecurityGroupIds:
+        - !Ref InstanceSecurityGroup
+      Tags:
+        - Key: Name
+          Value: UserData Test
+      UserData: # Userdata calls cfn-init and cfn-signal to signal when bootstrapping is complete and the stack can go to CREATE_COMPLETE status ready for service
+        Fn::Base64: !Sub |
+          #!/bin/bash -xe
+          /opt/aws/bin/cfn-init -v --stack ${AWS::StackId} --resource Instance --region ${AWS::Region}
+          /opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackId} --resource Instance --region ${AWS::Region}
+```
+
+<a name="troubleshooting"></a>
+
+# Troubleshooting CloudFormation issues
+
+- To find errors in the CloudFormation process, in the CloudFormation dashboard/page, click the Events Tab and then click the L9ogical ID (Stack name) > Click the Events tab and look at the Status reason column for the time you want to see what failed.
+- ![alt text](cloudformationdebugging.png)
+- `sudo cat /var/log/cloud-init-output.log`: useful for normal bootstrapping with userdata - shows the userdata script output that ran during bootstrapping
+  - Will show full output of errors during bootstrapping if you're using userdata directly (not `cfn-init` tool)
+- `sudo cat /var/log/cfn-init-cmd.log`: shows bootstrapping output from using `cfn-init` tool
+  - This will give you good output of the bootstrapping process if there were problems if you are using `cfn-init` tool instead of userdata directly
+- `sudo cat /var/log/cfn-init.log`: shows you granular overview of which desired state actions took place using `cfn-init` config directives (installing software, creating files, etc.)
+- `sudo cat /var/log/cfn-hup.log`: shows output of cfn-hup setup
+  - Will show the region it initializes with
+  - Will show what path is being monitored (will match up with section in yaml template `Instance.Metadata.AWS::CloudFormation::Init`)
+    <br>
+    <img src="img/cfnhuplog.png" />
+    <br>
+    <br>
+
+```yaml
+Instance:
+  Type: "AWS::EC2::Instance"
+  Metadata:
+    "AWS::CloudFormation::Init": # matches this path Instance.Metadata.AWS::CloudFormation::Init
+      config:
+```
+
+- You can see cfn-hup changes by tailing -f the cfn-hup.log file and waiting for a change to be triggered if you update the metadata and update the stack:
+  - Run `sudo tail -f /var/log/cfn-hup.log`
+    <br>
+    <img src="img/cfnhupupdate.png" />
+    <br>
+    <br>
+  - Run `sudo cat /var/log/cfn-init.log` to see the changes made in cfn-init (it is a desired state tool, so only the changes from the previous state will be updated and applied leaving the rest of the state as is)
