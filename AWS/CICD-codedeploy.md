@@ -1,5 +1,6 @@
 # CI/CD in AWS - Code Cimmit and Code Deploy
 
+- [CI/CD Demo](https://github.com/acantril/learn-cantrill-io-labs/tree/master/aws-codepipeline-catpipeline)
 - AWS CodePipeline is an orchestration tool that links together:
   - CodeCommit
   - CodeBuild (used for building and testing step in CI/CD)
@@ -578,3 +579,9 @@ Replace /path/to/your/cleanup_old_deployments.sh with the actual path to the scr
 Important Security Warning:
 
 Be extremely cautious when using rm -rf. Ensure you understand what the script is doing before uncommenting the deletion part. Incorrectly configured scripts can lead to accidental data loss. Always test in a non-production environment first.
+
+
+# From Demo
+
+- Generate ssh key for iam user (rsa key)
+- Go to IAM > user > Security credentials tab to see where to upload the public ssh key
