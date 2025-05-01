@@ -26,6 +26,11 @@
 - A container within CloudWatch
   - Note: AWS uses this concept for many services (i.e. for EC2, the namespace is `AWS/EC2`, lambda is `AWS/Lambda`, etc.)
   - AWS Namespaces ALWAYS start with `AWS/`, while the namespaces you create will not start with that
+- You can view all Metrics by namespace by going to CloudWatch > Metrics > All Metrics:
+  <br>
+  <img src="img/awsmetrics.png" />
+  <br>
+  <br>
 
 ### Datapoints
 
@@ -144,6 +149,41 @@ Percentiles: Indicates the relative standing of a value in a dataset (95th pecen
   - Click Per Instance Metrics
   - Find the instance you want to add monitoring to and the metric (i.e. CPUUtilization for ex.)
 
+### Creating Alarms with AWS tooling
+
+- To get information on alarms with the AWS CLI:
+  - `aws cloudwatch describe-alarms --alarm-names "YourAlarmName"`
+- CDK example of creating an alarm:
+  - NOTE: to populate these fiels you would use the values from the above aws cli command if you created an Alarm similar in AWS Console
+
+```javascript
+
+// sns topic
+const alarmTopic = new Topic(this, 'MyAlarmTopic', {
+  displayName: 'AlarmTopic',
+  topicName: 'MyAlarmTopic'
+});
+// ?? example you need a lambda and can pass it in
+alarmTopic.addSubscription(new LambdaSubscription(someLambda?));
+
+const sampleAlarm = new Alarm(this, "MyAlarm", {
+  metric: new Metric({
+    metricName: "metricname", // Match what is in CloudWatch > Metrics > Browse All > Namespace > Metric label
+    namespace: "AWSNamespace",
+    period: cdk.Duration.minutes(1), // if threshold is reached in this period
+    statistic: "Sum",
+    dimensionsMap: {
+      // ??
+    }
+  }),
+  evaluationPeriods: 1,
+  threshold: 1, // to test, you can put a low value that will trigger
+});
+
+sampleAlarm.addAlarmAction(topicAction);
+sampleAlarm.addOkAction(topicAction);
+```
+
 ## Cloudwatch Logs
 
 - Public, Regional service
@@ -163,6 +203,11 @@ Percentiles: Indicates the relative standing of a value in a dataset (95th pecen
   - Route53 - log DNS queries
 - Allows for real time monitoring
 - Adjustable retention - 1 week, 30 days, year, infinitely etc.
+
+### Testing an Alarm
+
+- Can use the AWS CLI to put a metric
+  - `aws cloudwatch put-metric-data --namespace <resourcenamespace> --metric-name <metricname> --value <value>`
 
 ### Ingestion
 
