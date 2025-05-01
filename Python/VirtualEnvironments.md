@@ -77,6 +77,14 @@ To create an environment with a specific version of a package:
 To create an environment with a specific version of Python and multiple packages:
 `conda create -n myenv python=3.4 scipy=0.15.0 astroid babel`
 
+### Create Conda Env with Prefix
+
+- Specify the directory to create the virtual environment in and add pip to the virtual env (so the bin/exe is in it's directory):
+
+```shell
+conda create --prefix C:\anaconda3\envs\envname pip
+```
+
 #### Troubleshooting Conda Init loop to activate env:
 
 - Loop of run conda init and cannot activate env:

@@ -1,6 +1,7 @@
 # AWS CDK (Cloud Development Kit)
 
-[AWS CDK Project Repo](https://github.com/BrentGrammer/AWS-CDK)
+[AWS CDK with Lucee Repo](https://github.com/BrentGrammer/ModernizeJSApp/tree/aws-cdk)
+[AWS CDK Generic Project Repo](https://github.com/BrentGrammer/AWS-CDK)
 [AWS API Documentation](https://docs.aws.amazon.com/cdk/api/v2/docs/aws-construct-library.html)
 
 - Infrastrcture as Code using a language of your choice (with CloudFormation, you have to use YAML)
