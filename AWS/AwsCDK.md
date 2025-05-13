@@ -136,14 +136,15 @@ NOTE: Using CDK is usually done as it's own 'sub-project' and the code is kept s
 ### CDK Commands
 
 - `cdk help`
-- `cdk list`: list of stacks
+- `cdk list`: list of stack names in the project
+- `cdk diff`: good for checking what has changed in your new template that will be produced from the last
 - `cdk synth`: Make the CloudFormation Template for view or inspection
 - `cdk bootstrap`: Required to run this if using cdk for the first time in a particular account and particular region
 - `cdk deploy`: Deploys the infra to AWS
 - `cdk watch`: monitors changes in IDE and auto-deploys when you save a file with changes (i.e. your stack file)
 - `cdk destroy`: for cleaning up
-- `cdk diff`: good for checking what has changed in your new template that will be produced from the last
 - `cdk doctor`: diagnoses problems with CDK installation, any problems and will tell you if there is a new version and how to install etc.
+- `cdk deploy --dry-run`: Careful if you are asked to deploy, this will actually deploy. It should not, but it might if you confirm and say "yes"
 
 ### CDK Bootstrap
 

@@ -2,35 +2,37 @@
 
 - Handles real time load variations
 - Integrates with Load Balancers
-- Goal is to Scale out or Scale in to match the current load.
 - Ensures a minimum and max number of machines running at one time
 - Automatically spins up a desired number of instances based on a launch template
 - Automatically registers or deregisters instances into a load balancer
   - As you add more instances the ASG will add them to the load balancer registratrion
 - Automatically replaces unhealthy instances with healthy ones
-- Results in cost savings from running at optimal capacity depending on load.
 
 ### Setup for auto scaling groups:
 
-- ASGs main job is keeping the number of instances at the desired number setting.
-- Requires a launch template or a lauch Configuration for EC2s so it knows how to launch new instances
-  - Has one template or version of it. You can change which one the ASG is associated with.
-  - Min size, desired size, max size are the main parameters. Ex: 1:2:4 means 1 min, 2 desired and 4 max
-- Scaling policies can be created to automate scaling based on criteria (CPU usage for example)
-- Best practice is to set launch options for 3 availability zones (subnets in a VPC)
-- Attach to a load balancer
-- Assign a target group (create one if necessary) to the ASG
-- Enable ELB Health Check
+- ASGs use one launch template which determines what they spin up (ec2 config) - all instances launched for the ASG are based on the single definition of that template
+- 3 Main properties: Min size, desired size, max size. Ex: `1:2:4` means 1 min, 2 desired and 4 max
+  - ASGs main job is keeping the number of instances at the **desired** number setting.
+- Best practice is to set launch options for 3 availability zones (subnets in a VPC). An ASG will be configured to launch instances into configured subnets specified
+
+### Scaling Policies
+
+- Scaling policies are automated and used with metrics such as CPU load, etc.
+- Scheduled Scaling - time based for hours that are expected to be busier (business hours), known periods of high orlow usage
+- Dynamic Scaling: rules that react to something and change the values on the ASG
+  - Simple - a pair of rules, one to provision instances, and one to terminate instances
+    - Usually based on a metric, i.e. CPU above 50% or below 50%, adjust the Desired capacity up or down
+  - Stepped - i.e. add 3 instances if the CPU usage is above 80%, allows quicker reaction to extreme change in conditions
+    - This is preferred over Simple Scaling unless you just need something super simple
+  - Target Tracking - define an ideal amount of something, i.e. 40% usage of CPU, and move the desired amount of instances to stay at that level.
+- Use Cooldown Periods to prevent extra costs from constantly removing or adding instances if there are lots of changes in the environment
+  - Remember you are billed a minimum amount of time each time an instance is provisioned, even if it is terminated quickly
 
 ### Definition
 
 - ASGs define where instances are launched.
   - Linked to a VPC
   - Subnets within that VPC and linked to an auto scaling group
-
-## Scaling Strategies:
-
-- Manual scaling - update the size of a ASG manually
 
 ### Dynamic Scaling
 
@@ -52,12 +54,6 @@
 
 - If an instance fails, the ASG will terminate it and provision a new instance to replace it. (Self Healing)
 - If you terminate an instance, ASG will auto create a new one to replace it to match desired setting.
-- left off at 9:32 https://learn.cantrill.io/courses/1101194/lectures/27895172
-
-### Scheduled Scaling:
-
-- Anticipate scaling based on known usage patterns (i.e. set the max capacity to 10 at 5pm on Friday in your setup)
-  - useful for known periods of high or low usage.
 
 ### Predictive Scaling:
 
@@ -66,8 +62,7 @@
 
 ### Simple Instance Recovery
 
-- Use with EC2
-  - Cheap simple and effective high availability
+- Cheap simple and effective high availability
 - create a launch template to auto build an instance
 - Create an Auto Scaling Group using that template
 - Set the ASG to use multiple subnets in different Availability Zones
@@ -79,7 +74,12 @@
 ## Integration with Load Balancers
 
 - Use an ASG to integrate with a target group (associated with a Load Balancer)
-  - Load balancers will be associated with or point to target groups of instances
+  - As instances are provisioned within the ASG, they are automatically added to the Target Group of the Load Balancer
+  - Metrics used to monitor load on the system can be used to adjust the number of instances
+- Load balancers will be associated with or point to target groups of instances
+- The ASG can be configured to use the Load Balancer Health Checks rather than the standard EC2 status checks
+  - ALB health checks are much richer and can monitor the http/https requests and be application aware
+  - Be careful about health check dependencies, i.e. if you are checking a app part that depends on the database and the database fails, the health check will fail, but the problem isn't the app, it's the database (this will cause ec2 instances to be terminated etc.)
 
 ### Elasticity enablement
 
@@ -96,9 +96,9 @@
 
 ## Scaling Processes
 
-- Processes can be set to "Suspend" or "Resume"
+- The following functions can be set to "Suspend" or "Resume"
 
-### functions
+### Functions
 
 - Suspend:
   - Launch - ASG won't scale if alarms fire
@@ -119,8 +119,14 @@
 - \*Use more smaller instances - gives you more granular control of the compute and costs of the ASG.
   - i.e. use 20 small instances instead of 2 large instances. You can increment adding compute in smaller steps etc.
 
-## Elastic Architecture
+## Launch Configurations and Templates
 
-- Use Application Load Balancer for elasticity and to abstract the resources created by ASG away.
-- ASGs control the WHEN and the WHERE - when instances are launched and what SUBNETS they are launched into.
-  - Launch Templates and Configurations define the WHAT - what instances are launched and what config they have.
+- Allows configuration for EC2 instances to be defined in advance
+  - Which AMI to use
+  - Instance Type and Size
+  - What key pair to use
+  - Storage, Networking, Security Groups, User Data, IAM Role etc...
+- Launch Templates are newer than Launch Configurations and have more features - they are recommended over Launch Configurations
+- Not editable - defined once and they're locked
+  - Launch Templates allow you to have versions
+- Launch Configurations or Launch Templates can be used with Auto Scaling Groups
