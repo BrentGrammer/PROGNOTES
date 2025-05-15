@@ -706,10 +706,20 @@ chmod 755 /etc/update-motd.d/40-cow
 
 - cd into `/var/log` on the instance
 - two folders are useful for debugging user data bootstrapping errors and problems:
+
   - `/var/log/cloud-init-output.log`
     - Shows all of the commands executed on the EC2 instance and the output of those commands
   - `/var/log/cloud-init.log`
     - very verbose version of cloud-init-output.log. Used for deeper debugging and provides more information than cloud-init-output.log.
+
+- Check userdata logs:
+
+```sh
+sudo cat /var/log/cloud-init-output.log | grep -i cloudwatch
+sudo cat /var/log/cloud-init.log | grep -i cloudwatch
+
+sudo cat /var/log/cloud-init-output.log | grep -i -E 'cloudwatch|s3|error'
+```
 
 ## Installing Docker on an EC2 instance
 
