@@ -274,3 +274,84 @@
   - Only billed for usage of resources when you use the database, unlike RDS where resources used for it are billed whether the database is being used or not
   - Cost effective if use is not constant and infrequent (i.e. not constant like a production database)
   - Compatible with MySQL/PostgreSQL with similar features and compatibility
+
+# Creating an RDS Instance for Migrating data to
+
+[Demo](https://learn.cantrill.io/courses/1101194/lectures/27895187)
+
+### Subnet Group
+
+- Create a subnet group which is a range of addresses for RDS to put its databases inside
+  - For example 3 private subnets across 3 AZs (subnet-a, subnet-b, subnet-c)
+  - These ranges are what is available for RDS to choose where to deploy instances into
+- Create subnet groups, then `Create DB Subnet Group`:
+  <br>
+  <img src="img/sgroups.png" />
+  <br>
+  <br>
+- Select 3 PRIVATE subnets that you created which are meant to be dedicated to RDS instances
+  <br>
+  <img src="img/snets.png" />
+  <br>
+  <br>
+
+### Create the RDS Instance
+
+[Demo instructions](https://github.com/acantril/learn-cantrill-io-labs/blob/master/aws-elastic-wordpress-evolution/02_LABINSTRUCTIONS/STAGE3%20-%20Add%20RDS%20and%20Update%20the%20LT.md)
+
+- RDS > Databases > Create Database
+  <br>
+  <img src="img/createdb.png" />
+  <br>
+  <br>
+- Standard Create option > MySQL
+- Specify a db instance id name, database user and password
+- Need to assign it to a VPC
+- Choose the subnet group you created earlier
+- Make sure No is selected for Publicly Accessible
+- Choose a security group you create for the database
+- **Important** Expand Additional Configuration and set an Initial Database Name!
+  - Should match what you store in Parameter store or secrets, for example
+    <br>
+    <img src="img/dbname.png" />
+    <br>
+    <br>
+
+### Migrating Data
+
+- For example, you can ssh into the ec2 instance and get the data with a dump (mysqldump)
+- We do this from inside the ec2 instance since it is in the VPC and can access the private subnets without issue
+
+  - Get user and password credentials from parameter store:
+
+  ```shell
+  DBPassword=$(aws ssm get-parameters --region us-east-1 --names /A4L/Wordpress/DBPassword --with-decryption --query Parameters[0].Value)
+  DBPassword=`echo $DBPassword | sed -e 's/^"//' -e 's/"$//'`
+
+  DBRootPassword=$(aws ssm get-parameters --region us-east-1 --names /A4L/Wordpress/DBRootPassword --with-decryption --query Parameters[0].Value)
+  DBRootPassword=`echo $DBRootPassword | sed -e 's/^"//' -e 's/"$//'`
+
+  DBUser=$(aws ssm get-parameters --region us-east-1 --names /A4L/Wordpress/DBUser --query Parameters[0].Value)
+  DBUser=`echo $DBUser | sed -e 's/^"//' -e 's/"$//'`
+
+  DBName=$(aws ssm get-parameters --region us-east-1 --names /A4L/Wordpress/DBName --query Parameters[0].Value)
+  DBName=`echo $DBName | sed -e 's/^"//' -e 's/"$//'`
+
+  DBEndpoint=$(aws ssm get-parameters --region us-east-1 --names /A4L/Wordpress/DBEndpoint --query Parameters[0].Value)
+  DBEndpoint=`echo $DBEndpoint | sed -e 's/^"//' -e 's/"$//'`
+  ```
+
+  - Get a dump with mysqldump:
+    - `mysqldump -h $DBEndpoint -u $DBUser -p$DBPassword $DBName > dbdump.sql`
+  - Change any database endpoint references (in parameter store, etc.) to use the rds endpoint
+  - Example getting the new parameter from parameter store (make sure you delete the parmater and make a fresh new one):
+
+  ```shell
+  # this gets the fresh parameter with the rds dns endpoint and sets the environment variable to it
+  DBEndpoint=$(aws ssm get-parameters --region us-east-1 --names /A4L/Wordpress/DBEndpoint --query Parameters[0].Value)
+  DBEndpoint=`echo $DBEndpoint | sed -e 's/^"//' -e 's/"$//'``
+  ```
+
+  - Now you can use mysqldump again to pipe the dumped .sql you made earlier into the RDS database
+    - `mysql -h $DBEndpoint -u $DBUser -p$DBPassword $DBName < a4lWordPress.sql `
+  - Finally replace all references in your application code to the db endpoint with the RDS endpoint

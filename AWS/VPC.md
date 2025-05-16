@@ -26,6 +26,7 @@
 
 ### CIDR Range:
 
+- **The number after the slash represents the bits that cannot change, i.e. /28 means the first 3 octets (3 \* 8) do not change, so you can have 10.0.0.1-254**
 - a range of IP addresses that are allowed within the VPC
   - **Minimum range is /28 (16 host addrs) and maximum size allowed is /16 (65,536 IP host addrs)**
     - Good starting point is to use a 10. range of IP addrs

@@ -121,6 +121,8 @@
 
 ## Launch Configurations and Templates
 
+See [Demo of creating a Launch Template](https://learn.cantrill.io/courses/1101194/lectures/27895186) at timestamp 1:10
+
 - Allows configuration for EC2 instances to be defined in advance
   - Which AMI to use
   - Instance Type and Size
@@ -130,3 +132,54 @@
 - Not editable - defined once and they're locked
   - Launch Templates allow you to have versions
 - Launch Configurations or Launch Templates can be used with Auto Scaling Groups
+
+### Launch Templates
+
+- Can be created from scratch or from previous versions
+- When launching an instance directly, you need to specify the keypair and the subnet to launch into in the console
+- NOTE: if using a ASG with the template, the ASG will automatically choose which subnet to launch into
+
+## Lifecycle Hooks
+
+- Define custom actions that occur during auto-scaling actions (instance launch transitions or instance terminate transitions)
+- Instances are paused and wait with a timeout of 3600 seconds when lifecycle hooks are hooked into
+  - They either CONTINUE or ABANDON
+  - Or you can RESUME the operation using `CompleteLifeCycleAction` after some activity you want to complete
+  - During the wait induced, you can perform a set of actions (load or index data that takes some time for ex.)
+  - Moves from `Pending` > `Pending Wait` > `Pending Received` > `InService`
+- Can be integrated with Event Bridge or SNS Notifications
+- Terminate hooks can be used in reverse, to make a snapshot for ex. before proceeding to terminate
+  - `Terminating` > `Terminating Wait` > `Terminating Proceed` > `Terminated`
+
+## ASG Health Checks
+
+- ASGs assess health of EC2 Instances within its group
+- If instance fails a health check, then it is replaced in the Auto Scaling Group
+
+### Types of Checks
+
+- EC2 Checks: Anything but running state is viewed as unhealthy: `Stopping`, `Stopped`, `Terminated`, `Shutting Down`, `Impaired` (not 2/2 health status)
+- Load Balancer Checks (ELB checks): LB instance needs to be both `Running` and passing the ELB health check, otherwise it is considered unhealthy
+  - If using ALB, you can do Application Aware health checks: checking a page in the app, text pattern matching, etc.
+  - When integrated with an ASG, these checks are much more Application Aware
+- Custom Health Checks: allows integrating external systems to make health checks. Extends functionality of ASG health checks
+
+### Grace Period
+
+- 300 seconds or 5 minutes by default (configurable)
+- This is how much time the system has to launch, bootstrap and start before health checks start
+  - useful if performing custom bootstrapping on EC2 instances launched by the ASG
+- **IMPORTANT** If your grace period is not long enough to let the instance startup, then it will get into an infinite loop of starting and terminating!
+
+### Updating the Version
+
+- If you change a launch template you need to update the default version to use
+  <br>
+  <img src="img/templatechange.png" />
+  <br>
+  <br>
+
+  <br>
+  <img src="img/setdefaulttemplate.png" />
+  <br>
+  <br>

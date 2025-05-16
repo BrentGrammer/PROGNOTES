@@ -136,3 +136,60 @@ Servers that forward traffic to multiple instances
 ## Auto Scaling Groups
 
 - See [AutoScalingGroups.md](./AutoScalingGroups.md)
+
+## Implementing a Load Balancer
+
+[Video](https://learn.cantrill.io/courses/1101194/lectures/27895189)
+
+- Needs a VPC, and subnets it will be placed into
+  - i.e. 3 AZs in 3 PUBLIC subnets (1 in each AZ)
+- Need a security group (do not use the default)
+- Make sure the Listeners and routing open up HTTP traffic
+- Create a target group where the LB forwards traffic to
+  - Target type: `Instances`
+  - You can add instances to the Target Group later manually or can integrate with an ASG
+- Store the DNS name of the load balancer in Parameter Store to expose it to all the EC2 instances
+  - Can store as a regular string
+  - You need to configure this DNS name to be the home address for the application
+    - For example, use ssm client to pull the DNS name from parameter store
+- Finally you can create an ASG group to use with the ALB
+  - [Demo](https://learn.cantrill.io/courses/1101194/lectures/27895190) at timestamp 2:00
+  - Use a Launch Template with the ASG (select the Launch Template you want to use)
+  - Can specify the version of the template
+  - Specify the VPC and subnets for the ASG (3 subnets in 1 AZ each for example)
+  - ASG will add any instances that are created or terminated in it to the target group the ALB is using (select the target group you created for the ALB in ASG setup)
+    - You can alternatively manually assign instances to a target group that the ALB is using
+  - Use the ELB Health checks which are more feature rich than regular health checks
+  - Make sure to enable group metrics collection to CloudWatch for the ASG
+  - Choose Min, Desired, Max of 1:
+    <br>
+    <img src="img/scaling.png" />
+    <br>
+    <br>
+  - Add tags so you can identify the instances in the ASG easily:
+    <br>
+    <img src="img/asgtags.png" />
+    <br>
+    <br>
+  - Look at the Activity tab in the ASG details page to get information on status:
+    <br>
+    <img src="img/activity.png" />
+    <br>
+    <br>
+  - The ASG should now maintain one instance up and running from now on and is linked to the target group/ALB
+- Add Dynamic Scaling to the ASG - generally use Simple Scaling Policies and associate them with an Alarm and Metric
+  <br>
+  <img src="img/dynamicscaling.png" />
+  <br>
+  <br>
+  - Example policy:
+    - CPUUtilization (EC2 metric by ASG) is higher than 40%, then add 1 insance
+    - CPUUtilization (EC2 metric by ASG) is lower than 40%, then remove 1 insance
+    - MAKE SURE TO INCREASE THE MAXIMUM CAPACITY OF THE ASG TO MORE THAN 1! (for example make it 3)
+      <br>
+      <img src="img/cpupolicy.png" />
+      <br>
+      <br>
+    - You can test the scaling using a tool like `stress` by sshing into the instance and running it: 
+      - CPU stress: `stress -c 2 -v -t 3000`
+      - Disk space stress: `stress -c 2 --hdd 1 -v -t 3000`
