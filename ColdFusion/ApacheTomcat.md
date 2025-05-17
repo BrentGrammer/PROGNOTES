@@ -2,6 +2,8 @@
 
 ## Tomcat
 
+- logs: `sudo cat /opt/lucee/tomcat/logs/catalina.out`
+
 ### Checking Tomcat server configuration
 
 - Tomcat config: `/opt/tomcat/conf/server.xml` or `/opt/lucee/tomcat/conf/server.xml`
