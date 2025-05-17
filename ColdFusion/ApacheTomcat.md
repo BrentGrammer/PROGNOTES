@@ -80,7 +80,7 @@ curl http://localhost:{tomcatport} # usually 8080 is the port or 80 etc. if apac
 
 ```xml
  <!-- cat /opt/tomcat/conf/web.xml | grep welcome -->
- 
+
   <!--                       is no welcome file in this directory?  [false] -->
   <!-- for a "welcome file" within that directory and, if present, to the   -->
   <!-- If no welcome files are present, the default servlet either serves a -->
@@ -145,6 +145,33 @@ sudo tail -f /opt/tomcat/logs/catalina.out
 - Apache config: `/etc/apache2/apache2.conf`
 - Apache Virtual Host: `/etc/apache2/sites-available/000-default.conf`
   - This is the default Apache VirtualHost configuration that applies to all HTTP traffic if no other virtual host is specified. It's typically used for a default site or for general setups.
+- `sites-available` can hold any named .conf file for your site
+
+### Enable the site if needed
+
+- Having the file in sites-available isn't enough. It needs to be symlinked to sites-enabled.
+- Check if it's enabled:
+
+```Bash
+ls -l /etc/apache2/sites-enabled/
+# Look for ../sites-available/yoursite.com.conf in the output.
+
+# If it's NOT enabled:
+sudo a2ensite yoursite.com.conf # NOTE: you must have the file named yoursite.com.conf (with .conf at the end!)
+sudo systemctl restart apache2
+```
+
+### Where the Site Web Root is:
+
+- check the `<Context>` block in `/opt/lucee/tomcat/conf/server.xml`
+- the `docBase` is where the web root is defined and where apache/tomcat will serve files from
+- You may need to add this block if it is not present and files are not being served
+
+```xml
+<Host name="yourhost.com" appBase="webapps">
+    <Context path="" docBase="/path/to/web/root" />
+</Host>
+```
 
 ### Check Apache Logs
 
@@ -156,6 +183,8 @@ sudo tail -f /var/log/apache2/error.log
 ```
 
 ## Installing Lucee directly into Tomcat:
+
+- note: you can alternatively install lucee as a bundle which comes with it's own Java and Tomcat installation.
 
 ```bash
 # get the version you want of lucee
