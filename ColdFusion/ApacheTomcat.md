@@ -6,7 +6,7 @@
 
 - Tomcat config: `/opt/tomcat/conf/server.xml` or `/opt/lucee/tomcat/conf/server.xml`
   - Find which directory is mapped to `/` home route
-  - if your app files are elsewhere (e.g., /var/www/myapp/), update the Tomcat context in server.xml to point to that directory
+  - if your app files are elsewhere (e.g., /var/www/myapp/), update the Tomcat context in server.xml to point to that directory with a `<Context>`
 
 ```bash
 cat /opt/tomcat/conf/server.xml | grep -A 5 '<Host'
@@ -16,27 +16,21 @@ cat /opt/lucee/tomcat/conf/server.xml | grep -A 5 '<Host'
 # This will tell us where Tomcat is expecting to serve your app from.
 ```
 
-- Tomcat systemd service file: `/etc/systemd/system/tomcat.service`
+### Lucee app is not served (missing index.cfm error)
 
-  - Example:
+- Add `<Context>` under `Engine.Host` pointing to web root directory where files are to be served by Tomcat in `/opt/lucee/tomcat/conf/server.xml` (lucee bundle installed location)
 
-    ```
-    [Unit]
-    Description=Apache Tomcat Web Application Container
-    After=network.target
+```xml
+ <Engine name="Catalina" defaultHost="localhost">
 
-    [Service]
-    Type=forking
-    Environment="JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64" # has some env variable information/settings
-    ExecStart=/opt/tomcat/bin/startup.sh
-    ExecStop=/opt/tomcat/bin/shutdown.sh
-    User=ubuntu
-    Group=ubuntu
-      Restart=always
-
-    [Install]
-    WantedBy=multi-user.target
-    ```
+      <Host name="localhost"  appBase="webapps"
+            unpackWARs="true" autoDeploy="true">
+        <Valve className="org.apache.catalina.valves.AccessLogValve" directory="logs"
+               prefix="localhost_access_log" suffix=".txt"
+               pattern="%h %l %u %t &quot;%r&quot; %s %b" />
+          <Context path="" docBase="/opt/lucee/tomcat/webapps/ROOT" />
+      </Host>
+```
 
 ### Checking Tomcat Status
 
@@ -77,8 +71,13 @@ curl http://localhost:{tomcatport} # usually 8080 is the port or 80 etc. if apac
 
 ```bash
  cat /opt/tomcat/conf/server.xml | grep -A 5 '<Host'
+ # if lucee bundle install use:
+ cat /opt/lucee/tomcat/conf/server.xml | grep -A 5 '<Host'
+
  # this should match where you copy your application cfml files to
 ```
+
+- Make sure there is a `<Context>` pointing to the server files location root in `/opt/lucee/tomcat/conf/server.xml` under `Engine.Host` (this is the xml config if installed lucee bundle)
 
 - There is also a welcome file list entry in the tomcat web.xml configuration that should include index.cfm
 
@@ -101,6 +100,7 @@ curl http://localhost:{tomcatport} # usually 8080 is the port or 80 etc. if apac
 - Using PuTTy on windows may enter invisible characters that could cause syntax errors if editing config files like /opt/tomcat/conf/web.xml
 
   - Invisible Character: An empty line shouldn’t break XML, but a hidden byte-order mark (BOM) or non-printable char from editing (e.g., in Nano on Windows via PuTTY) could confuse Tomcat’s XML parser.
+  - Should run `dos2unix` to convert the text to unix characters
 
 - **Lucee runs as a war file in Tomcat:**
 
@@ -184,7 +184,7 @@ sudo systemctl reload apache2
 sudo /opt/lucee/tomcat/bin/shutdown.sh
 sudo /opt/lucee/tomcat/bin/startup.sh
 
-# or 
+# or
 sudo systemctl reload apache2
 # restarts lucee and tomcat if using lucee bundle install
 sudo /opt/lucee/lucee_ctl restart

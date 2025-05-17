@@ -89,6 +89,19 @@
   - Can perform actions triggered by these events, notifications, etc.
 - Can use Cloudtrail or Console UI for interaction
 
+### CodeDeploy with Git Submodules
+
+- Git submodules are essentially pointers to other repositories. When you clone your main repository, Git doesn't automatically download the submodule's content by default. It just checks out the pointer.
+  - jarssubmodule/aws_sdk exists as a directory in your local project, its contents (the actual files) aren't present until you explicitly initialize and update the submodule.
+  - When you create your deployment ZIP/TAR.GZ artifact, if your build process doesn't explicitly fetch the submodule's content, then that directory will either be empty or only contain the .git file that points to the submodule's repository. CodeDeploy then tries to copy files from within it and finds nothing, leading to the "No such file or directory" error.
+
+```shell
+# Assuming you are in the root of your main repository
+git submodule update --init --recursive
+# Now create your zip file, including the submodule content
+zip -r my_deployment.zip . -x "*.git*" # Exclude .git files
+```
+
 # Implementing CodeDeploy
 
 ## Prerequisites
