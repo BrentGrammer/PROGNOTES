@@ -173,6 +173,8 @@ sudo systemctl restart apache2
 </Host>
 ```
 
+- Restart tomcat/lucee with lucee_ctl (if installed bundle): `sudo /opt/lucee/lucee_ctl restart`
+
 ### Check Apache Logs
 
 ```bash
