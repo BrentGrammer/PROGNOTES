@@ -4,11 +4,15 @@
 
 ### Checking Tomcat server configuration
 
-- Tomcat config: `/opt/tomcat/conf/server.xml`
-  - Find which directory is mapped to `/` home route:
+- Tomcat config: `/opt/tomcat/conf/server.xml` or `/opt/lucee/tomcat/conf/server.xml`
+  - Find which directory is mapped to `/` home route
+  - if your app files are elsewhere (e.g., /var/www/myapp/), update the Tomcat context in server.xml to point to that directory
 
 ```bash
 cat /opt/tomcat/conf/server.xml | grep -A 5 '<Host'
+# or
+cat /opt/lucee/tomcat/conf/server.xml | grep -A 5 '<Host'
+
 # This will tell us where Tomcat is expecting to serve your app from.
 ```
 
@@ -174,6 +178,17 @@ sudo systemctl restart apache2
 ```
 
 - Restart tomcat/lucee with lucee_ctl (if installed bundle): `sudo /opt/lucee/lucee_ctl restart`
+
+```shell
+sudo systemctl reload apache2
+sudo /opt/lucee/tomcat/bin/shutdown.sh
+sudo /opt/lucee/tomcat/bin/startup.sh
+
+# or 
+sudo systemctl reload apache2
+# restarts lucee and tomcat if using lucee bundle install
+sudo /opt/lucee/lucee_ctl restart
+```
 
 ### Check Apache Logs
 
