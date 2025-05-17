@@ -31,6 +31,7 @@
   - [Factory Pattern](./DesignPatterns/Factory.md)
 - [Docker](./Docker/)
 - [GIT](./GIT/Git.md)
+  - [Git Submodules](./GIT/GitSubmodules.md)
 - [GoLang](./GoLang/)
 - [GraphQL](./GraphQL/)
 - [Kubernetes](./Kubernetes/)
