@@ -2,6 +2,7 @@
 
 - Regional service (Regionally resilient)
 - good [intro video](https://www.youtube.com/watch?v=bGDMeD6kOz0)
+- [great demo](https://www.youtube.com/watch?v=3FumWkHSusY)
 - Virtual Private Cloud - private network to deploy resources
 - **Custom VPCs** can be many per region.
 - Linked to a specific region, but spans all availability zones in that region (subnets within the vpc only span one AZ - see below)
@@ -54,6 +55,16 @@
 - Some services expect a default VPC to exist, so generally should leave it in place, but not use it for anything in production (structure and CIDR range cannot be change and is inflexible)
 - Best practice is NOT to use the default VPC directly
 
+### Creating a Custom VPC
+
+- Recommended approach over using Default VPC
+- [Good demo](https://www.youtube.com/watch?v=3FumWkHSusY)
+- When choosing the CIDR range for the custom VPC, try not to choose one that exists on any other VPCs in the Account (this will prevent vpc peering if needed in the future)
+  - A quick way of doing this is to modify the second octet (increment it) from the highest one in other VPCs
+    - Example: Default VPC has `10.0.0.0/16`, change yours to `10.1.0.0/16` or go much higher like `10.200.0.0/16`
+- For the subnets allow space between them so you can add more in the future if needed:
+  - `10.200.0.0/24` for the first CIDR block and `10.200.128.0/24` in the second (give plenty of space initially between the 0 and 128 octet)
+
 # Security
 
 - NACL - Network ACL
@@ -91,14 +102,23 @@
 
 # VPC Endpoints:
 
+[Demo](https://www.youtube.com/watch?v=3FumWkHSusY) at timestamp 104:55
+
 - Connect to AWS public services from a VPC using a private connection using the AWS network instead of the public internet
+  - S3 and DynamoDB are free, others come with cost
 - Better security
 - Less latency eliminating public network hops
+- This eliminates the need for a NAT Gateway on the private instances (which costs more)
 - **Types**:
   - **VPC Endpoint Gateway**: connects from a VPC to S3 or DynamoDB
     - Ex, connect from an EC2 instance in a VPC to these services via the Endpoint Gateway
   - **VPC Endpoint Interface**: used to connect to any other services in AWS (besides S3 and DynamoDB)
     - Ex, connect to Cloudwatch to push a metric from instance in VPC
+- Need to setup a Security Group for the VPC Endpoint
+  - Need Inbound rule for the VPC Endpoint security group allowing vpc resources (in private subnets, etc.)
+    - Delete any outbound rules on the SG for the VPC Endpoint (see [video]([Demo](https://www.youtube.com/watch?v=3FumWkHSusY) at timestamp 106:21))
+    - Accept All Traffic from SG for the instances you need to access it for S3, etc.
+  - Need Outbound rule on the Instance security group to allow traffic to the VPC Endpoint SG
 
 # VPC PrivateLink
 
