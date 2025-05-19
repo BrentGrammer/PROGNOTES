@@ -134,6 +134,38 @@
 
 ## SSH into EC2
 
+### Recommended: Use SSM Manager Session Manager:
+
+- [Installation and Verification Instructions](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-install-plugin.html)
+- Follow instructions to install (with .exe for windows)
+- Make sure aws cli is installed locally and configured with the account credentials and region
+- Open powershell in administrator mode and run: `aws ssm start-session --target instance-id`
+
+### Use script to connect by tag name for dynamic connection if Instance ID changes:
+
+```shell
+function ssm-connect-by-name() {
+  local instance_name="YourInstanceNameTag" # Replace with your EC2 instance's Name tag
+  local aws_region="YourAwsRegion" # Replace with your AWS region
+
+  local instance_id=$(aws ec2 describe-instances \
+    --filters "Name=tag:Name,Values=${instance_name}" "Name=instance-state-name,Values=running" \
+    --query "Reservations[].Instances[].InstanceId" \
+    --output text \
+    --region "${aws_region}"
+  )
+
+  if [ -z "$instance_id" ]; then
+    echo "Error: Instance with Name tag '${instance_name}' not found or not running."
+    return 1
+  fi
+
+  aws ssm start-session --target "$instance_id" --region "${aws_region}"
+}
+```
+
+### More notes on ssh
+
 - [Video](https://learn.cantrill.io/courses/1101194/lectures/27806428)
 - **BAD PRACTICE TO ALLOW ALL IP ADDRESSES IN SECURITY GROUP INBOUND RULES**
   - Use the IP (ip_prefix) value from here for AWS services if needed (i.e. to allow EC2 instance connect): https://ip-ranges.amazonaws.com/ip-ranges.json
