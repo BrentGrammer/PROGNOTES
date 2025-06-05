@@ -104,8 +104,11 @@
 
 [Demo](https://www.youtube.com/watch?v=3FumWkHSusY) at timestamp 104:55
 
+Main Purpose: Private resources in a VPC need access to public Services (like S3) without needing access to the public internet (when highly regulated env requires private resources to have NO internet connectivity, for example)
+
 - Connect to AWS public services from a VPC using a private connection using the AWS network instead of the public internet
   - S3 and DynamoDB are free, others come with cost
+  - Normally, without a VPC endpoint, you'd need public IP or NAT Gateway to access AWS public services from a VPC.
 - Better security
 - Less latency eliminating public network hops
 - This eliminates the need for a NAT Gateway on the private instances (which costs more)
@@ -119,6 +122,118 @@
     - Delete any outbound rules on the SG for the VPC Endpoint (see [video]([Demo](https://www.youtube.com/watch?v=3FumWkHSusY) at timestamp 106:21))
     - Accept All Traffic from SG for the instances you need to access it for S3, etc.
   - Need Outbound rule on the Instance security group to allow traffic to the VPC Endpoint SG
+
+### VPC Endpoint Prefix List and Access
+
+See [Architecture](https://learn.cantrill.io/courses/1723753/lectures/39153026) at timestamp 8:37
+
+- VPC endpoints are created per service, per region
+  - Endpoints are highly available across ALL Availability Zones in a region by default
+- You can only access services in the SAME region with a gateway endpoint
+- VPC Endpoints can only be accessed from within the VPC they were created in
+
+### Security Policies
+
+- Endpoint policies can be specified to say what the Endpoint can connect to (i.e. restrict it to access a particular subset of S3 buckets, for example)
+- A Bucket Policy can be configured to accept traffic only from a specific Gateway Endpoint
+
+#### Example Endpoint Policy restricting actions that can be performed by the VPC Endpoint:
+
+- Trying to access any other buckets with the VPC Endpoint besides those specified in this policy will deny access
+- Without an explicit Allow, the Implicit Deny will apply for all resources not allowed
+- **NOTE**: This does NOT deny access for IAM users with permissions using AWS CLI on their local machine, it's only requests made through the VPC Endpoint
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": "*",
+      "Action": "s3:*", // allows any s3 actions on the objects inside the buckets specified
+      "Resource": [
+        "arn:aws:s3:::PRIVATEBUCKETNAME/*",
+        "arn:aws:s3:::PUBLICBUCKETNAME/*"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Principal": "*",
+      "Action": "s3:ListBucket",
+      "Resource": [
+        "arn:aws:s3:::PRIVATEBUCKETNAME", // allows getting contents of these buckets
+        "arn:aws:s3:::PUBLICBUCKETNAME"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Principal": "*",
+      "Action": ["s3:ListAllMyBuckets", "s3:GetBucketLocation"], // allows anyone using the endpoint to list buckets and locations
+      "Resource": "*"
+    }
+  ]
+}
+```
+
+#### Example Bucket Policy:
+
+- This policy will explicity Deny any S3 actions on the private buckets when the action is not from a VPC Endpoint source identified (under `Condition`)
+- **NOTE**: This will remove access to the bucket in the AWS Console since that access is not coming from the private VPC Endpoint
+  - This will also remove access from using the AWS CLI for IAM users even if they have permissions since that access is not via the VPC Endpoint as well.
+  - If you need to restore access, update the VPC Endpoint policy back to Full Access
+- Use the VPC Endpoint ID in the Condition
+  <br>
+  <img src="./img/endpointid.png" />
+  <br>
+  <br>
+
+```json
+{
+  "Version": "2012-10-17",
+  "Id": "Policy1415115909152",
+  "Statement": [
+    {
+      "Sid": "Access-to-specific-VPCE-only",
+      "Principal": "*",
+      "Action": "s3:*",
+      "Effect": "Deny", // Explicit Deny on ALL actions for these buckets
+      "Resource": [
+        "arn:aws:s3:::PRIVATEBUCKETNAME",
+        "arn:aws:s3:::PRIVATEBUCKETNAME/*"
+      ],
+      "Condition": {
+        "StringNotEquals": {
+          "aws:sourceVpce": "REPLACEME-vpce-1a2b3c4d" // deny any action if not from the VPC Endpoint
+        }
+      }
+    }
+  ]
+}
+```
+
+### Setup
+
+[Demo](https://learn.cantrill.io/courses/1723753/lectures/41802356)
+
+1. VPC Endpoint is created in a VPC
+
+2. VPC endpoint is associated with one or more subnets in a VPC (this is different from interface endpoints)
+
+- NOTE: they DO NOT actually go into those subnets, it is only an association
+
+3. A **Prefix List** is a logical entity (object) which represents services (S3 or DynamoDB). It's attached to route tables for the subnets which gives any traffic to the public service a route without needing a public address to get to public services.
+
+- Think of it as a list of IP addresses that those services use which is kept up to date by AWS
+- a gateway endpint does not actually get provisioned in the VPC subnets
+  - When allocated, a **prefix list** is added to the route tables for those subnets in your VPC
+  - The prefix list is the `Destination` (where the traffic gets routed to)
+  - The prefix list uses the Gateway endpoint as a `Target` (what gets outgoing requests to route)
+
+View the VPC endpoint created for S3 in the VPC > Endpoints page in the console (it's the one that ends with `.s3`):
+<br>
+<img src="./img/endpoints3.png" />
+<br>
+<br>
 
 # VPC PrivateLink
 

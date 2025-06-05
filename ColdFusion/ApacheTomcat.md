@@ -5,6 +5,9 @@
 - logs: `sudo cat /opt/lucee/tomcat/logs/catalina.out`
 - access logs: `/var/log/apache2/access.log`
   - This logs requests. If you don't see anything here, then that means the requests are not making it to apache (blocked at ALB maybe, etc.)
+- check for apache running on port 80: `sudo ss -tulnp | grep :80`
+- check response from apache: `curl -v http://localhost/`
+
 
 ### Checking Tomcat server configuration
 
