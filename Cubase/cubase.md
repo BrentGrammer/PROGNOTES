@@ -94,6 +94,7 @@ NOTE: You may need to restart Cubase if you do not see the new instrument create
 ### Troubleshooting no sound but right channel is selected:
 
 - Make sure the instrument track and the Midi Tracks are all Record Enabled (click the circle record button and make sure it is highlighted red)
+- Also, check the Fader slider - make sure it is turned up (for the instrument in the left pane and in the mixer)
 
 ## Optimizing RAM
 
