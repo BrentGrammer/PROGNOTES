@@ -352,6 +352,21 @@
 }
 ```
 
+### IAM Policy Variables
+
+See [Full range of variables](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_variables.html)
+
+- `"Action": ["iam:*AccessKey*"]` - Allow anything using Access Keys on a resource (define the Resource in the statement)
+- `"Resource": ["arn:aws:iam::account-id:user/${aws:username}"]` - If the policy is attached to an IAM user, then the username is replaced with the explicit username for the user
+  - You can attach this policy to an IAM group and the username will be replaced with the usernames in that group
+- These variables can only be used as replacement vars after the fifth colon in the ARN of a Resource in an IAM statement
+- Variables can be used in the `Condition` part of the statement for any conditions that are string or ARN operators
+  - `StringEquals`
+  - `StringLike`
+  - `StringNotLike`
+  - `ArnEquals`
+  - `ArnLike`
+
 ### Multi-part policy with Variables/multiple Statements
 
 - [AWS Variables that can be used in Policies](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_variables.html)
@@ -447,5 +462,3 @@
   - Explicit Allow is needed in Account A (allow access OUT to Acct B)
   - and an explicit Allow is needed in Account B (allow access IN from Acct A)
   - If both of these are not in place, access is Denied
-
-
