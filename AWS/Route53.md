@@ -152,3 +152,68 @@
 - NOTE: It is not gauranteed that the resolver will honor your TTL settings - that can be changed locally by the admin for the resolver server itself.
 - CAUTION: DNS can cause project failures because of TTL values.
   - If you are doing any changes to DNS values, you need to lower the TTL values way in advance of the planned changes (up to days or weeks in advance even). This will reduce caching issues when you change the records.
+
+# Hosted Zones
+
+- Two zones: Public and Private
+
+### Hosted Zone
+
+- HOSTED ZONE: A DNS Database for a section of the Global DNS Database
+  - For a domain, such as `mysite.com`
+  - Globally RESILIENT: regions can be down, but Route53 still functions
+  - Databases which are referenced via delegation using Name Server Records
+
+### Public Hosted Zone
+
+- A Zone file which is hosted by Route53 on public name servers (accessible from the public internet and from within VPCs using the Route53 Resolver)
+- Hosted Zones are created automatically when you register a domain with Route53
+- Monthly fee for each hosted Zone and fee for queries made against the hosted zone
+- Hosted Zones host DNS Records (A records, MX records, S records etc.)
+  - These are also referred to as Resource Records
+- Hosted Zones are authoritative for a domain
+  - When you register a domain, name server records for that domain are entered into the top level domain zone (these point at your name servers, then the name servers and the domain which they host become authoritative for that domain)
+- When a hosted zone is created, 4 public name servers are allocated by Route53
+  - The Zone file (database) is hosted on these servers
+  - To integrate it with the public DNS system, you change the name server records for that domain to point at those 4 R53 name servers
+  - R53 can be used to host Zone files for externally registered domains (from GoDaddy, etc.) - you would add the name servers from route53 to the DNS system for the host you bought the domain for externally.
+- Instances in a VPC can query the Hosted Zone just as any public DNS zone can query it, using the Route53 Resolver
+
+### DNS
+
+- ISP Resolver Server > Root servers > TLD Servers (.org, .com, etc.) > Route53 Name servers for the hosted zone
+
+### Private Hosted Zone
+
+- Instead of being public, it is associated with VPCs within AWS - ONLY accessible within the VPC it is associated with
+- NOT accessible from the public internet
+- For accessing a private hosted zone, a service needs to be running inside a VPC that is associated with a private hosted zone
+
+### Split Horizon
+
+- Can have some records accessbile in the public zone and some inaccessible in a private zone behind the same domain.
+- Common use case with using the same domain but controlling what is accessed or pointed to depending on if access is from public internet or inside a business network/vpc
+
+### ALIAS RECORDS: CNAME vs. Route53 Alias Records
+
+- A CNAME maps a name to another name: ex - `www.mysite.com` points to `mysite.com`
+  - Basically it's an alternative name for something in DNS
+- DNS standard does NOT support making a CNAME for the Domain APEX (a.k.a. "naked domain") DNS record (the main record, i.e. `mysite.com` cannot point to something else)
+  - This is a problem because Elastic Load Balancers, for example, don't give an IP address to map to, but a DNS name.
+  - Pointing an Apex domain name at an Elastic Load Balancer DOES NOT work!
+- ALIAS RECORD: maps a name onto an AWS Resource
+  - These must be used to point APEX domain/naked domains to an AWS Resource (i.e. an ELB)
+  - An Alias is a subtype - you can have an A Record ALIAS and a CNAME Record ALIAS
+    - Example: For a Load Balancer you have an A Record for it that points to an IP Address
+    - To point to the Load Balancer, you need an A Record ALIAS in that case to point at the DNS name provided by the load balancer (You have to use the same Record type, A or CNAME etc., as the AWS resource provides, in this case an A record from the ELB)
+    - ALIASES are commonly used when pointing at resources such as the API Gateway, CloudFront, Elastic Beanstalk, S3 Buckets, etc.
+  - Use Aliases especially when you want to point to an AWS resource
+
+
+### Simple Routing
+
+- Each record can have multiple values (i.e for A Record, multiple IP addresses)
+- The values are returned in the same query in a random order
+- The client chooses one of the values to resolve to and connects to the server based on that value chosen
+- Used when routing requests to one single service (i.e. a Web Server)
+- LIMITATION: DOES NOT SUPPORT HEALTH CHECKS!
