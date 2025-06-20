@@ -21,3 +21,8 @@ Cloudfront:
 - No caching - files are updated in near real time
 - Read only
 - **Great for dynamic content that needs to be available in certain regions at low latency (not everywhere and not for static content)**
+
+
+# Learn Cantrillo CloudFront
+
+- Content Delivery Network
