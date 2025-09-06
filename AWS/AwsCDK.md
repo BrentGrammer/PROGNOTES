@@ -97,6 +97,74 @@ new CfnOutput(this, "LogicalResourceName", bucket.bucket_name);
 // This will put this information in the Outputs: section of the produced CloudFormation Template when you run `cdk deploy`
 ```
 
+## Custom Resources
+
+- Used to run processes during cdk deployments that might require logic (via a backed lambda) or to communicate with AWS resources such as parameter store
+- CloudFormation only invokes a custom resource's Lambda when the custom resource is created, updated, or deleted. If the custom resource's properties haven't changed since the last deployment, CloudFormation reuses the previous response and doesn’t re-invoke the Lambda
+
+### Getting a Parameter Store SecureString JSON using the Built-in Custom Resource:
+
+```typescript
+import * as cr from "aws-cdk-lib/custom-resources";
+
+const JSON_PARAM_NAME = "/myapp/secrets/jsonsecret";
+
+// Using builtin custom resource to get ssm param: https://docs.aws.amazon.com/cdk/api/v1/docs/custom-resources-readme.html#restricting-the-output-of-the-custom-resource
+const getParameter = new cr.AwsCustomResource(this, "GetParameter", {
+  onUpdate: {
+    service: "SSM",
+    action: "getParameter",
+    parameters: {
+      Name: JSON_PARAM_NAME,
+      WithDecryption: true,
+    },
+    physicalResourceId: cr.PhysicalResourceId.of(Date.now().toString()), // Forces fetch to parameter store on each deploy
+  },
+  policy: cr.AwsCustomResourcePolicy.fromSdkCalls({
+    resources: [
+      `arn:aws:ssm:${cdk.Aws.REGION}:${cdk.Aws.ACCOUNT_ID}:parameter${JSON_PARAM_NAME}`,
+    ],
+  }),
+});
+
+const paramValue = getParameter.getResponseField("Parameter.Value");
+
+const prop1Split = cdk.Fn.split('"prop1": "', paramValue);
+const prop1Part = cdk.Fn.select(1, prop1Split); // Part after '"prop1": "'
+const prop1 = cdk.Fn.select(0, cdk.Fn.split('",', prop1Part)); // Take value before '",'
+
+const prop2Split = cdk.Fn.split('"prop2": "', paramValue);
+const prop2Part = cdk.Fn.select(1, prop2Split); // Part after '"prop2": "'
+const prop2 = cdk.Fn.select(0, cdk.Fn.split('",', prop2Part)); // Take value before '",'
+
+new cdk.CfnOutput(this, "ConcattedParam", {
+  value: cdk.Fn.join("--", [prop1, prop2]),
+  description: "Parsed values from the custom resource",
+});
+```
+
+### Using A Lambda to Back a Custom Resource for Custom Logic:
+
+```typescript
+// Use NodejsFunction to get properties to automatically install all packages in package.json when deploying, so you don't have to include them before running cdk deploy
+import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
+
+const customResourceLambdaHandler = new NodejsFunction(
+  this,
+  "SomeCustomResourceLambda",
+  {
+    runtime: lambda.Runtime.NODEJS_20_X,
+    handler: "handler", // Name of the exported function in index.js
+    entry: path.join(lambdaPath, "MyCustomLambdaFolder", "index.js"), // point to where you define the lambda and logic in your project
+    timeout: cdk.Duration.seconds(300),
+    bundling: {
+      externalModules: [], // Specifying this as an empty array includes all packages listed in the lambda folder's package.json and installs them when deployed. include a package-lock.json in the lambda folder if you want consistent versions
+      minify: true, // Minify the code to reduce bundle size
+    },
+  }
+);
+```
+
 # Example Usage
 
 ## Prerequisites
