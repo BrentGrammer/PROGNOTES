@@ -251,7 +251,11 @@
   - These credentials are used by the identity that assumes the role.
 - Similar to access keys: contain a public key and a secret access key.
   - **The crucial difference is that these credentials expire and are no longer usable**
+- Expiration: your application on the EC2 instance with an Instance Profile (role) has access to the metadata service. The metadata service holds credentials which are AUTOMATICALLY renewed by STS, so as long as your app keeps checking the metadata credentials when making requests, they will not be expired.
+  - The tree in metadata where the creds are is `/iam/security-credentials/{role-name}`
+  - These credentials are always rotated and always valid
 - **These credentials are requested by another identity** such as another IAM user or an external identity such as google, facebook, twitter etc. (Web Identity Federation)
+- Always prefer using roles over storing long-term credentials for use (in the instances, etc.)
 
 ### Trust Policy
 
