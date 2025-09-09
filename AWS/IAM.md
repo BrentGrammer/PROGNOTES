@@ -466,3 +466,158 @@ See [Full range of variables](https://docs.aws.amazon.com/IAM/latest/UserGuide/r
   - Explicit Allow is needed in Account A (allow access OUT to Acct B)
   - and an explicit Allow is needed in Account B (allow access IN from Acct A)
   - If both of these are not in place, access is Denied
+
+# Permission Boundaries
+
+- Useful for limiting a subset of permissions for delegation
+  - Ex: An administrator who you do not want to be able to edit their own permissions for privilege escalation, but are allowed to edit and create other users for IAM management.
+- Permission Boundaries are IAM policies you create which restrict and wrap around a broader policy creating a boundary in those permissions.
+
+### A User Boundary:
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "ServicesLimitViaBoundaries",
+      "Effect": "Allow",
+      "Action": ["s3:*", "cloudwatch:*", "ec2:*"],
+      "Resource": "*"
+    },
+    {
+      "Sid": "AllowIAMConsoleForCredentials",
+      "Effect": "Allow",
+      "Action": ["iam:ListUsers", "iam:GetAccountPasswordPolicy"],
+      "Resource": "*"
+    },
+    {
+      "Sid": "AllowManageOwnPasswordAndAccessKeys",
+      "Effect": "Allow",
+      "Action": [
+        "iam:*AccessKey*",
+        "iam:ChangePassword",
+        "iam:GetUser",
+        "iam:*ServiceSpecificCredential*",
+        "iam:*SigningCertificate*"
+      ],
+      "Resource": ["arn:aws:iam::*:user/${aws:username}"]
+    }
+  ]
+}
+```
+
+### Admin Boundary (to restrict editing own account and privilege escalation):
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "CreateOrChangeOnlyWithBoundary",
+      "Effect": "Allow",
+      "Action": [
+        "iam:CreateUser",
+        "iam:DeleteUserPolicy",
+        "iam:AttachUserPolicy",
+        "iam:DetachUserPolicy",
+        "iam:PutUserPermissionsBoundary",
+        "iam:PutUserPolicy"
+      ],
+      "Resource": "*",
+      "Condition": {
+        "StringEquals": {
+          "iam:PermissionsBoundary": "arn:aws:iam::MANAGEMENTACCOUNTNUMBER:policy/a4luserboundary"
+        }
+      }
+    },
+    {
+      "Sid": "CloudWatchAndOtherIAMTasks",
+      "Effect": "Allow",
+      "Action": [
+        "cloudwatch:*",
+        "iam:GetUser",
+        "iam:ListUsers",
+        "iam:DeleteUser",
+        "iam:UpdateUser",
+        "iam:CreateAccessKey",
+        "iam:CreateLoginProfile",
+        "iam:GetAccountPasswordPolicy",
+        "iam:GetLoginProfile",
+        "iam:ListGroups",
+        "iam:ListGroupsForUser",
+        "iam:CreateGroup",
+        "iam:GetGroup",
+        "iam:DeleteGroup",
+        "iam:UpdateGroup",
+        "iam:CreatePolicy",
+        "iam:DeletePolicy",
+        "iam:DeletePolicyVersion",
+        "iam:GetPolicy",
+        "iam:GetPolicyVersion",
+        "iam:GetUserPolicy",
+        "iam:GetRolePolicy",
+        "iam:ListPolicies",
+        "iam:ListPolicyVersions",
+        "iam:ListEntitiesForPolicy",
+        "iam:ListUserPolicies",
+        "iam:ListAttachedUserPolicies",
+        "iam:ListRolePolicies",
+        "iam:ListAttachedRolePolicies",
+        "iam:SetDefaultPolicyVersion",
+        "iam:SimulatePrincipalPolicy",
+        "iam:SimulateCustomPolicy"
+      ],
+      "NotResource": "arn:aws:iam::MANAGEMENTACCOUNTNUMBER:user/bob"
+    },
+    {
+      "Sid": "NoBoundaryPolicyEdit",
+      "Effect": "Deny",
+      "Action": [
+        "iam:CreatePolicyVersion",
+        "iam:DeletePolicy",
+        "iam:DeletePolicyVersion",
+        "iam:SetDefaultPolicyVersion"
+      ],
+      "Resource": [
+        "arn:aws:iam::MANAGEMENTACCOUNTNUMBER:policy/a4luserboundary",
+        "arn:aws:iam::MANAGEMENTACCOUNTNUMBER:policy/a4ladminboundary"
+      ]
+    },
+    {
+      "Sid": "NoBoundaryUserDelete",
+      "Effect": "Deny",
+      "Action": "iam:DeleteUserPermissionsBoundary",
+      "Resource": "*"
+    }
+  ]
+}
+```
+
+### The Top Level IAM Manager Permissions (the boundary wraps and restricts this):
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "IAM",
+      "Effect": "Allow",
+      "Action": "iam:*",
+      "Resource": "*"
+    },
+    {
+      "Sid": "CloudWatchLimited",
+      "Effect": "Allow",
+      "Action": [
+        "cloudwatch:GetDashboard",
+        "cloudwatch:GetMetricData",
+        "cloudwatch:ListDashboards",
+        "cloudwatch:GetMetricStatistics",
+        "cloudwatch:ListMetrics"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
+```
