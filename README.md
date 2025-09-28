@@ -10,6 +10,7 @@
 - [AWS](./AWS/)
 - [Calculus](./Calculus/CalculusToC.md)
 - [Chaos Theory](./Chaos)
+- [Cellular Automata](./CellularAutomata/)
 - [Clean Code](./CleanCode/)
 - [ColdFusion](./ColdFusion/basics.md)
   - [Lucee](./ColdFusion/Lucee.md)

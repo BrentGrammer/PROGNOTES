@@ -62,7 +62,7 @@ Also see [Video](https://learn.cantrill.io/courses/1101194/lectures/26982641)
 - See [video](https://learn.cantrill.io/courses/1101194/lectures/26982641) for tips on using NAT instances if not using a NAT Gateway.
 - Recommended to use a NAT Gateway over a NAT Instance for better performance, high availability, scalability and lower maintenance
 - NAT Instances (EC2 Instances) can be used for cheaper more predictable cost (at the loss of high availability and scaling), they do not scale automatically like NAT Gateways.
-  - Good for test instances
+  - Good for test instances and Development environments
   - Cheaper
   - More flexible, ec2 instances can also be used as a bastion host or for port forwarding.
     - **NAT GATEWAYS CANNOT BE USED AS A BASTION HOST** you don't have access to manage it like an EC2 instance
