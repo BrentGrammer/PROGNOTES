@@ -120,6 +120,10 @@ NOTE: You may need to restart Cubase if you do not see the new instrument create
 
 - Middle C (C4) is labeled as C3 in Cubase (Not C4 as in American Standard Notation)
 
+### Celeste
+
+- Sounds an 8ve above written. Cubase automatically transposes. Bass Clef C (second space up in bass clef) written for the celeste is C2 in Cubase.
+
 ### Recording Dynamics
 
 - Using the Mod wheel might trigger the whole track to be whatever volume you're at because MIDI interprets the last given signal
