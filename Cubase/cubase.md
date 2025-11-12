@@ -136,3 +136,12 @@ NOTE: You may need to restart Cubase if you do not see the new instrument create
 - make sure you have "Record in editor" checked on(red) on top screen left of midi editor
 - Tip: what i do is delete the old dynamics so when i write the new ones they don't get merged with the older ones so i can write the curves as i want
 - Press Record after having played the part and move the mod wheel up and down to record the signals on the part
+
+## Effects Tracks
+
+### Using Plugins
+
+- Create a new Effects Track
+- Under Inserts in the left Inspector Panel select the effect in the dropdown list (look for the plugin name or vendor)
+- Select the track and select the Effects track in the Sends section in Inspector panel on the left.
+- **Lower the mix slider on the track all of the way if you do not want the original output to sound with the effect**
