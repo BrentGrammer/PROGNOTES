@@ -144,4 +144,9 @@ NOTE: You may need to restart Cubase if you do not see the new instrument create
 - Create a new Effects Track
 - Under Inserts in the left Inspector Panel select the effect in the dropdown list (look for the plugin name or vendor)
 - Select the track and select the Effects track in the Sends section in Inspector panel on the left.
+- Make sure the pre-fader send is on (little speaker icon)!
 - **Lower the mix slider on the track all of the way if you do not want the original output to sound with the effect**
+
+### Transposing
+
+- Inspector panel > MIDI Inserts dropdown > MIDI Modifiers
