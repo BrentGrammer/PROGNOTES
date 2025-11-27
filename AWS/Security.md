@@ -22,12 +22,109 @@
 
 - Protects web apps from common web exploits (Layer 7 HTTP)
 - Deployable on Layer 7 platforms like Application Load Balancer, API Gateway and CloudFront
-- Can define a Web ACL (Access Control List)
+- Can define a **Web ACL** (Access Control List)
+  - Web ACLs are REGIONAL and you create one for each region you need them in
+  - This is used by AWS WAF and associated with the services (i.e. a Web ACL is associated with a API Gateway or ALB for ex., which then means it's protected by AWS WAF)
   - Rules for IP addresses, HTTP headers, HTTP Body or URI Strings
   - Protects against common attacks - SQL Injection and Coross Site Scripting
   - Size contraints and geo-match (to block countries)
   - For DDoS attacks, Rate-based rules to count events (ex, user cannot make more than 5 requests per second)
 
+### Supported Services
+
+- Cloudfront
+- Applicatin Load Balancer
+- App Sync
+- API Gateway
+
+## Web ACLs
+
+- Web ACLs control if traffic is allowed or blocked
+- Created for a global service (CloudFront) or a Regional Service (an Application Load Balancer)
+  - **NOTE**: The association of a Web ACL with a AWS Resource/service can take TIME
+  - Adjusting a Web ACL associated to resources takes less time and is quicker
+  - A resource can only have ONE Web ACL, but a Web ACL can be associated with MANY resources
+- **The Default Action**: Blocks or Allows an action based on whether it is allowed by the ACL
+- Good use case: Eventbridge with Scheduled Rules to pass publicly maintained IP lists to block known bad actors.
+
+### Web ACL Capacity Units (WCU)
+
+- Rules have a limited amount of Compute power they can use
+- WCUs measure the complexity of Rules
+  - The default Max WCUs is 1500 (can be increased with a support ticket)
+  - Indicates the amount of resources the Web ACL uses within it's Rules
+- Defined up front when creating a Web ACL
+
+### Rules
+
+- These need to be added to a Web ACL and are processed in order
+
+#### Rule
+
+- basic structure:
+  - `Type`: How it works at a high level
+    - Regular: designed to match if something occurs
+    - Rate-Based: matches if something occurs at a certain rate
+  - `Statement`: One or more things that match traffic or not.
+    - defines WHAT does the rule match against?
+      - incoming TCP port 80
+      - incoming SSH port 22
+      - Requests with a specific HTTP header
+    - Rate based:
+      - Number of connections for a source IP address
+      - Connections from an IP which match other specified conditions (5,000 connections over a 5 minute period)
+    - Match Criteria:
+      - Origin Country, IP Address, **label**, headers, url query parameters, cookies, URI path, request body (only checks first 8.192 bytes!), HTTP Method
+      - How to match: Exact Match, Starts With, Ends With, Constains, using REGEX, etc.
+    - Single or Multi-Statement
+      - Allows, AND/OR/NOT condidtions
+  - `Action`: what WAF does if a traffic match occurs
+    - Allow (NOTE: Not valid for Rate Based rules! makes no sense to allow a request above a certain rate - only block it, count it, or use a Captcha)
+    - Block
+    - Count: records the number of requests and records that count
+    - Run a Captcha on the request, if captcha succeeds, it is counted, otherwise the request is blocked and processing stops
+    - Custom Responses: optional extra. If the action is "Block" then you can add a custom response or custom header
+      - Use a custom header which is always prefixed with `x-amzn-waf-`, which allows your application to react to traffic which has been matched
+    - **Labels**: internal to WAF, allows for conditional execution of rules
+      - A label can be added to a rule, and another rule can decide if it runs on the same traffic depending if the label exists on it
+      - Can be referenced from other rules within the Web ACL as well
+      - Labels are usable only if WAF does NOT stop processing of the request
+        - With `Allow` and `Block` actions, if a rule matches then no further action occurs. Processsing for that traffic on that Web ACL is stopped
+        - \*\*\* With `Count` and `Captcha` actions, processing continues - this is where you use Labels in follow rules to react based on whether the label is present
+
+#### Rule Groups
+
+- Allow administration for a group of rules
+- Have NO default action
+  - Rule groups are added to Web ACLs and the ACLs have the default actions for anything NOT matched by the Rules
+- Managed by AWS, a Marketplace vendor, managed by you, or service owned (i.e. Shield or Firewall Manager)
+- AWS Managed Rule Groups are moslty free for WAF customers
+  - Bot Control and Fraud Control Account Takeover Protection rule groups come with an extra fee
+- Rule Groups can be re-used between many Web ACLs (they are a separate Entity)
+
+### Logging
+
+- Log output from WAF can be directed to S3 directly or Cloudwatch Logs or Kinesis Firehose
+- **If you need fast reaction to logs is needed, then do NOT use S3** - logs to S3 are delivered every 5 minutes.
+- Firehose can be configured to put logging into supported destinations (including S3).
+  - The destinations can then be integrated with an Event Driven security response architecture
+    - (S3 events with Lambda/Athena/EventBridge)
+    - Extract intelligence from this and use it to update Web ACLs automatically
+    - **Feedback Loop**: Take data > identify Security actions > Automate security update/changes
+
+### Pricing
+
+- Montly price for every Web ACL: $5/month
+- $1/month per rule on each Web ACL
+- Monthly fee for every Managed or other Rule Group
+- Charged for every request processed by a Web ACL ($0.60/million requests)
+  - The more usage a Web ACL has (more requests) the higher the price
+- Use the AWS Pricing Calculator: https://calculator.aws/#/
+- Can enable Intelligent Threat Mitigation
+  - Bot Control: $10/mo. + $1 per million requests
+  - Captchas: $0.40 per 1,000 challenge attempts
+  - Fraud Control/Account Takeover: $10/mo. + $1 per 1,000 login attempts
+ 
 # Penetration Testing
 
 - **Customers can carry out penetration tests against infrastructure without needing prior approval for 8 services:**

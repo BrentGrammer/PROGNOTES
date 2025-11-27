@@ -75,6 +75,15 @@ console.log("Failed decrypted: ", failedDecrypted);
   - The cert will be signed by a private key from the CA and the client will use the public key of the CA to verify the certificate.
 - Because CAs are well known trusted entities, most browsers have the public keys of all the major Certificate Authorities stored in them so that it can easily verify all the SSL certs that will be received from various servers.
 
+### What is a Digital Signature?
+
+- A Digital Signature is an encrypted message digest (a hash like md5, sha1, etc.)
+- `gpg` (GNU Privacy Guard) is industry standard and newer than `pgp`
+- A private key is used to encrypt a digital signature and a public key can be used to verify the signature
+  - Public keys for verifying digital signatures can be retrieved from well-reputed repositories such as mit.edu, for example
+- The public key verification is the first step, but the key used should also be confirmed as belonging to a trusted entity. It should be matched to a list of trusted entities/keys provided by the service or software company you are verifying.
+- see [Video](https://www.youtube.com/watch?v=rElJIPRw5iM) around timestamp 27:30
+
 ### Digitally Signing documents
 
 - Bob produces a hash of some data (this does not involve a public or private key)

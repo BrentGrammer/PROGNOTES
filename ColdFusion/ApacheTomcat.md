@@ -1,15 +1,27 @@
 # Tomcat and Apache Servers
 
+- Tomcat is a free, production grade lightweight Java server
+- https://www.youtube.com/watch?v=rElJIPRw5iM
+  - left off 1:07:29
+
 ## Tomcat
 
+### Important Folders
+
+- /bin: holds the scripts to start and stop Tomcat (`startup.sh` and `shutdown.sh`)
+- /webapps: folder that holds the web application Tomcat servers
 - logs: `sudo cat /opt/lucee/tomcat/logs/catalina.out`
 - access logs: `/var/log/apache2/access.log`
   - This logs requests. If you don't see anything here, then that means the requests are not making it to apache (blocked at ALB maybe, etc.)
-- check for apache running on port 80: `sudo ss -tulnp | grep :80`
-- check response from apache: `curl -v http://localhost/`
-
+- /lib: Holds JAR libraries that come with Tomcat - this is a cold directory - it is only read when Tomcat starts, so if you add anything to a cold dir, you must restart Tomcat for it to see it.
+- "Catalina" - this is a module that is part of Tomcat that is responsible for handling web server functionality - it is often conflated with "Tomcat" itself and means the same thing.
 
 ### Checking Tomcat server configuration
+
+- The default port Tomcat serves on is `8080`
+- Dependencies: `$JAVA_HOME` or `$JRE_HOME` environment variable must be set on the system and point to the Java Version you want Tomcat to use
+- check for apache running on port 80: `sudo ss -tulnp | grep :80`
+- check response from apache: `curl -v http://localhost/`
 
 - Tomcat config: `/opt/tomcat/conf/server.xml` or `/opt/lucee/tomcat/conf/server.xml`
   - Find which directory is mapped to `/` home route
