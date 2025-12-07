@@ -2,7 +2,6 @@
 
 - Tomcat is a free, production grade lightweight Java server
 - https://www.youtube.com/watch?v=rElJIPRw5iM
-  - left off 1:07:29
 
 ## Tomcat
 
@@ -209,6 +208,11 @@ sudo systemctl reload apache2
 sudo /opt/lucee/lucee_ctl restart
 ```
 
+### Java Web App Root
+
+- A Java web application can be contained in a .WAR file
+- Requests to resources for a Java Web app will begin with the name of the .WAR file: `https://localhost:8080/WarFileName/someResource`
+
 ### Check Apache Logs
 
 ```bash
@@ -248,3 +252,53 @@ sudo /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java -jar lucee-5.3.4.80.jar --mo
 ```bash
 sudo /opt/tomcat/bin/startup.sh
 ```
+
+## High Level Overview of HTTP Request Lifecycle in Tomcat
+
+### URL vs. URI
+
+- URL: The entire string representing a destination entered in a browser: `https://somesite.com/something`
+- URI: The resource requested, not including the domain (The symbolic representation of the IP address): `/something`
+
+### Sessions
+
+- Tomcat maintains a map datastructure of a session using a `JSESSIONID` which is a 128 bit identifier of that map object representing the session
+  - Sent in a header as `Set-Cookie: JSESSIONID=E9533Ce7667BED64A2E4E0D5A....; Path=/someserver; HttpOnly`
+
+### Request Lifecycle
+
+- Request comes to Tomcat, and Tomcat forwards it to the Catalina Web Container (software)
+
+#### 3 Types of Requests:
+
+**Requests made to Tomcat end up on some kind of SERVLET**. See [Video](https://www.youtube.com/watch?v=rElJIPRw5iM) at timestamp 1:29:58
+  - A Default Servlet (starts with Tomcat)
+  - A programmer created servlet
+  - A Framework servlet
+
+1. Static asset (HTML page, img etc). These are forwarded to the *DEFAULT SERVLET* which ships with Tomcat Catalina
+  - Request > DefaultServer (Tomcat) > Web Container (Tomcat Catalina) > Request Dispatcher (generates a Java Map of the request) > DefaultServlet (loaded when Tomcat starts)
+    - The DefaultServlet gets the static content and sends it back to the browser
+1a. DYNAMIC content (content that requires the intervention of code and processing)
+  - Catalina parses the Request - making sure it is well formed
+  - Catalina extracts information from the request into a Java Map
+  - The Map is passed to some Servlet (some request handling code) - this could be a JSP servlet for a `.jsp` file for example.
+  - Passes a **channel reference** to the request handling code, so that it can talk back to the Client (browser) and generate a response.
+  - the main idea is Catalina converts the web request to a Java Map which your program can then read, work with, and finally write to the HTTP servlet response (Java output stream which can write what you want to it)
+2. Servlet - for example, a `.jsp` page translated to a servlet (happens automatically), or a specific servlet that you have written - the request is forwarded to that servlet.
+3. framework servlet - the request is to some framework servlet you are using and leveraging (i.e., `.jsf` pages translated by the JSF servlet)
+
+#### The Java Servlet
+- Java has a `HttpServlet` class: `javax.servlet.http.HttpServlet`, which is an interface that can be used to operate on or process raw HTTP requests
+  - the class has various `do` methods - HTTP verbs, `doGet`, `doPost`, `doDelete`, etc.
+  - These methods are called with the Request and the Response channel
+  - The class also has `get` methods, like `getMethod` which would tell us what the HTTP verb of the request is
+
+## Types of Tomcat Deployments (see timestamp 1:35:54)
+- Packed: "WAR'd" (Standard and recommended way)
+  - The web site is in one file and portable - a .WAR file.
+  - Tomcat notices the .WAR file and automatically unpacks it into a directory
+- Unpacked: "Un-WAR'd" (different flexible option)
+  - A directory of the manually unpacked contents of the .WAR file is exposed
+
+  left off at 1:47:17
