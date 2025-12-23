@@ -97,6 +97,15 @@ NOTE: You may need to restart Cubase if you do not see the new instrument create
 - Also, check the Fader slider - make sure it is turned up (for the instrument in the left pane and in the mixer)
 - Check that the instrument has an articulation which is turned on and selected in Kontakt! It will not play if no articulation is selected or one that is turned off is selected.
 
+### Incomplatible Files Error When Adding to Kontakt
+- If you get a warning about incompatible .nki files for an older library, do the following:
+Open Kontakt 7 in Standalone mode (not inside Cubase).
+Click the File menu (floppy disk icon) at the top and select Batch re-save.
+Click Yes on the scary-looking warning.
+Select the specific library folder on your external drive.
+Wait for it to finish.
+Once done, try adding the folder again via the Cogwheel > Import Content method. It should now be accepted.
+
 ## Optimizing RAM
 
 - Purge samples (i.e. in Kontakt)
