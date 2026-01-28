@@ -31,6 +31,7 @@
   - [Strategy/Template Pattern](./DesignPatterns/CleanCoders-Strategy.md)
   - [Factory Pattern](./DesignPatterns/Factory.md)
 - [Docker](./Docker/)
+- [Geology](./Geology/Geology.md)
 - [GIT](./GIT/Git.md)
   - [Git Submodules](./GIT/GitSubmodules.md)
 - [GoLang](./GoLang/)
