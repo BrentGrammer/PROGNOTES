@@ -96,6 +96,13 @@ NOTE: You may need to restart Cubase if you do not see the new instrument create
 - Make sure the instrument track and the Midi Tracks are all Record Enabled (click the circle record button and make sure it is highlighted red)
 - Also, check the Fader slider - make sure it is turned up (for the instrument in the left pane and in the mixer)
 - Check that the instrument has an articulation which is turned on and selected in Kontakt! It will not play if no articulation is selected or one that is turned off is selected.
+#### MIDI keyboard does not play sound, but the instrument works in Kontakt:
+- In the Instpector on the left for the track, under Routing > make sure "Any Input" is selected under "All MIDI Inputs":
+<br>
+<img src="./img/anyinput.png" width="30%" height="30%"/>
+<br>
+<br>
+
 
 ### Incomplatible Files Error When Adding to Kontakt
 - If you get a warning about incompatible .nki files for an older library, do the following:
