@@ -92,7 +92,7 @@ Cloudfront:
   - `/images/whiskers*.jpg` - invalidates any objects in any path that starts with /image/whisers... (/images/whiskers1.jpg, /images/whiskers2.jpg, etc.)
   - `/images/*` - affects any objects in the path, /images/whiskers.jpg, /images/somethingelse.jpg
   - `/*` - every object at every path is invalidated
-- IMPORTANT: Cache Invalidation has a cost and is something that should only be used on occasion to correct errors if needed. If you are doing this regularly, you should change to using filenames with version numbers instead: `myfile_v1.jpg`, `myfile_v2.jpg`, etc. If you want to replace a file at the origin, add a NEW object with the _v2 appended. Update your app to point at the new version - this then requires no invalidation to be run in Cloudfront
+- IMPORTANT: Cache Invalidation has a cost and is something that should only be used on occasion to correct errors if needed. If you are doing this regularly, you should change to using filenames with version numbers instead: `myfile_v1.jpg`, `myfile_v2.jpg`, etc. If you want to replace a file at the origin, add a NEW object with the \_v2 appended. Update your app to point at the new version - this then requires no invalidation to be run in Cloudfront
   - NOTE: this is not the same as S3 Object versioning - S3 object versions all have the same filename, but the versioning is on the metadata level
   - Using versioned filenames that are separate objects are a better strategy in general for cache management
 
@@ -105,3 +105,32 @@ Cloudfront:
   - `Cache-Control s-maxage`: value in seconds - directs Cloudfront to apply a TTL in seconds for a particular object, after which the object expires
   - `Expires`: value is a Date and Time - specific time that Cloudfront should use to view an object as expired at.
   - **NOTE**: The Minimum and Maximum TTL specified on the Behavior options in Cloudfront will determine if the values set in the above headers are valid - if they are outside of those limits, Cloudfront will automatically change them to the minimum or maximum value specified on that behavior
+
+## CloudFront Origins
+
+- see [video](https://learn.cantrill.io/courses/1101194/lectures/27887480)
+- Origins are where CloudFront goes to get content (when it is not cached at an edge location)
+- Origins are selected at the Behavior level
+
+### Origin Groups
+
+- Allow for adding resiliency (in case your origin fails or goes down)
+- Two or more origins created within a distribution, you can make a group to group them together which is used by a CloudFront Behavior
+
+### Types of Origins
+
+- **S3 Buckets**
+  - Simplest to integrate with CloudFront.
+  - Advanced Features:
+    - Origin path: specify a nested path in the origin instead of the top level (of the s3 bucket, i.e. use a prefix/folder etc. for where an origin fetch looks)
+    - Origin Access - restrict access to the origin so it's only accessible via the CloudFront distribution, recommended new way is using Origin access control
+    - Origin Custom Headers - pass through your custom headers to the origin on an origin fetch
+  - With s3 origins, the Viewer side protocol and the Origin side protocol are automatically matched and the same (http/https etc)
+  - Note if you use S3 as a static store for a website, then it is viewed as a CUSTOM ORIGIN by CloudFront and has different restrictions of features for those
+- **AWS Media Package Channel package endpoints**
+- **AWS Media Store Container endpoints**
+- **CUSTOM ORIGINS: Web Servers (everything else)**
+  - see timestamp 6:20 in [video](https://learn.cantrill.io/courses/1101194/lectures/27887480)
+  - Much more configuration options: protocol, port settings, ssl version, etc.
+  - To secure custom origins, you need to use Custom Headers (instead of origin access control like with S3)
+    - Create a custom header in the config that only you are aware of and your custom origin checks for that header to only accept connections from CloudFront
