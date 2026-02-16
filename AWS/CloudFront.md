@@ -134,3 +134,71 @@ Cloudfront:
   - Much more configuration options: protocol, port settings, ssl version, etc.
   - To secure custom origins, you need to use Custom Headers (instead of origin access control like with S3)
     - Create a custom header in the config that only you are aware of and your custom origin checks for that header to only accept connections from CloudFront
+
+# SSL and Certificates with CloudFront
+
+- [video](https://learn.cantrill.io/courses/1101194/lectures/27887479)
+- Cloudfront provides a Default Certificate which uses `*.cloudfront.net` as the certificate name
+  - Each CloudFront Distribution comes with a default Domain Name (a CNAME DNS Record) - ex: `dwwwdddw.cloudfront.net`
+  - The default certificate covers all of the Cloudfront distributions that use the default DNS name
+- To use a custom DNS name, you need to use **Alternate Domain Names**, which are CNAMES you can specify, i.e. `cdn.catagram.com`
+  - Use the Alternate Domain Name feature to add custom domain names, make them active and then point the custom name at a CloudFront distribution using a DNS provider like Route53
+
+### Adding an SSL Certificate
+
+- If using https, you need a certificate applied to the Cloudfront Distribution that matches the custom DNS name
+- You need a way of verifying that you own and control the domain by adding a SSL certificate that matches the alternate domain name you are adding to the Cloudfront distribution
+
+#### AWS Certificate Manager (ACM) - to get the cert
+
+- Generate or import a certificate using AWS Certificate Manager
+- **IMPORTANT NOTE ON CERT CREATION FOR CLOUDFRONT:** ACM is a regional service
+  - the certificate NORMALLY must be created in the same region of the resource you are allocating it to
+    - Ex: a Load Balancer in us-east-1 must also need a certificate created within ACM in the us-east-1 region.
+  - the exception to this rule is for any global service (like CloudFront): _the certificates must always be generated in us-east-1 region!_
+- For configuration in Cloudfront you can redirect any http requests to https
+  - You can restrict to https only, but that means http requests will fail entirely
+
+## Understanding Certificates
+
+### The Viewer and Origin Protocol
+
+- There are two connections for Cloudfront distributions
+  - The Viewer to the Cloudfront edge location (Viewer Protocol)
+  - The Cloudfront edge to the Origin (Origin protocol)
+    - Origins can be an S3 bucket, Application Load Balancer, or EC2 instance, etc.
+- **Both** connections each need PUBLIC valid certificates as well as any intermediate certs in the chain
+
+  #### Viewer Connection Certificates
+  - The certs installed in the edge locations must be PUBLIC - self-signed certificates will not work! They must be publicly trusted certs which web browsers know about and trust.
+    - Should be from Certificate Authorities such as Comodo, DigiCert, Symantec or AWS Certificate Manager
+    - again, the certificate must match the name of the Cloudfront distro (a custom DNS name must point to cloudfront distro, and the certificate needs to match the custom DNS name)
+
+  #### Origin Connection Certificates
+  - Also must be publicly trusted certs from major CA Authorities or ACM
+  - **For S3 Origins (both viewer connection and origin must have a certificate), S3 handles the certs natively and you don't need to add one** - very simple to use SSL, just point Behavior from your Cloudfront distro at the S3 origin and everything will work.
+  - Application Load Balancers origins need a certificate - can use external or use ACM to generate one for you.
+  - **For Custom origins like EC2 instances without a ALB**: You CANNOT use ACM to generate certificates and must apply them manually.
+  - For origins, the certificate must match the DNS name Cloudfront is using to contact the origins
+
+### How SSL Works
+
+- See timestamp 5:35 in [here](https://learn.cantrill.io/courses/1101194/lectures/27887479)
+- Historically every SSL enabled website needed it's own IP adress(before 2003)
+- Encryption with SSL happens at the TCP layer, which is much lower level than the HTTP layer (which is application layer protocol)
+- It is possible to host multiple many sites using different names on a single webserver with one ip address
+  - Servers using http know which site to serve based on Host Headers in the request coming from a browser
+  - This reading of the host header happens at Layer 7 after the connection has been established
+  - TLS (the encrypted part of https) happens BEFORE this point where the browser sends the server the information about the site it wants to access
+- PArt of what TLS does is allow a webserver to validate its identity
+  - Before you start an HTTP connection (layer 7), the web server identifies itself
+  - in the past there was no way to tell the web server which site the browser is trying to access at this stage, so the server doesn't know which one and could only provide one certificate
+
+#### SNI (Server Name Indication)
+
+- In 2003, an extension was added to TLS called SNI (Server Name Indication) to address this limitation of not being able to host multiple https sites on one webserver
+- This allows the client to tell the server which domain name it is attempting to access during the TLS handshake (before HTTP layer gets involved)
+  - The server can then provide the certificate for the particular site requested, proving it's identity to the client
+- Note: Cloudfront needs to provide separate IP addresses to support older browsers (which don't support SNI)
+  - SNI Mode on your distribution is default and free at no cost. In SNI mode, all you need to do is install the certificate
+  - **Dedicated IP Mode** is not free and needs to be set to give the edge locations each an IP address, and this will come with a charge - currently $600/month per distribution
