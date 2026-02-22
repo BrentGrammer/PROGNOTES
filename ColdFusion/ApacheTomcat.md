@@ -8,7 +8,8 @@
 ### Important Folders
 
 - /bin: holds the scripts to start and stop Tomcat (`startup.sh` and `shutdown.sh`)
-- /webapps: folder that holds the web application Tomcat servers
+- `<tomcathome>/webapps`: folder that holds the web application Tomcat servers
+  - "tomcathome" is where tomcat is installed on the system
 - logs: `sudo cat /opt/lucee/tomcat/logs/catalina.out`
 - access logs: `/var/log/apache2/access.log`
   - This logs requests. If you don't see anything here, then that means the requests are not making it to apache (blocked at ALB maybe, etc.)
@@ -116,7 +117,6 @@ curl http://localhost:{tomcatport} # usually 8080 is the port or 80 etc. if apac
 ### BEWARE EDITING IN WINDOWS VIA PUTTY!!!
 
 - Using PuTTy on windows may enter invisible characters that could cause syntax errors if editing config files like /opt/tomcat/conf/web.xml
-
   - Invisible Character: An empty line shouldn’t break XML, but a hidden byte-order mark (BOM) or non-printable char from editing (e.g., in Nano on Windows via PuTTY) could confuse Tomcat’s XML parser.
   - Should run `dos2unix` to convert the text to unix characters
 
@@ -272,33 +272,58 @@ sudo /opt/tomcat/bin/startup.sh
 #### 3 Types of Requests:
 
 **Requests made to Tomcat end up on some kind of SERVLET**. See [Video](https://www.youtube.com/watch?v=rElJIPRw5iM) at timestamp 1:29:58
-  - A Default Servlet (starts with Tomcat)
-  - A programmer created servlet
-  - A Framework servlet
 
-1. Static asset (HTML page, img etc). These are forwarded to the *DEFAULT SERVLET* which ships with Tomcat Catalina
-  - Request > DefaultServer (Tomcat) > Web Container (Tomcat Catalina) > Request Dispatcher (generates a Java Map of the request) > DefaultServlet (loaded when Tomcat starts)
-    - The DefaultServlet gets the static content and sends it back to the browser
-1a. DYNAMIC content (content that requires the intervention of code and processing)
-  - Catalina parses the Request - making sure it is well formed
-  - Catalina extracts information from the request into a Java Map
-  - The Map is passed to some Servlet (some request handling code) - this could be a JSP servlet for a `.jsp` file for example.
-  - Passes a **channel reference** to the request handling code, so that it can talk back to the Client (browser) and generate a response.
-  - the main idea is Catalina converts the web request to a Java Map which your program can then read, work with, and finally write to the HTTP servlet response (Java output stream which can write what you want to it)
+- A Default Servlet (starts with Tomcat)
+- A programmer created servlet
+- A Framework servlet
+
+1. Static asset (HTML page, img etc). These are forwarded to the _DEFAULT SERVLET_ which ships with Tomcat Catalina
+
+- Request > DefaultServer (Tomcat) > Web Container (Tomcat Catalina) > Request Dispatcher (generates a Java Map of the request) > DefaultServlet (loaded when Tomcat starts) - The DefaultServlet gets the static content and sends it back to the browser
+  1a. DYNAMIC content (content that requires the intervention of code and processing)
+- Catalina parses the Request - making sure it is well formed
+- Catalina extracts information from the request into a Java Map
+- The Map is passed to some Servlet (some request handling code) - this could be a JSP servlet for a `.jsp` file for example.
+- Passes a **channel reference** to the request handling code, so that it can talk back to the Client (browser) and generate a response.
+- the main idea is Catalina converts the web request to a Java Map which your program can then read, work with, and finally write to the HTTP servlet response (Java output stream which can write what you want to it)
+
 2. Servlet - for example, a `.jsp` page translated to a servlet (happens automatically), or a specific servlet that you have written - the request is forwarded to that servlet.
 3. framework servlet - the request is to some framework servlet you are using and leveraging (i.e., `.jsf` pages translated by the JSF servlet)
 
 #### The Java Servlet
+
 - Java has a `HttpServlet` class: `javax.servlet.http.HttpServlet`, which is an interface that can be used to operate on or process raw HTTP requests
   - the class has various `do` methods - HTTP verbs, `doGet`, `doPost`, `doDelete`, etc.
   - These methods are called with the Request and the Response channel
   - The class also has `get` methods, like `getMethod` which would tell us what the HTTP verb of the request is
 
 ## Types of Tomcat Deployments (see timestamp 1:35:54)
+
 - Packed: "WAR'd" (Standard and recommended way)
   - The web site is in one file and portable - a .WAR file.
   - Tomcat notices the .WAR file and automatically unpacks it into a directory
 - Unpacked: "Un-WAR'd" (different flexible option)
   - A directory of the manually unpacked contents of the .WAR file is exposed
+- **WEB-INF is the critical part of the WAR file and an important directory**.
+  - There are rules with Tomcat that depend on this directory and its contents. Certain files must go in certain places and sub-directories in WEB-INF, for example.
+- ANT is a common deploy tool for Java Apps with Tomcat: see timestamp 2:07:00 for Ant walkthrough
 
-  left off at 1:47:17
+### Types of Installations/Setups
+
+- See timestamp 1:46:39
+- Basic web app - store files at top level
+- JSF/Managed Bean (with preds.war) - classes and beans in the WEB-INF directory
+- JPA (Java Persistent API)
+
+### The WEB-INF directory
+
+- see timestamp 1:58:00
+- In general config files (like .xml files) go in WEB-INF folder or below it.
+  - Config files in tomcat are in .xml format. They are found some place in the `WEB-INF` directory tree
+  - web.xml (standard config file)
+  - sun-jws.xml (web services config)
+- `WEB-INF/classes` - the folder where programmer defined classe and your code go.
+  - `WEB-INF/classes/<package>/<package-suffix>/SomeJavaBean.class` or ex: `WEB-INF/classes/mysitepackage/com/MyBean.class`
+- JAR Files (not the compiled .class beans as above, but they contain libraries) go in `WEB-INF/lib`
+
+left off at 2:16:54
