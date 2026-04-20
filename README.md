@@ -37,6 +37,8 @@
 - [GoLang](./GoLang/)
 - [GraphQL](./GraphQL/)
 - [Information Theory](./InformationTheory/Introduction.md)
+  - [Signal Processing](./InformationTheory/SignalProcessing/)
+    - [Fourier Transform](./InformationTheory/SignalProcessing/FourierTransform.md)
 - [Kubernetes](./Kubernetes/)
 - [Linear Algebra](./LinearAlgebra/ToC.md)
 - [Music Production](./Cubase/)
