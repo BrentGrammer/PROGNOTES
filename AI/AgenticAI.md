@@ -14,6 +14,7 @@
 - Coding agents:
   - Aider
   - OpenCode
+- [Docker Sandbox](https://docs.docker.com/ai/sandboxes) - useful for sandboxing environments to reduce potential damage that A.I. agents could cause.
 
 ## Principles
 
