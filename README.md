@@ -4,6 +4,7 @@
 
 - [A.I.](./AI)
   - [LLMs](./AI/LLMs.md)
+  - [Agentic A.I.](./AI/AgenticAI.md)
 - [Architecture](./Architecture/)
   - [Component Design](./Architecture/ComponentDesign/)
   - [Microservices](./Architecture/SystemDesign/Microservices.md)
