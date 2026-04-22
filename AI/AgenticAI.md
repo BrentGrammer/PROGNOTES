@@ -18,6 +18,7 @@
 ## Principles
 
 - Productivity can be gained by letting the agents do what they're good at (syntax, low level programming, writing the code) and can do faster than you can.
+- Frontier models on the cloud are good for upfront planning, foundational design and architecture. Local, cheap/free less powered models can then take over the implementation.
 - Agents must be closely monitored and managed. They will make mistakes. Your job is to manage and guide the agent to follow good design, good architecture, good software principles.
 - Agents should only be relied on to take care of low level detail syntax. High level software development is still required by people - the design, the components, how functions relate to each other, the names of functions, the arguments of functions, etc. etc.
 
